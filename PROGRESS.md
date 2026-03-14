@@ -48,7 +48,21 @@
 
 ## Notes for Next Agent
 
-- Phase 0 is nearly complete — system design discussion still in progress
-- After Phase 0, proceed to Phase 1 (Foundation) in PLAN.md
-- All reference materials are in `docs/references/` — check INDEX.md before re-searching
-- Development rules are in `.claude/rules/` — commit-rules, code-style, architecture, testing
+### Immediate Next Task
+
+The user's system design request has 3 parts. Current status:
+1. **Project setup (1-1 ~ 1-6)** — COMPLETED
+2. **Agent/command/skill structure for `.claude/`** — NOT STARTED (do this next)
+3. **Backend/frontend structure** — Backend removed. Flutter-only confirmed.
+
+### Pending Document Updates
+
+- `docs/planning/MVP_SPEC.md` still references 3-layer Clean Architecture — needs update to 2-layer MVVM + feature-first structure
+- `docs/issues/TEMPLATE.md` needs FEAT/BUG prefix naming convention documented in the file itself
+
+### Key Context
+
+- All documents are indexed in `docs/INDEX.md`
+- Development rules are in `.claude/rules/` (auto-loaded every session)
+- Research materials are in `docs/references/` (read on demand)
+- Conversation log is user's words only — do not add agent summaries

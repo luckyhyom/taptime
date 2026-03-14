@@ -28,3 +28,15 @@
 - **Found:** 2026-03-14
 - **Context:** Documents referenced 3-layer Clean Architecture after it was changed to 2-layer MVVM
 - **Rule:** Always check `docs/adr/` and `.claude/rules/architecture.md` for current architecture decisions before writing code or documents.
+
+## DON'T: Write duplicate content across documents
+
+- **Found:** 2026-03-14
+- **Context:** README.md had project structure, tech stack, and other info already in INDEX.md and other docs
+- **Rule:** Keep documents focused on their single purpose. Link to other documents instead of duplicating content.
+
+## DON'T: Add your own summaries to conversation logs
+
+- **Found:** 2026-03-14
+- **Context:** Added discussion summaries and decision notes to LOG.md when user only wanted their own words recorded
+- **Rule:** Conversation log records user's original words only. Do not add agent summaries or analysis.
