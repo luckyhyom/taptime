@@ -30,6 +30,11 @@
 - Set up `.claude/rules/` for modular development rules
 - Established CLAUDE.md + AGENTS.md relationship (AGENTS.md references CLAUDE.md)
 
+### 2026-03-14 — Development Rules Setup (in progress)
+
+- Established commit rules: Conventional Commits format (`.claude/rules/commit-rules.md`)
+- Established issue tracking: file-based in `docs/issues/`, template with technical/security/test sections
+
 ## Notes for Next Agent
 
 - Phase 0 is nearly complete — system design discussion still in progress
