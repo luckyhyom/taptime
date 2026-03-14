@@ -47,6 +47,37 @@ Features suggested based on research of aTimeLogger, Forest, Session, Toggl Trac
 
 ---
 
+## [2026-03-14] Architecture Simplification — Remove Backend
+
+### Original (User Input)
+
+> 백엔드 서버 없이 수파베이스나 파이어베이스를 활용해서도 가능한가요?
+> 팀 기능, 랭킹은 우리의 기획에 포함되어있나요? 이건 필요 없습니다.
+> 히트맵, 스트릭같은 동기부여를 위한 기능 기획이 좋을 것 같아요.
+> 멀티 디바이스 동기화도 필요 없어보입니다.
+> 오프라인 지원이 필요합니다. 만약 백엔드가 있다면 동기화하는 방식으로 업데이트하면 좋을것 같은데 더 나은 의견이 있다면 알려주세요.
+
+### Background
+
+Discussion revealed that NestJS + SQL backend is over-engineering for a personal time tracking app. The data volume (presets ~20, sessions ~3,000/year) doesn't justify a separate server. Adding a backend with offline support would actually increase Flutter complexity (dual storage + sync + conflict resolution). Supabase can serve as cloud backup when needed, without a custom backend.
+
+### Changes
+
+- **Removed:** NestJS backend, Docker, PostgreSQL, team features, rankings, multi-device sync
+- **Added:** Heatmap (GitHub-style activity calendar), Streaks (consecutive goal days), Data export/import (JSON)
+- **Changed:** Cloud backup strategy from custom backend → Supabase (post-MVP)
+- **Changed:** Google Calendar integration from server-mediated → client-side OAuth
+- **Updated:** PRD.md (v1.0 → v1.1), PLAN.md backlog, MVP_SPEC.md
+
+### Impact
+
+- Project complexity significantly reduced — single Flutter codebase only
+- No infrastructure to manage (no Docker, no server deployment)
+- MVP delivery timeline shortened
+- Data export/import added to MVP as minimal backup safety net
+
+---
+
 <!-- TEMPLATE FOR NEW ENTRIES
 
 ## [YYYY-MM-DD] Change Title

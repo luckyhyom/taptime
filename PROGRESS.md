@@ -22,8 +22,17 @@
 - Established planning changelog (`docs/CHANGELOG_PLANNING.md`)
 - Set up CLAUDE.md, PLAN.md, PROGRESS.md workflow
 
+### 2026-03-14 — Architecture Simplification & Doc Restructure
+
+- Removed NestJS backend, Docker, team features, rankings, multi-device sync from scope
+- Added heatmap, streaks, data export/import to roadmap
+- Restructured docs: `docs/planning/` for product docs, `docs/adr/` for tech decisions
+- Set up `.claude/rules/` for modular development rules
+- Established CLAUDE.md + AGENTS.md relationship (AGENTS.md references CLAUDE.md)
+
 ## Notes for Next Agent
 
 - Phase 0 is nearly complete — system design discussion still in progress
 - After Phase 0, proceed to Phase 1 (Foundation) in PLAN.md
 - All reference materials are in `docs/references/` — check INDEX.md before re-searching
+- Development rules are in `.claude/rules/` — commit-rules, code-style, architecture, testing

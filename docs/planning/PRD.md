@@ -1,6 +1,6 @@
 # Taptime - Product Requirements Document
 
-> **Version:** 1.0
+> **Version:** 1.1
 > **Last Updated:** 2026-03-14
 > **Status:** Draft
 
@@ -15,7 +15,6 @@ Make time tracking as frictionless as a single tap — so users actually do it c
 ### 1.2 Target Users
 
 - **Primary:** Individuals who want to track and improve how they spend their time (students, freelancers, self-learners, productivity enthusiasts)
-- **Future:** Small teams / study groups with shared tracking and rankings
 
 ### 1.3 Platform
 
@@ -103,26 +102,37 @@ Per-preset or global daily/weekly time targets. Progress is calculated from reco
 - Visual progress indicator on home screen
 - Streak counter for consecutive goal completions
 
-### 3.6 Motivational Effects (Post-MVP)
+### 3.6 Heatmap & Streaks
+
+- **Heatmap:** GitHub-style contribution calendar showing daily activity intensity
+- **Streaks:** consecutive days meeting daily goals, displayed on home screen
+- Streak milestones (7, 30, 100 days) with visual celebration
+
+### 3.7 Data Export/Import
+
+- Export all data as JSON (backup/restore)
+- Import from JSON (device migration)
+- MVP scope — minimal safety net before cloud backup exists
+
+### 3.8 Motivational Effects (Post-MVP)
 
 - Completion animation on timer finish (confetti, glow, etc.)
-- Streak celebration milestones (7 days, 30 days, 100 days)
 - Cumulative visualization (e.g., blocks stacking, garden growing)
 - Achievement badges
 
-### 3.7 Google Calendar Integration (Post-MVP)
+### 3.9 Google Calendar Integration (Post-MVP)
 
 - Export sessions as calendar events
 - Architecture: repository pattern with calendar adapter interface
-- Target: bidirectional sync (read calendar events, write sessions)
-- OAuth2 authentication flow for Google API
+- Client-side OAuth2 with `flutter_secure_storage` for token management
+- No backend required — direct Google API calls from client
 
-### 3.8 Authentication (Post-MVP)
+### 3.10 Cloud Backup (Post-MVP)
 
-- Architecture designed for auth injection from day one
+- Supabase integration for cloud backup/restore
+- Social login (Google/Apple Sign-In) — no custom account system
 - Auth interface defined but implemented as `NoAuth` (pass-through) in MVP
-- Future: email/password, Google Sign-In, Apple Sign-In
-- Future: cloud sync of presets and sessions across devices
+- Purpose: data preservation across device changes, not multi-device sync
 
 ---
 
@@ -191,9 +201,8 @@ Per-preset or global daily/weekly time targets. Progress is calculated from reco
 
 | Phase | Features |
 |-------|----------|
-| **MVP** | Presets, Timer, Session recording, Basic stats, Daily goals |
-| **v1.1** | Weekly/monthly stats, Streaks, Break timer, Data export (CSV/JSON) |
-| **v1.2** | Google Calendar sync, Motivational effects |
-| **v2.0** | Authentication, Cloud sync, Multi-device |
-| **v2.1** | Team features, Shared presets, Rankings |
-| **v3.0** | Widgets, Watch app, Shortcuts integration |
+| **MVP** | Presets, Timer, Session recording, Basic stats, Daily goals, Data export/import |
+| **v1.1** | Heatmap, Streaks, Break timer, Weekly/monthly stats |
+| **v1.2** | Google Calendar sync (client-side OAuth), Motivational effects |
+| **v2.0** | Cloud backup via Supabase (Google/Apple sign-in) |
+| **v2.1** | Widgets, Watch app, Shortcuts integration |
