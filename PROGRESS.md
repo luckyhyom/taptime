@@ -37,6 +37,7 @@
 - Established code style rules: `very_good_analysis` lint, Dart conventions (`.claude/rules/code-style.md`)
 - Established architecture: 2-layer MVVM + Repository, feature-first folder structure (`.claude/rules/architecture.md`)
 - Established testing rules: unit/widget/integration strategy (`.claude/rules/testing.md`)
+- Recorded 5 ADRs: local-first architecture, 2-layer MVVM, Riverpod, file-based issues, conventional commits
 
 ## Notes for Next Agent
 
