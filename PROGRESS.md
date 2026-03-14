@@ -34,6 +34,7 @@
 
 - Established commit rules: Conventional Commits format (`.claude/rules/commit-rules.md`)
 - Established issue tracking: file-based in `docs/issues/`, template with technical/security/test sections
+- Established code style rules: `very_good_analysis` lint, Dart conventions (`.claude/rules/code-style.md`)
 
 ## Notes for Next Agent
 
