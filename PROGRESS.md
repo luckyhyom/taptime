@@ -35,6 +35,8 @@
 - Established commit rules: Conventional Commits format (`.claude/rules/commit-rules.md`)
 - Established issue tracking: file-based in `docs/issues/`, template with technical/security/test sections
 - Established code style rules: `very_good_analysis` lint, Dart conventions (`.claude/rules/code-style.md`)
+- Established architecture: 2-layer MVVM + Repository, feature-first folder structure (`.claude/rules/architecture.md`)
+- Established testing rules: unit/widget/integration strategy (`.claude/rules/testing.md`)
 
 ## Notes for Next Agent
 
