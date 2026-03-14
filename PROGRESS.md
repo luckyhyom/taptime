@@ -38,6 +38,13 @@
 - Established architecture: 2-layer MVVM + Repository, feature-first folder structure (`.claude/rules/architecture.md`)
 - Established testing rules: unit/widget/integration strategy (`.claude/rules/testing.md`)
 - Recorded 5 ADRs: local-first architecture, 2-layer MVVM, Riverpod, file-based issues, conventional commits
+- Created `docs/INDEX.md` as central documentation map
+- Added `docs/guides/ONBOARDING.md` for newcomer reading order
+- Added `docs/tips/` for practical knowledge (token efficiency)
+- Added `.claude/rules/pitfalls.md` for mistake prevention
+- Created `README.md`
+- Saved missing research to `docs/references/` (commit conventions, architecture patterns)
+- Replaced `docs/learning/` with `docs/tips/`
 
 ## Notes for Next Agent
 

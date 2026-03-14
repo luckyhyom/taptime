@@ -1,5 +1,8 @@
 # Taptime - Claude Code Rules
 
+> For the full documentation map, see `docs/INDEX.md`.
+> For coding standards, see `.claude/rules/`.
+
 ## Session Startup (REQUIRED)
 
 **Every agent session MUST start by reading these files in order:**
@@ -12,26 +15,31 @@ Do NOT start any implementation work before reading both files.
 ## Project Overview
 
 - **App:** Taptime — a time management app with preset-based Pomodoro timer
-- **Platform:** Flutter (iOS + Android)
-- **Architecture:** Clean Architecture with repository pattern (domain / infrastructure / presentation)
+- **Platform:** Flutter (iOS + Android), local-first (Isar DB)
+- **Architecture:** 2-layer MVVM + Repository pattern, feature-first folder structure
 - **State management:** Riverpod
-- **Local DB:** Isar
 
 ## Documentation Rules
 
 ### Language
 
 - All `.md` documents must be written in **English**
-- Exception: user's original input is recorded **in Korean** under "Original" sections in `CHANGELOG_PLANNING.md`
+- Exception: user's original input recorded **in Korean** under "Original" sections
+
+### Document Map
+
+- **`docs/INDEX.md`** is the central index of all project documents
+- Check it before creating new documents — avoid duplication
+- Update it when adding new documents
 
 ### Planning Changes
 
-- When any planning change occurs (feature added/removed/modified, scope change, architectural decision), update `docs/CHANGELOG_PLANNING.md` with:
+- When any planning change occurs, update `docs/planning/CHANGELOG_PLANNING.md` with:
   - **Original (User Input):** user's exact words in Korean, quoted
   - **Background:** why the change was needed (in English)
   - **Changes:** what was modified and where (in English)
   - **Impact:** downstream effects on other features/plans (in English)
-- Also update the relevant source document (`PRD.md` or `MVP_SPEC.md`) to reflect the change
+- Also update the relevant source document (`PRD.md` or `MVP_SPEC.md`)
 
 ### PLAN.md vs PROGRESS.md
 
@@ -48,18 +56,22 @@ Do NOT start any implementation work before reading both files.
 - Update `PROGRESS.md` on every commit
 - Mark completed tasks as `[x]` in `PLAN.md`
 
+### Issue & Feature Tracking
+
+- All issues and feature records go in `docs/issues/`
+- Use template: `docs/issues/TEMPLATE.md`
+- Naming: `FEAT-NNN_short-name.md` for features, `BUG-NNN_short-name.md` for bugs
+- When implementing a feature or fixing a bug, create the corresponding file
+
 ### Conversation Log
 
-- `docs/conversations/LOG.md` is for the user's personal record
-- Only write to it **when the user explicitly requests** — do NOT auto-record
+- `docs/conversations/LOG.md` — written **only when user explicitly requests**
 
 ### References
 
-- Research and reference materials are stored in `docs/references/`
-- Check `docs/references/INDEX.md` before performing web searches — the answer may already exist
+- Research materials in `docs/references/`
+- Check existing references before performing web searches
 
-## Code Conventions
+### Architecture Decisions
 
-- Follow Flutter/Dart style guide
-- Use English for all code, comments, and commit messages
-- Keep infrastructure layer swappable via abstract interfaces in domain layer
+- Record in `docs/adr/NNNN-title.md` when a technical choice is made or changed

@@ -1,12 +1,46 @@
 # Conversation Log
 
-> Chronological record of discussions and decisions made during development.
+> Chronological record of user requests during development.
+> Only the user's original words are recorded here.
 
 ---
 
-## [2026-03-14] System Design Kickoff
+## [2026-03-14] Initial Planning
 
-### User Request (Original)
+> 시간 관리 앱을 만들려고합니다.
+> 1. 아래의 기획을 확인해주세요.
+> 2. 이와 비슷한 앱 혹은 웹 서비스를 리서치하여 기획을 보완해주세요.
+> 3. 중복되지 않는 컨셉에 맞는 앱 이름을 5가지 추천해주세요.
+>
+> 대략적인 앱 기능 기획
+> 1. 시간을 기록하고 통계를 볼 수 있습니다.
+> 2. 휴대폰에 프리셋을 만들어 시간을 간단하게 기록합니다.
+> 3. 프리셋을 직접 만들 수 있습니다. (e.g. 운동 60분, 공부 25분)
+> 4. 프리셋을 클릭하면 설정된 시간만큼 뽀모도로 타이머가 시작됩니다.
+> 5. 시간이 완료되거나, 정지를 누르면 처음 시작한 시간부터 종료시점 까지 분단위로하여 저장됩니다.
+> 6. 나중에 이 데이터는 구글 캘린더에 연동되는 것을 목표로 합니다. 이를 위해 코드에 인프라 레이어를 두어 교체하기 용이하게 해도 좋습니다.
+> 7. 추후 동기부여를 위해 프리셋 클릭 시 재밌는 이펙트를 추가하거나 목표 달성률을 표시합니다. (시간 기록과 별개로 하루 목표 시간도 설정할수있도록 합니다.)
+>
+> 디자인
+> 1. 디자인은 심플하고 2~3가지의 적은 색으로 이루어졌으면 좋겠습니다.
+> 2. 최근 트렌드인 디자인 서비스 (css?)를 하나 정하여 작업하는 것이 좋겠습니다.
+
+> 이름은 Taptime이 좋을 것 같습니다.
+
+> 시스템을 개발할 때 기준이 되는 기획과 그에 맞는 기능을 관리하는 .md파일을 만들어주세요.
+> 여기에 전체적인 기획과 MVP 프로그램 제작을 위한 최소 기능 기획을 각각 적어주세요.
+> 필요하다면 PRD, API Spec, 등 활용해도 좋고 추가적으로 필요한 것들이 있는지 확인하고 Best practice를 찾아 적용해주시고 제가 선택해야할 사항이 있다면 알려주세요.
+
+> 그리고 앞으로 프로젝트를 진행하며 기획에 변경사항이 생길때 기획을 수정한 배경과 의도, 등을 기록 할수 있었으면 좋겠습니다. 저의 의견은 Original로 한글로 기록해주시고 나머지는 영어로 정리되었으면 합니다. 혹시 지금까지의 문서 작성 Rule을 CLAUDE.md에 적절하게 기록해주세요.
+
+> 당신이 기획과정에서 수집했던 내용들이나 앞으로 수집한 내용들을 다시 검색하지 않아도 되도록 폴더를 만들어 관리하도록 합시다. references로 폴더명을 해주시고, 이후 조사한 내용을 참고할수 있도록 적절한 포맷으로 저장하고 읽을 수 있는 기능을 추가하고 그걸 에이전트 및 스킬이 사용할수있게 합시다.
+
+---
+
+## [2026-03-14] System Design
+
+> 다른 여러 에이전트들이 작업을 나누거나 이어서 할 수 있도록 PLAN.md와 PROGRESS.md에 각각 해야할 일과 완료한 일, 진행상황 등을 정리하면 좋을것 같아요. 기본적으로는 PLAN.md를 읽어 에이전트가 하고자 하는 작업이 PLAN.md에 존재하는지, PROGRESS.md를 읽어 이전 작업 상태를 확인합니다. 꼭 그렇지 않더라도 각각 어떤 내용을 적으면 좋을지 베스트프랙티스가 있다면 알려주세요.
+> 에이전트의 세션이 시작될 때 항상 이것을 PLAN.md -> PROGRESS.md 순서로 읽고 작업을 시작해야합니다. CLAUDE.md에 추가해주세요.
 
 > 프로젝트를 시작하기에 앞서 시스템 설계를 같이 해봅시다.
 > 아래의 내용들을 하나씩 진행합시다. 간단하게 적어놓은 것이기 때문에 대화를 통해 실제 작업을 구체화/보완하며 진행하도록 합시다.
@@ -21,19 +55,18 @@
 > 2. 작업을 위해 필요한 agent, command, skill, 구조를 조사한 후, 그에 따라 정확한 포맷을 지켜 .claude 하위에 제안한 것들을 만들어주세요.
 > 3. 백엔드는 nestjs + sql, 프론트엔드는 flutter 구조입니다. docker를 활용해 어느 기기에서든 실행에 어려움이 없으면 좋겠습니다. 이외에 더 논의할 것이 있으면 알려주세요.
 
-### Discussion
+> 백엔드 서버 없이 수파베이스나 파이어베이스를 활용해서도 가능한가요? 팀 기능, 랭킹은 우리의 기획에 포함되어있나요? 이건 필요 없습니다. 히트맵, 스트릭같은 동기부여를 위한 기능 기획이 좋을 것 같아요. 멀티 디바이스 동기화도 필요 없어보입니다.
 
-**Architecture decision: No backend server**
+> 개발 단계에서는 인증 절차가 있으면 번거로울 수 있으니 나중에 인증 기능을 추가/확장 할 수 있는 구조로 설계해주세요. 그리고 모든 .md 문서는 영어로 작성해주세요.
 
-- Discussed whether NestJS + SQL backend is needed
-- Concluded: over-engineering for personal app. Local DB (Isar) handles the data scale easily
-- Backend adds complexity (dual storage, sync, conflict resolution) without proportional value
-- Security review: no sensitive data requiring server-side protection. Google Calendar OAuth tokens can be stored securely on-device via `flutter_secure_storage` (Keychain/Keystore)
-- Cloud backup: Supabase when needed (post-MVP), not a custom backend
-- User accounts: not needed now. Social login (Google/Apple) for backup-only in v2.0
+> 현재 저희가 관리 중인 이력들이 무엇이 있나요? 어떤 문서들이 있고 그 문서들이 어떻게 관리되고 있는지 확인할 수 있는 문서가 있나요?
 
-**Scope changes:**
+> 혹시 우리가 작업하며 착각하거나 실수했던 것들을 따로 기록해서 실수를 방지하고 있나요?
 
-- Removed: team features, rankings, multi-device sync, NestJS, Docker
-- Added: heatmap, streaks, data export/import (JSON)
-- Final stack: Flutter + Isar (local-only), Supabase later if needed
+> 혹시 다른 종류의 에이전트들도 참고할수 있도록 해주세요.
+
+> 프로젝트를 처음 보는 사람을 위해서 README.md나 guide폴더에도 전체적인 문서 구조를 확인할수있도록 안내해주세요.
+
+> 혹시 이렇게 검색한 자료들을 저장하는 것이 토큰을 많이 소모할까요?
+
+> 이 내용은 다른 사람들이 알아두면 좋은 팁이기에 tips라는 폴더를 만들어 저장해두면 좋을 것 같습니다. learning은 이렇게 우리가 작업하며 얻은 작은 지식들에 대해 기록하기 위해 만들어놓은 폴더였으므로 지워도 좋을 것 같습니다.
