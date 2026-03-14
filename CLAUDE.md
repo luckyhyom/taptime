@@ -48,6 +48,11 @@ Do NOT start any implementation work before reading both files.
 - Update `PROGRESS.md` on every commit
 - Mark completed tasks as `[x]` in `PLAN.md`
 
+### Conversation Log
+
+- `docs/conversations/LOG.md` is for the user's personal record
+- Only write to it **when the user explicitly requests** — do NOT auto-record
+
 ### References
 
 - Research and reference materials are stored in `docs/references/`

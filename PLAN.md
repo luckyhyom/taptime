@@ -81,13 +81,24 @@
 
 ## Backlog (Post-MVP)
 
+### v1.1 — Motivation & Extended Stats
+- [ ] Heatmap calendar (GitHub-style activity visualization)
+- [ ] Streak tracking (consecutive days meeting goals)
+- [ ] Streak milestone celebrations (7, 30, 100 days)
 - [ ] Break timer (5m short / 15m long)
 - [ ] Weekly/monthly goals
-- [ ] Streak tracking
-- [ ] Data export (CSV/JSON)
-- [ ] Google Calendar integration
-- [ ] Motivational effects (completion animations, achievement badges)
-- [ ] Authentication (Google/Apple sign-in)
-- [ ] Cloud sync
+- [ ] Monthly statistics view
+
+### v1.2 — Google Calendar & Effects
+- [ ] Google Calendar integration (client-side OAuth)
+- [ ] Motivational effects (completion animations)
+- [ ] Achievement badges
+
+### v2.0 — Cloud Backup
+- [ ] Supabase integration
+- [ ] Google/Apple social login (backup-only, no custom accounts)
+- [ ] Cloud backup/restore
+
+### v2.1 — Platform Extensions
 - [ ] Home screen widget
 - [ ] Apple Watch / Wear OS support
