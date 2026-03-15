@@ -30,6 +30,7 @@
 - [ADR-0003](adr/0003-riverpod-state-management.md): Riverpod for state management
 - [ADR-0004](adr/0004-file-based-issue-tracking.md): File-based issue tracking in docs/issues/
 - [ADR-0005](adr/0005-conventional-commits.md): Conventional Commits standard
+- [ADR-0006](adr/0006-claude-skills-and-hooks.md): Claude Code Skills and Hooks
 
 ## Issues & Features
 
@@ -45,6 +46,7 @@
 - [Design System](references/design_system.md): Material 3, color palette, typography, iconography
 - [Commit Conventions](references/commit_conventions.md): Conventional Commits research and alternatives
 - [Architecture Patterns](references/architecture_patterns.md): Clean Architecture, MVVM, DDD, SOLID in Flutter
+- [Project Scaffolding](references/project_scaffolding.md): Scaffolding tools, Documentation-as-Code, ADR standards, Claude Code plugins
 
 ## Skills (Slash Commands)
 
@@ -56,7 +58,8 @@ Custom skills available via `/command-name` in Claude Code sessions:
 - `/update-docs` — Sync PLAN.md and PROGRESS.md after completing work
 - `/review-architecture [target]` — Verify code compliance with architecture rules
 
-Skills are defined in `.claude/skills/`.
+Skills are defined in `.claude/skills/` (project-specific) and `~/.claude/skills/` (universal).
+Universal skills (`/init-project`) are also available across all projects.
 
 ## Guides
 
@@ -65,6 +68,7 @@ Skills are defined in `.claude/skills/`.
 ## Tips
 
 - [Token Efficiency](tips/token-efficiency.md): Document placement and language tips for AI token optimization
+- [Context Window](tips/context-window.md): /context command interpretation guide
 
 ## Personal
 

@@ -5,8 +5,8 @@
 
 ## Current Status
 
-- **Active Phase:** Phase 0 (Planning & Design)
-- **Last Updated:** 2026-03-14
+- **Active Phase:** Phase 0 complete → Phase 1 (Foundation) next
+- **Last Updated:** 2026-03-15
 - **Blocker:** None
 
 ## Completed Work
@@ -62,21 +62,31 @@
 - Updated `CLAUDE.md` with Skills reference
 - Phase 0 (Planning & Design) completed
 
+### 2026-03-15 — Reusability & Plugin Packaging
+
+- Created user-level universal skills in `~/.claude/skills/`:
+  - `init-project` — new project bootstrap with docs structure and rules
+  - `new-feature`, `bug-report`, `research`, `update-docs` (universal versions)
+- Created user-level universal rules in `~/.claude/rules/`:
+  - `commit-rules.md` (Conventional Commits without project-specific scopes)
+- Refactored project-level `commit-rules.md` to contain only project-specific scopes
+- Created Claude Code Plugin at `~/workspace/claude-project-starter/`:
+  - `.claude-plugin/plugin.json`, skills, hooks, settings, README
+  - Multi-language auto-format hook (dart, js/ts, python, go, rust)
+- Researched project scaffolding best practices, saved to `docs/references/project_scaffolding.md`
+- Updated `docs/INDEX.md` with ADR-0006, new reference, context-window tip
+
 ## Notes for Next Agent
 
 ### Immediate Next Task
 
-All 3 parts of the system design request are now complete:
-1. **Project setup (1-1 ~ 1-6)** — COMPLETED
-2. **Skills/hooks structure for `.claude/`** — COMPLETED
-3. **Backend/frontend structure** — Backend removed. Flutter-only confirmed.
-
-**Next:** Phase 1 (Foundation) — Flutter project initialization, folder structure, theme, routing, DB schema, repositories, Riverpod providers.
+Phase 0 complete. **Next:** Phase 1 (Foundation) — Flutter project initialization, folder structure, theme, routing, DB schema, repositories, Riverpod providers.
 
 ### Key Context
 
 - All documents are indexed in `docs/INDEX.md`
-- Development rules are in `.claude/rules/` (auto-loaded every session)
-- Skills are in `.claude/skills/` (auto-discovered by Claude Code)
+- Development rules: `.claude/rules/` (project) + `~/.claude/rules/` (universal)
+- Skills: `.claude/skills/` (project) + `~/.claude/skills/` (universal, includes `/init-project`)
+- Plugin: `~/workspace/claude-project-starter/` (distributable package)
 - Research materials are in `docs/references/` (read on demand)
 - Conversation log is user's words only — do not add agent summaries
