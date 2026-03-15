@@ -5,9 +5,9 @@
 
 ## Current Status
 
-- **Active Phase:** Phase 0 complete → Phase 1 (Foundation) next
+- **Active Phase:** Phase 1 (Foundation) — in progress
 - **Last Updated:** 2026-03-15
-- **Blocker:** None
+- **Blocker:** None (Android SDK는 후순위, iOS 개발 가능)
 
 ## Completed Work
 
@@ -76,11 +76,22 @@
 - Researched project scaffolding best practices, saved to `docs/references/project_scaffolding.md`
 - Updated `docs/INDEX.md` with ADR-0006, new reference, context-window tip
 
+### 2026-03-15 — Phase 1 Start: Environment Setup
+
+- Installed Flutter SDK 3.41.4 (stable) via Homebrew
+- Created GitHub repo: https://github.com/luckyhyom/taptime (public)
+- Pushed all commits to remote `origin/main`
+
 ## Notes for Next Agent
 
 ### Immediate Next Task
 
-Phase 0 complete. **Next:** Phase 1 (Foundation) — Flutter project initialization, folder structure, theme, routing, DB schema, repositories, Riverpod providers.
+Phase 1 (Foundation) in progress. Flutter SDK installed. **Next:** resolve platform toolchain issues, then `flutter create` and scaffold the project.
+
+### Environment Status
+
+- Flutter 3.41.4 ✓, Xcode 26.3 ✓, CocoaPods ✓, Chrome ✓
+- Android SDK: deferred (SDK 36 + BuildTools 28.0.3 needed later)
 
 ### Key Context
 

@@ -64,12 +64,15 @@ Universal skills (`/init-project`) are also available across all projects.
 ## Guides
 
 - [Onboarding](guides/ONBOARDING.md): Reading order for newcomers
+- [Setup](guides/SETUP.md): Development environment setup (Flutter, Xcode, Android)
 
 ## Tips
 
 - [Token Efficiency](tips/token-efficiency.md): Document placement and language tips for AI token optimization
 - [Context Window](tips/context-window.md): /context command interpretation guide
 - [Claude Code Plugins](tips/claude-code-plugins.md): Plugin recommendations and selection guide
+- [CocoaPods](tips/cocoapods.md): What CocoaPods does and why Flutter needs it for iOS
+- [Indexing and Memory](tips/indexing-and-memory.md): How INDEX.md and MEMORY.md work, agent document discovery
 
 ## Personal
 
