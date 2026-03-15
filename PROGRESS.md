@@ -76,28 +76,35 @@
 - Researched project scaffolding best practices, saved to `docs/references/project_scaffolding.md`
 - Updated `docs/INDEX.md` with ADR-0006, new reference, context-window tip
 
-### 2026-03-15 — Phase 1 Start: Environment Setup
+### 2026-03-15 — Phase 1 Start: Environment & Project Setup
 
 - Installed Flutter SDK 3.41.4 (stable) via Homebrew
+- Installed Xcode 26.3, CocoaPods 1.16.2
 - Created GitHub repo: https://github.com/luckyhyom/taptime (public)
 - Pushed all commits to remote `origin/main`
+- `flutter create .` completed (org: com.taptime, platforms: ios + android)
+- Added core dependencies to pubspec.yaml (riverpod, go_router, isar, uuid)
+- Installed Context7 plugin for Claude Code
+- Added commit timing and dependency change rules to commit-rules.md
 
 ## Notes for Next Agent
 
 ### Immediate Next Task
 
-Phase 1 (Foundation) in progress. Flutter SDK installed. **Next:** resolve platform toolchain issues, then `flutter create` and scaffold the project.
+Phase 1 (Foundation) in progress. Flutter project created. **Next:**
+1. **Resolve DB choice** — Isar is abandoned and has dependency conflicts with build_runner. Recommend Drift as alternative. Discuss with user.
+2. After DB decided: folder structure, theme, GoRouter, DB schema, repository interfaces, Riverpod providers.
 
 ### Environment Status
 
 - Flutter 3.41.4 ✓, Xcode 26.3 ✓, CocoaPods ✓, Chrome ✓
 - Android SDK: deferred (SDK 36 + BuildTools 28.0.3 needed later)
+- Claude Code plugin: Context7 installed (requires session restart)
 
 ### Key Context
 
 - All documents are indexed in `docs/INDEX.md`
 - Development rules: `.claude/rules/` (project) + `~/.claude/rules/` (universal)
 - Skills: `.claude/skills/` (project) + `~/.claude/skills/` (universal, includes `/init-project`)
-- Plugin: `~/workspace/claude-project-starter/` (distributable package)
 - Research materials are in `docs/references/` (read on demand)
 - Conversation log is user's words only — do not add agent summaries
