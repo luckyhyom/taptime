@@ -30,7 +30,7 @@
 - Set up `.claude/rules/` for modular development rules
 - Established CLAUDE.md + AGENTS.md relationship (AGENTS.md references CLAUDE.md)
 
-### 2026-03-14 — Development Rules Setup (in progress)
+### 2026-03-14 — Development Rules Setup
 
 - Established commit rules: Conventional Commits format (`.claude/rules/commit-rules.md`)
 - Established issue tracking: file-based in `docs/issues/`, template with technical/security/test sections
@@ -40,29 +40,43 @@
 - Recorded 5 ADRs: local-first architecture, 2-layer MVVM, Riverpod, file-based issues, conventional commits
 - Created `docs/INDEX.md` as central documentation map
 - Added `docs/guides/ONBOARDING.md` for newcomer reading order
-- Added `docs/tips/` for practical knowledge (token efficiency)
+- Added `docs/tips/` for practical knowledge (token efficiency, context window)
 - Added `.claude/rules/pitfalls.md` for mistake prevention
 - Created `README.md`
 - Saved missing research to `docs/references/` (commit conventions, architecture patterns)
 - Replaced `docs/learning/` with `docs/tips/`
 
+### 2026-03-15 — Skills, Hooks & Document Fixes
+
+- Created 5 custom skills in `.claude/skills/`:
+  - `new-feature` — FEAT file creation + PLAN.md update
+  - `bug-report` — BUG file creation
+  - `research` — reference check before web search
+  - `update-docs` — PLAN.md + PROGRESS.md sync
+  - `review-architecture` — architecture compliance check
+- Created `.claude/settings.json` with PostToolUse hook (auto `dart format` on .dart files)
+- Recorded ADR-0006: Claude Code Skills and Hooks
+- Fixed `docs/planning/MVP_SPEC.md`: updated Section 4 from 3-layer Clean Architecture to 2-layer MVVM + feature-first (was stale since ADR-0002)
+- Fixed `docs/issues/TEMPLATE.md`: added FEAT/BUG prefix naming convention
+- Updated `docs/INDEX.md` with Skills section
+- Updated `CLAUDE.md` with Skills reference
+- Phase 0 (Planning & Design) completed
+
 ## Notes for Next Agent
 
 ### Immediate Next Task
 
-The user's system design request has 3 parts. Current status:
+All 3 parts of the system design request are now complete:
 1. **Project setup (1-1 ~ 1-6)** — COMPLETED
-2. **Agent/command/skill structure for `.claude/`** — NOT STARTED (do this next)
+2. **Skills/hooks structure for `.claude/`** — COMPLETED
 3. **Backend/frontend structure** — Backend removed. Flutter-only confirmed.
 
-### Pending Document Updates
-
-- `docs/planning/MVP_SPEC.md` still references 3-layer Clean Architecture — needs update to 2-layer MVVM + feature-first structure
-- `docs/issues/TEMPLATE.md` needs FEAT/BUG prefix naming convention documented in the file itself
+**Next:** Phase 1 (Foundation) — Flutter project initialization, folder structure, theme, routing, DB schema, repositories, Riverpod providers.
 
 ### Key Context
 
 - All documents are indexed in `docs/INDEX.md`
 - Development rules are in `.claude/rules/` (auto-loaded every session)
+- Skills are in `.claude/skills/` (auto-discovered by Claude Code)
 - Research materials are in `docs/references/` (read on demand)
 - Conversation log is user's words only — do not add agent summaries

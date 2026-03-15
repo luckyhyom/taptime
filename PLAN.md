@@ -13,7 +13,8 @@
 - [x] Architecture design
 - [x] Design system research
 - [x] Reference materials organization
-- [ ] System design discussion and finalization
+- [x] System design discussion and finalization
+- [x] Skills and hooks setup (`.claude/skills/`, `.claude/settings.json`)
 
 ## Phase 1: Foundation
 

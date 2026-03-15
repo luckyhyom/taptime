@@ -1,4 +1,5 @@
-# ISSUE-NNN: Title
+# {PREFIX}-NNN: Title
+<!-- File naming: FEAT-NNN_short-name.md or BUG-NNN_short-name.md -->
 
 - **Type:** bug | feature | tech-debt | investigation | security
 - **Priority:** critical | high | medium | low

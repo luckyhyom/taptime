@@ -46,6 +46,18 @@
 - [Commit Conventions](references/commit_conventions.md): Conventional Commits research and alternatives
 - [Architecture Patterns](references/architecture_patterns.md): Clean Architecture, MVVM, DDD, SOLID in Flutter
 
+## Skills (Slash Commands)
+
+Custom skills available via `/command-name` in Claude Code sessions:
+
+- `/new-feature <name>` — Create FEAT issue file and update PLAN.md
+- `/bug-report <name>` — Create BUG issue file
+- `/research <topic>` — Check existing references, then web search if needed
+- `/update-docs` — Sync PLAN.md and PROGRESS.md after completing work
+- `/review-architecture [target]` — Verify code compliance with architecture rules
+
+Skills are defined in `.claude/skills/`.
+
 ## Guides
 
 - [Onboarding](guides/ONBOARDING.md): Reading order for newcomers

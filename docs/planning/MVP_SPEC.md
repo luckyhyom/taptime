@@ -152,41 +152,35 @@ class UserSettings {
 
 ## 4. Architecture
 
+> **Canonical source:** `.claude/rules/architecture.md` — see ADR-0002 for decision rationale.
+
 ### 4.1 Overview
 
+**Pattern:** 2-layer MVVM + Repository (feature-first folder structure)
+
 ```
-┌─────────────────────────────────────────────┐
-│                    UI Layer                  │
-│         (Screens, Widgets, Theme)           │
-├─────────────────────────────────────────────┤
-│               State Management              │
-│              (Riverpod / Bloc)              │
-├─────────────────────────────────────────────┤
-│                 Domain Layer                │
-│     (Use Cases, Entities, Interfaces)       │
-├─────────────────────────────────────────────┤
-│            Infrastructure Layer             │
-│  ┌──────────┐ ┌──────────┐ ┌─────────────┐ │
-│  │  Local DB │ │ Calendar │ │    Auth      │ │
-│  │  (Isar)  │ │ Adapter  │ │  (NoAuth)    │ │
-│  └──────────┘ └──────────┘ └─────────────┘ │
-└─────────────────────────────────────────────┘
+UI (presentation) → Data (repository + data source)
+                  ↘ shared models/interfaces
 ```
+
+- UI layer depends on shared models and repository interfaces — never on data implementations
+- Data layer implements repository interfaces — never imports from UI
+- Add a Domain layer inside a feature only when business logic grows complex
 
 ### 4.2 Key Architectural Decisions
 
 | Decision | Choice | Rationale |
 |----------|--------|-----------|
-| State management | **Riverpod** | Type-safe, testable, no BuildContext dependency |
+| Architecture | **2-layer MVVM + Repository** | Full Clean Architecture creates excessive boilerplate for this app's complexity (ADR-0002) |
+| State management | **Riverpod** | Type-safe, testable, no BuildContext dependency (ADR-0003) |
 | Local database | **Isar** | Fast, Flutter-native, supports complex queries |
-| Architecture | **Clean Architecture** | Separation of concerns, easy to swap infra layer |
 | Routing | **GoRouter** | Declarative, deep link ready |
-| DI | **Riverpod providers** | Built-in with state management choice |
+| DI | **Riverpod providers** | Built-in with state management; wires interface to implementation |
 
-### 4.3 Repository Pattern (Swappable Infrastructure)
+### 4.3 Repository Pattern (Swappable Data Layer)
 
 ```dart
-// Domain layer - abstract interface
+// shared/repositories/ - abstract interface
 abstract class SessionRepository {
   Future<List<Session>> getSessionsByDate(DateTime date);
   Future<List<Session>> getSessionsByDateRange(DateTime start, DateTime end);
@@ -195,44 +189,22 @@ abstract class SessionRepository {
   Future<void> updateSession(Session session);
 }
 
-// Infrastructure layer - local implementation (MVP)
-class LocalSessionRepository implements SessionRepository {
+// features/history/data/ - local implementation (MVP)
+class SessionRepositoryImpl implements SessionRepository {
   // Uses Isar DB
 }
-
-// Infrastructure layer - future cloud implementation
-// class CloudSessionRepository implements SessionRepository {
-//   // Uses Supabase/Firebase
-// }
 ```
 
 ```dart
-// Domain layer - calendar interface (for future Google Calendar)
+// shared/services/ - calendar interface (for future Google Calendar)
 abstract class CalendarService {
   Future<void> exportSession(Session session);
   Future<void> exportSessions(List<Session> sessions);
   Future<List<CalendarEvent>> getEvents(DateTime start, DateTime end);
 }
 
-// Infrastructure - no-op implementation (MVP)
-class NoOpCalendarService implements CalendarService {
-  // Does nothing - placeholder for future integration
-}
-```
-
-```dart
-// Domain layer - auth interface (for future auth)
-abstract class AuthService {
-  Future<AuthUser?> getCurrentUser();
-  Future<AuthUser> signIn();
-  Future<void> signOut();
-  bool get isAuthenticated;
-}
-
-// Infrastructure - pass-through implementation (MVP)
-class LocalAuthService implements AuthService {
-  // Always returns a local-only user, no real auth
-}
+// No-op implementation (MVP) — placeholder for future integration
+class NoOpCalendarService implements CalendarService { ... }
 ```
 
 ### 4.4 Folder Structure
@@ -240,68 +212,34 @@ class LocalAuthService implements AuthService {
 ```
 lib/
 ├── main.dart
-├── app.dart                    # MaterialApp, theme, router
-├── core/
-│   ├── theme/
-│   │   ├── app_theme.dart      # Light/dark theme definitions
-│   │   └── app_colors.dart     # Color constants
-│   ├── constants/
-│   │   └── app_constants.dart  # Default presets, limits
-│   └── utils/
-│       ├── date_utils.dart
-│       └── duration_utils.dart
-├── domain/
-│   ├── entities/
-│   │   ├── preset.dart
-│   │   ├── session.dart
-│   │   └── user_settings.dart
-│   ├── repositories/
-│   │   ├── preset_repository.dart      # Abstract
-│   │   ├── session_repository.dart     # Abstract
-│   │   └── settings_repository.dart    # Abstract
-│   └── services/
-│       ├── timer_service.dart          # Abstract
-│       ├── calendar_service.dart       # Abstract
-│       └── auth_service.dart           # Abstract
-├── infrastructure/
-│   ├── local/
-│   │   ├── local_preset_repository.dart
-│   │   ├── local_session_repository.dart
-│   │   └── local_settings_repository.dart
-│   ├── calendar/
-│   │   └── noop_calendar_service.dart
-│   ├── auth/
-│   │   └── local_auth_service.dart
-│   └── timer/
-│       └── flutter_timer_service.dart
-├── presentation/
-│   ├── home/
-│   │   ├── home_screen.dart
-│   │   ├── preset_card.dart
-│   │   └── home_providers.dart
-│   ├── timer/
-│   │   ├── timer_screen.dart
-│   │   ├── timer_display.dart
-│   │   └── timer_providers.dart
+├── app.dart                     # MaterialApp, theme, router
+├── core/                        # Shared utilities
+│   ├── theme/                   # Light/dark theme, colors, typography
+│   ├── constants/               # App-wide constants, default presets
+│   ├── utils/                   # Date, duration helpers
+│   └── router/                  # GoRouter configuration
+├── features/
 │   ├── preset/
-│   │   ├── preset_form_screen.dart
-│   │   └── preset_providers.dart
+│   │   ├── data/                # Repository impl, data source
+│   │   └── ui/                  # Screen, widgets, view model
+│   ├── timer/
+│   │   ├── data/
+│   │   └── ui/
+│   ├── home/
+│   │   └── ui/                  # Home has no own data, uses preset/session repos
 │   ├── history/
-│   │   ├── history_screen.dart
-│   │   ├── session_tile.dart
-│   │   └── history_providers.dart
-│   ├── statistics/
-│   │   ├── statistics_screen.dart
-│   │   ├── widgets/
-│   │   │   ├── daily_chart.dart
-│   │   │   ├── weekly_chart.dart
-│   │   │   └── goal_progress.dart
-│   │   └── statistics_providers.dart
+│   │   ├── data/
+│   │   └── ui/
+│   ├── stats/
+│   │   ├── data/
+│   │   └── ui/
 │   └── settings/
-│       ├── settings_screen.dart
-│       └── settings_providers.dart
-└── providers/
-    └── app_providers.dart       # Global DI setup
+│       ├── data/
+│       └── ui/
+└── shared/                      # Cross-feature shared code
+    ├── models/                  # Preset, Session, UserSettings entities
+    ├── repositories/            # Abstract repository interfaces
+    └── services/                # Abstract service interfaces (calendar, auth)
 ```
 
 ---

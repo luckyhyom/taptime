@@ -72,6 +72,12 @@ Do NOT start any implementation work before reading both files.
 - Research materials in `docs/references/`
 - Check existing references before performing web searches
 
+### Skills (Slash Commands)
+
+- Custom skills are in `.claude/skills/` — use them for consistent workflows
+- `/new-feature`, `/bug-report`, `/research`, `/update-docs`, `/review-architecture`
+- See `docs/INDEX.md` for full descriptions
+
 ### Architecture Decisions
 
 - Record in `docs/adr/NNNN-title.md` when a technical choice is made or changed
