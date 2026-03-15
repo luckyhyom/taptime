@@ -6,7 +6,7 @@
 - **Layers:** 2-layer (UI + Data), add Domain layer only when complexity demands it
 - **Folder structure:** Feature-first with layers inside each feature
 - **State management:** Riverpod
-- **Local DB:** Isar
+- **Local DB:** Drift (SQLite)
 - **Principles:** SOLID (focus on SRP + DIP), DDD concepts (Entity, Value Object only)
 
 ## Layer Rules

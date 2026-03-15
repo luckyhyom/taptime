@@ -96,14 +96,27 @@
 - Updated INDEX.md with new ADR and reference
 - Context7 plugin is installed but not loading in current session (not blocking)
 
+### 2026-03-15 — Isar → Drift Migration
+
+- Replaced Isar with Drift in `pubspec.yaml`: removed `isar`, `isar_flutter_libs`, `isar_generator`; added `drift`, `drift_flutter`, `drift_dev`
+- Updated `docs/references/tech_stack.md`: DB comparison table and selected stack
+- Updated `docs/planning/MVP_SPEC.md`: architecture table, dependencies table, repository comment
+- Updated `CLAUDE.md`: project overview DB reference
+- Updated `.claude/rules/architecture.md`: local DB field
+- Updated `PLAN.md`: Isar → Drift in Phase 1 task name
+- Ran `flutter pub get` — all dependencies resolved
+
 ## Notes for Next Agent
 
 ### Immediate Next Task
 
-Phase 1 (Foundation) in progress. Flutter project created. **Next:**
-1. Replace Isar with Drift in `pubspec.yaml`
-2. Update `tech_stack.md` and `MVP_SPEC.md` to reflect Drift
-3. Folder structure, theme, GoRouter, DB schema, repository interfaces, Riverpod providers
+Phase 1 (Foundation) in progress. Drift migration done. **Next:**
+1. Folder structure setup (feature-first)
+2. Theme configuration (light/dark, colors, typography)
+3. GoRouter routing setup
+4. Drift DB schema definition
+5. Repository interfaces + implementations
+6. Riverpod provider setup
 
 ### Environment Status
 

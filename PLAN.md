@@ -22,7 +22,7 @@
 - [ ] Folder structure setup (clean architecture)
 - [ ] Theme configuration (light/dark, color palette, typography)
 - [ ] GoRouter routing setup (home, timer, preset form, history, stats, settings)
-- [ ] Isar DB schema definition (Preset, Session, UserSettings)
+- [ ] Drift DB schema definition (Preset, Session, UserSettings)
 - [ ] Repository interfaces (domain layer)
 - [ ] Local repository implementations (infrastructure layer)
 - [ ] Auth/Calendar service interfaces + no-op implementations

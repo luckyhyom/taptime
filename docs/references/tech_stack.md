@@ -9,7 +9,7 @@
 |-------|--------|-----------|
 | Platform | **Flutter** | Cross-platform (iOS + Android), single codebase, rich UI customization |
 | State Management | **Riverpod** | Type-safe, testable, no BuildContext dependency, modern Flutter standard |
-| Local Database | **Isar** | Flutter-native, fast, supports complex queries, no SQL boilerplate |
+| Local Database | **Drift** | Type-safe SQLite, reactive streams, code generation, active maintenance |
 | Routing | **GoRouter** | Declarative, deep link ready, official Flutter team recommendation |
 | Charts | **fl_chart** | Lightweight, highly customizable, good for bar/pie/line charts |
 | Architecture | **Clean Architecture** | Domain/infra/presentation separation, swappable infrastructure layer |
@@ -27,10 +27,10 @@
 
 | Database | Pros | Cons | Verdict |
 |----------|------|------|---------|
-| **Isar** | Flutter-native, fast, no SQL, strong typing | Relatively newer | **Selected** |
+| **Drift** | Type-safe SQL, reactive streams, code gen, actively maintained | SQL knowledge required | **Selected** |
+| Isar | Flutter-native, no SQL | Abandoned, build_runner conflicts | Dropped |
 | Hive | Simple key-value, fast | Limited querying, no relations | Too simple |
 | sqflite | Mature, SQL-based | Verbose, manual mapping | More maintenance |
-| Drift | Type-safe SQL, code gen | SQL knowledge required, heavier setup | Overkill |
 | ObjectBox | Fast, Dart-native | License restrictions for commercial use | License concern |
 
 ## Flutter Packages (MVP)
@@ -38,7 +38,7 @@
 | Package | Version Strategy | Purpose | Notes |
 |---------|-----------------|---------|-------|
 | `flutter_riverpod` | Latest stable | State management | Core dependency |
-| `isar` + `isar_flutter_libs` | Latest stable | Local DB | Needs build_runner for code gen |
+| `drift` + `drift_flutter` | Latest stable | Local DB | Type-safe SQLite with code gen |
 | `go_router` | Latest stable | Navigation | Supports nested routes |
 | `fl_chart` | Latest stable | Statistics charts | Bar, pie, line chart support |
 | `uuid` | Latest stable | ID generation | For Preset/Session IDs |

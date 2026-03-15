@@ -15,7 +15,7 @@ Do NOT start any implementation work before reading both files.
 ## Project Overview
 
 - **App:** Taptime — a time management app with preset-based Pomodoro timer
-- **Platform:** Flutter (iOS + Android), local-first (Isar DB)
+- **Platform:** Flutter (iOS + Android), local-first (Drift/SQLite)
 - **Architecture:** 2-layer MVVM + Repository pattern, feature-first folder structure
 - **State management:** Riverpod
 

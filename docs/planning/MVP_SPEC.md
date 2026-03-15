@@ -173,7 +173,7 @@ UI (presentation) → Data (repository + data source)
 |----------|--------|-----------|
 | Architecture | **2-layer MVVM + Repository** | Full Clean Architecture creates excessive boilerplate for this app's complexity (ADR-0002) |
 | State management | **Riverpod** | Type-safe, testable, no BuildContext dependency (ADR-0003) |
-| Local database | **Isar** | Fast, Flutter-native, supports complex queries |
+| Local database | **Drift** | Type-safe SQLite, reactive streams, actively maintained (ADR-0007) |
 | Routing | **GoRouter** | Declarative, deep link ready |
 | DI | **Riverpod providers** | Built-in with state management; wires interface to implementation |
 
@@ -191,7 +191,7 @@ abstract class SessionRepository {
 
 // features/history/data/ - local implementation (MVP)
 class SessionRepositoryImpl implements SessionRepository {
-  // Uses Isar DB
+  // Uses Drift (SQLite)
 }
 ```
 
@@ -301,7 +301,7 @@ lib/
 | Package | Purpose | Version Strategy |
 |---------|---------|-----------------|
 | `flutter_riverpod` | State management | Latest stable |
-| `isar` | Local database | Latest stable |
+| `drift` + `drift_flutter` | Local database | Latest stable |
 | `go_router` | Navigation/routing | Latest stable |
 | `fl_chart` | Charts for statistics | Latest stable |
 | `uuid` | Generate unique IDs | Latest stable |
