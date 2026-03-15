@@ -41,6 +41,12 @@
 - **Context:** Added discussion summaries and decision notes to LOG.md when user only wanted their own words recorded
 - **Rule:** Conversation log records user's original words only. Do not add agent summaries or analysis.
 
+## DON'T: Write .md documents in Korean
+
+- **Found:** 2026-03-15
+- **Context:** Wrote tips file with Korean descriptions despite CLAUDE.md rule requiring all .md documents in English
+- **Rule:** All `.md` documents must be written in English. The only exception is user's original input recorded under "Original" sections in conversation logs and planning changelog.
+
 ## DO: Record progress before ending a session
 
 - **Found:** 2026-03-15

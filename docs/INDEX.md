@@ -75,6 +75,7 @@ Universal skills (`/init-project`) are also available across all projects.
 - [Claude Code Plugins](tips/claude-code-plugins.md): Plugin recommendations and selection guide
 - [CocoaPods](tips/cocoapods.md): What CocoaPods does and why Flutter needs it for iOS
 - [Indexing and Memory](tips/indexing-and-memory.md): How INDEX.md and MEMORY.md work, agent document discovery
+- [Subagents & Plan Mode](tips/subagents-and-plan-mode.md): When to use subagents and plan mode, with cautions
 
 ## Personal
 
