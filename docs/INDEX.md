@@ -69,6 +69,7 @@ Universal skills (`/init-project`) are also available across all projects.
 
 - [Token Efficiency](tips/token-efficiency.md): Document placement and language tips for AI token optimization
 - [Context Window](tips/context-window.md): /context command interpretation guide
+- [Claude Code Plugins](tips/claude-code-plugins.md): Plugin recommendations and selection guide
 
 ## Personal
 
