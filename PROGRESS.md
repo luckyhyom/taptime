@@ -87,13 +87,23 @@
 - Installed Context7 plugin for Claude Code
 - Added commit timing and dependency change rules to commit-rules.md
 
+### 2026-03-15 — DB Decision: Isar → Drift
+
+- Decided to replace Isar with Drift (SQLite-based) due to Isar being abandoned and having build_runner conflicts
+- Researched Drift setup, saved to `docs/references/drift_database.md`
+- Recorded ADR-0007: Drift as local database
+- Updated Planning Changelog with user's decision
+- Updated INDEX.md with new ADR and reference
+- Context7 plugin is installed but not loading in current session (not blocking)
+
 ## Notes for Next Agent
 
 ### Immediate Next Task
 
 Phase 1 (Foundation) in progress. Flutter project created. **Next:**
-1. **Resolve DB choice** — Isar is abandoned and has dependency conflicts with build_runner. Recommend Drift as alternative. Discuss with user.
-2. After DB decided: folder structure, theme, GoRouter, DB schema, repository interfaces, Riverpod providers.
+1. Replace Isar with Drift in `pubspec.yaml`
+2. Update `tech_stack.md` and `MVP_SPEC.md` to reflect Drift
+3. Folder structure, theme, GoRouter, DB schema, repository interfaces, Riverpod providers
 
 ### Environment Status
 

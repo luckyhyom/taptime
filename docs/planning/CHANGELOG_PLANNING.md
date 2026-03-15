@@ -78,6 +78,31 @@ Discussion revealed that NestJS + SQL backend is over-engineering for a personal
 
 ---
 
+## [2026-03-15] Database Change — Isar to Drift
+
+### Original (User Input)
+
+> Drift로 결정합시다
+
+### Background
+
+Isar was selected in the initial planning phase but turned out to be abandoned with no active maintenance. During Phase 1, dependency conflicts between `isar_generator` and `build_runner` blocked code generation. Drift (SQLite-based) was recommended as the alternative and approved by the user.
+
+### Changes
+
+- **Changed:** Local database from Isar to Drift (ADR-0007)
+- **Updated:** `docs/references/drift_database.md` — Drift setup research
+- **To update:** `pubspec.yaml` (replace isar packages with drift packages)
+- **To update:** `docs/references/tech_stack.md`, `docs/planning/MVP_SPEC.md` (Isar → Drift references)
+
+### Impact
+
+- No architectural change — repository pattern remains the same, only data source implementation changes
+- Code generation workflow unchanged (`build_runner` still used)
+- SQLite file format makes debugging and data inspection easier
+
+---
+
 <!-- TEMPLATE FOR NEW ENTRIES
 
 ## [YYYY-MM-DD] Change Title

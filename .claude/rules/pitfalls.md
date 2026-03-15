@@ -40,3 +40,9 @@
 - **Found:** 2026-03-14
 - **Context:** Added discussion summaries and decision notes to LOG.md when user only wanted their own words recorded
 - **Rule:** Conversation log records user's original words only. Do not add agent summaries or analysis.
+
+## DO: Record progress before ending a session
+
+- **Found:** 2026-03-15
+- **Context:** Risk of losing uncommitted decisions and context when a session ends unexpectedly
+- **Rule:** When a significant decision is made or work context changes (even without code to commit), immediately update PROGRESS.md. Don't wait for a commit to record decisions, blockers, or context that the next agent would need.

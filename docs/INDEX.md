@@ -31,6 +31,7 @@
 - [ADR-0004](adr/0004-file-based-issue-tracking.md): File-based issue tracking in docs/issues/
 - [ADR-0005](adr/0005-conventional-commits.md): Conventional Commits standard
 - [ADR-0006](adr/0006-claude-skills-and-hooks.md): Claude Code Skills and Hooks
+- [ADR-0007](adr/0007-drift-database.md): Drift as local database (replacing Isar)
 
 ## Issues & Features
 
@@ -47,6 +48,7 @@
 - [Commit Conventions](references/commit_conventions.md): Conventional Commits research and alternatives
 - [Architecture Patterns](references/architecture_patterns.md): Clean Architecture, MVVM, DDD, SOLID in Flutter
 - [Project Scaffolding](references/project_scaffolding.md): Scaffolding tools, Documentation-as-Code, ADR standards, Claude Code plugins
+- [Drift Database](references/drift_database.md): Drift setup, dependencies, best practices for Flutter
 
 ## Skills (Slash Commands)
 
