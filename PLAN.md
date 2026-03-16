@@ -18,14 +18,14 @@
 
 ## Phase 1: Foundation
 
-- [ ] Flutter project initialization (`flutter create`)
-- [ ] Folder structure setup (clean architecture)
-- [ ] Theme configuration (light/dark, color palette, typography)
+- [x] Flutter project initialization (`flutter create`)
+- [x] Folder structure setup (feature-first)
+- [x] Theme configuration (light/dark, color palette, typography)
 - [ ] GoRouter routing setup (home, timer, preset form, history, stats, settings)
-- [ ] Drift DB schema definition (Preset, Session, UserSettings)
-- [ ] Repository interfaces (domain layer)
-- [ ] Local repository implementations (infrastructure layer)
-- [ ] Auth/Calendar service interfaces + no-op implementations
+- [x] Drift DB schema definition (Preset, Session, UserSettings)
+- [x] Repository interfaces (domain layer)
+- [x] Local repository implementations (infrastructure layer)
+- [x] Auth/Calendar service interfaces + no-op implementations
 - [ ] Riverpod provider setup
 
 ## Phase 2: Presets

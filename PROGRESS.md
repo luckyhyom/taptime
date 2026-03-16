@@ -106,23 +106,39 @@
 - Updated `PLAN.md`: Isar → Drift in Phase 1 task name
 - Ran `flutter pub get` — all dependencies resolved
 
+### 2026-03-15 — Phase 1 Foundation: Commits 1–7 of 8
+
+- Configured `analysis_options.yaml` for `very_good_analysis` with strict mode
+- Added theme system: colors (navy/coral), typography (3 sizes), spacing (8px grid), light/dark ThemeData
+- Added app constants: default presets, icon map (20 icons), color palette, timer range
+- Added utility helpers: DateTime extensions (startOfDay, endOfDay, isSameDay), time formatters (MM:SS, humanized)
+- Defined shared models: Preset, Session (with SessionStatus enum), UserSettings — all immutable, Drift-independent
+- Defined repository interfaces: PresetRepository, SessionRepository, UserSettingsRepository
+- Defined service interfaces: CalendarService + NoopCalendarService (MVP placeholder)
+- Created Drift DB schema: Presets, Sessions, UserSettingsTable tables with indexes and foreign keys
+- Generated Drift code with build_runner
+- Implemented repository classes: PresetRepositoryImpl, SessionRepositoryImpl, UserSettingsRepositoryImpl
+- Created placeholder screens: Home, PresetForm, Timer, History, Stats, Settings
+- Created ShellScreen with bottom navigation bar (partial — not yet wired to router)
+- Added `path_provider` dependency
+
 ## Notes for Next Agent
 
 ### Immediate Next Task
 
-Phase 1 (Foundation) in progress. Drift migration done. **Next:**
-1. Folder structure setup (feature-first)
-2. Theme configuration (light/dark, colors, typography)
-3. GoRouter routing setup
-4. Drift DB schema definition
-5. Repository interfaces + implementations
-6. Riverpod provider setup
+Phase 1 commit 8 of 8 remaining. **Next:**
+1. GoRouter setup (`lib/core/router/app_router.dart`) — StatefulShellRoute with bottom nav + push routes
+2. Riverpod providers (`lib/core/providers/app_providers.dart`) — DB, repositories, settings
+3. App entry point (`lib/app.dart`, `lib/main.dart`) — MaterialApp.router with theme and router
+4. Run `flutter analyze` and `flutter run` to verify everything works
+
+Reference: Check Context7 for GoRouter StatefulShellRoute API before implementing.
 
 ### Environment Status
 
 - Flutter 3.41.4 ✓, Xcode 26.3 ✓, CocoaPods ✓, Chrome ✓
 - Android SDK: deferred (SDK 36 + BuildTools 28.0.3 needed later)
-- Claude Code plugin: Context7 installed (requires session restart)
+- Claude Code plugin: Context7 installed and working
 
 ### Key Context
 
@@ -131,3 +147,4 @@ Phase 1 (Foundation) in progress. Drift migration done. **Next:**
 - Skills: `.claude/skills/` (project) + `~/.claude/skills/` (universal, includes `/init-project`)
 - Research materials are in `docs/references/` (read on demand)
 - Conversation log is user's words only — do not add agent summaries
+- User prefers beginner-friendly comments in code, no backend analogies
