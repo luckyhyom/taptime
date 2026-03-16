@@ -1,0 +1,59 @@
+import 'package:drift/drift.dart';
+import 'package:drift_flutter/drift_flutter.dart';
+import 'package:path_provider/path_provider.dart';
+
+import 'package:taptime/core/database/tables.dart';
+
+// Drift 코드 제너레이터가 이 파일을 기반으로 app_database.g.dart를 생성한다.
+// part 지시문은 생성된 코드를 이 파일의 일부로 포함시킨다.
+part 'app_database.g.dart';
+
+/// 앱의 메인 데이터베이스.
+///
+/// Drift가 _$AppDatabase 클래스를 자동 생성하며,
+/// 이를 상속하여 실제 사용하는 AppDatabase를 만든다.
+///
+/// 생성자에 QueryExecutor를 받을 수 있도록 설계하여,
+/// 테스트 시 인메모리 DB를 주입할 수 있다.
+/// 예: AppDatabase(NativeDatabase.memory())
+@DriftDatabase(tables: [Presets, Sessions, UserSettingsTable])
+class AppDatabase extends _$AppDatabase {
+  /// [executor]를 지정하지 않으면 기본 SQLite 파일 연결을 사용한다.
+  /// 테스트에서는 NativeDatabase.memory()를 전달하여
+  /// 파일 없이 메모리에서 동작하는 DB를 사용할 수 있다.
+  AppDatabase([QueryExecutor? executor]) : super(executor ?? _openConnection());
+
+  /// 스키마 버전 — 테이블 구조를 변경할 때마다 이 값을 올린다.
+  /// Drift가 이전 버전과 비교하여 마이그레이션을 실행한다.
+  @override
+  int get schemaVersion => 1;
+
+  /// SQLite 파일 연결을 생성한다.
+  ///
+  /// driftDatabase()는 drift_flutter 패키지가 제공하는 헬퍼로,
+  /// 플랫폼별 SQLite 바이너리 번들링과 백그라운드 isolate를
+  /// 자동으로 처리한다.
+  static QueryExecutor _openConnection() {
+    return driftDatabase(
+      name: 'taptime',
+      native: const DriftNativeOptions(
+        // 앱의 지원 디렉토리에 DB 파일을 저장한다.
+        // iOS: ~/Library/Application Support/
+        // Android: /data/data/<package>/files/
+        databaseDirectory: getApplicationSupportDirectory,
+      ),
+    );
+  }
+
+  /// SQLite 외래키 제약조건을 활성화한다.
+  ///
+  /// SQLite는 기본적으로 외래키를 검사하지 않는다.
+  /// 이 설정이 없으면 Sessions의 presetId가 존재하지 않는
+  /// Preset을 참조해도 에러가 발생하지 않는다.
+  @override
+  MigrationStrategy get migration => MigrationStrategy(
+    beforeOpen: (details) async {
+      await customStatement('PRAGMA foreign_keys = ON');
+    },
+  );
+}
