@@ -59,6 +59,7 @@ Custom skills available via `/command-name` in Claude Code sessions:
 - `/research <topic>` — Check existing references, then web search if needed
 - `/update-docs` — Sync PLAN.md and PROGRESS.md after completing work
 - `/review-architecture [target]` — Verify code compliance with architecture rules
+- `/translate-docs` — Update all outdated Korean translation files (_KO.md)
 
 Skills are defined in `.claude/skills/` (project-specific) and `~/.claude/skills/` (universal).
 Universal skills (`/init-project`) are also available across all projects.
@@ -76,6 +77,11 @@ Universal skills (`/init-project`) are also available across all projects.
 - [CocoaPods](tips/cocoapods.md): What CocoaPods does and why Flutter needs it for iOS
 - [Indexing and Memory](tips/indexing-and-memory.md): How INDEX.md and MEMORY.md work, agent document discovery
 - [Subagents & Plan Mode](tips/subagents-and-plan-mode.md): When to use subagents and plan mode, with cautions
+- [Multilingual Docs](tips/multilingual-docs.md): Korean translation management, file suffix approach, sync tracking
+
+## Blog
+
+- [Token Efficiency & Multilingual Docs](../blog/2026-03-17-token-efficiency-and-multilingual-docs.md): Discussion on document language choice, token measurement, and _KO translation approach
 
 ## Personal
 

@@ -1,3 +1,5 @@
+*Read this in other languages: [English](README.md), [한국어](README_KO.md)*
+
 # Taptime
 
 A time management app with preset-based Pomodoro timer. Tap a preset to start.

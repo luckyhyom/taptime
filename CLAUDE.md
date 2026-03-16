@@ -25,6 +25,8 @@ Do NOT start any implementation work before reading both files.
 
 - All `.md` documents must be written in **English**
 - Exception: user's original input recorded **in Korean** under "Original" sections
+- `*_KO.md` files are Korean translations for human readers — agents must ignore them
+- See `docs/tips/multilingual-docs.md` for translation management rules
 
 ### Document Map
 

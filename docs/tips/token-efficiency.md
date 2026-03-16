@@ -31,6 +31,15 @@
 - Save research results to `docs/references/` — reading a saved file is much cheaper than re-searching
 - Keep reference files focused — split large research into separate topic files
 
+## Multilingual Documentation
+
+- English originals are canonical (agents read these)
+- `*_KO.md` files are Korean translations for human readers on GitHub
+- Korean uses ~1.3-2.4x more tokens than English for the same content
+- Translation is done on user request only (`/translate-docs`), not on every commit
+- Each `_KO.md` file tracks the source commit hash for sync checking
+- See `docs/tips/multilingual-docs.md` for full details
+
 ## Conversation Style
 
 - User writes in Korean + AI responds in Korean: standard cost
