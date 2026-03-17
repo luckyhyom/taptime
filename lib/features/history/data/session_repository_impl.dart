@@ -52,6 +52,23 @@ class SessionRepositoryImpl implements SessionRepository {
     await _db.delete(_db.sessions).go();
   }
 
+  @override
+  Future<Map<String, int>> getDailyDurationByPreset(DateTime date) async {
+    // 하루치 세션은 소량(수십 건 이하)이므로
+    // SQL GROUP BY 대신 Dart에서 집계하여 가독성을 높인다.
+    final sessions = await getSessionsByDate(date);
+    final result = <String, int>{};
+    for (final session in sessions) {
+      result[session.presetId] = (result[session.presetId] ?? 0) + session.durationSeconds;
+    }
+    return result;
+  }
+
+  @override
+  Stream<List<Session>> watchSessionsByDateRange(DateTime start, DateTime end) {
+    return _queryByDateRange(start, end).watch().map((rows) => rows.map(_toModel).toList());
+  }
+
   // ── 내부 헬퍼 ──────────────────────────────────────────────
 
   /// 날짜 범위로 세션을 조회하는 공통 쿼리 빌더.

@@ -22,4 +22,16 @@ abstract class SessionRepository {
 
   /// 모든 세션을 삭제한다 (설정 > 데이터 초기화에 사용).
   Future<void> deleteAllSessions();
+
+  /// 특정 날짜의 프리셋별 총 소요 시간(초)을 반환한다.
+  ///
+  /// 홈 화면에서 각 프리셋 카드의 일일 진행률을 표시할 때 사용.
+  /// 반환값: Map(presetId → totalDurationSeconds)
+  Future<Map<String, int>> getDailyDurationByPreset(DateTime date);
+
+  /// 날짜 범위의 세션을 실시간으로 관찰한다.
+  ///
+  /// 통계 화면의 주간 데이터처럼 범위가 변하지 않지만
+  /// 새 세션이 추가되면 자동 갱신이 필요한 경우에 사용.
+  Stream<List<Session>> watchSessionsByDateRange(DateTime start, DateTime end);
 }
