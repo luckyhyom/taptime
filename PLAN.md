@@ -22,10 +22,11 @@
 - [x] Folder structure setup (feature-first)
 - [x] Theme configuration (light/dark, color palette, typography)
 - [ ] GoRouter routing setup (home, timer, preset form, history, stats, settings)
-- [x] Drift DB schema definition (Preset, Session, UserSettings)
-- [x] Repository interfaces (domain layer)
-- [x] Local repository implementations (infrastructure layer)
+- [x] Drift DB schema definition (Preset, Session, UserSettings, ActiveTimers)
+- [x] Repository interfaces (shared layer)
+- [x] Local repository implementations (data layer)
 - [x] Auth/Calendar service interfaces + no-op implementations
+- [x] Data layer design review — 8 gaps fixed (`docs/issues/FEAT-001_data-layer-review.md`)
 - [ ] Riverpod provider setup
 
 ## Phase 2: Presets

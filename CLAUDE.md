@@ -48,10 +48,10 @@ Do NOT start any implementation work before reading both files.
 | File | Purpose | Contains | Updated When |
 |------|---------|----------|-------------|
 | `PLAN.md` | What needs to be done | Phases, tasks, priorities, backlog | Task added/removed/completed (`[x]`) |
-| `PROGRESS.md` | What has been done & current state | Completion log, current status, blockers, notes for next agent | Every commit |
+| `PROGRESS.md` | Current state & handoff | Status, next agent notes, recent 2-3 sessions only | Every commit |
 
 - **PLAN.md:** Checklist of all tasks grouped by phase. Mark `[x]` when a task is done. Do NOT put status or logs here.
-- **PROGRESS.md:** Chronological log of completed work, current active phase, blockers, and handoff notes. Do NOT put future tasks here.
+- **PROGRESS.md:** Current status + handoff notes for next agent. Keep only recent 2-3 sessions — older history lives in git log. Do NOT put future tasks here.
 
 ### Commit Rules
 
