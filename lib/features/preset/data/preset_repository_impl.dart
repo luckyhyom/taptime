@@ -58,6 +58,11 @@ class PresetRepositoryImpl implements PresetRepository {
   }
 
   @override
+  Future<void> deleteAllPresets() async {
+    await _db.delete(_db.presets).go();
+  }
+
+  @override
   Future<void> updateSortOrder(Map<String, int> idToSortOrder) async {
     // 여러 행을 한번에 업데이트할 때는 batch를 사용한다.
     // 개별 update를 반복하는 것보다 성능이 좋다.

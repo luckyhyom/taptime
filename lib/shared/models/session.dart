@@ -62,6 +62,22 @@ class Session {
     );
   }
 
+  /// 메모를 명시적으로 null로 설정한 새 인스턴스를 반환한다.
+  ///
+  /// copyWith(memo: null)은 "변경 없음"으로 처리되므로
+  /// 메모를 삭제할 때는 이 메서드를 사용해야 한다.
+  Session clearMemo() {
+    return Session(
+      id: id,
+      presetId: presetId,
+      startedAt: startedAt,
+      endedAt: endedAt,
+      durationSeconds: durationSeconds,
+      status: status,
+      createdAt: createdAt,
+    );
+  }
+
   /// id 기반 동등성
   @override
   bool operator ==(Object other) => other is Session && other.id == id;

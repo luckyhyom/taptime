@@ -30,4 +30,8 @@ abstract class PresetRepository {
   /// 홈 화면에서 드래그 앤 드롭으로 순서를 변경할 때 사용한다.
   /// Map의 key는 프리셋 id, value는 새 sortOrder.
   Future<void> updateSortOrder(Map<String, int> idToSortOrder);
+
+  /// 모든 프리셋을 삭제한다 (설정 > 데이터 초기화에 사용).
+  /// CASCADE로 인해 관련 세션과 활성 타이머도 함께 삭제된다.
+  Future<void> deleteAllPresets();
 }
