@@ -49,6 +49,7 @@
 - [Architecture Patterns](references/architecture_patterns.md): Clean Architecture, MVVM, DDD, SOLID in Flutter
 - [Project Scaffolding](references/project_scaffolding.md): Scaffolding tools, Documentation-as-Code, ADR standards, Claude Code plugins
 - [Drift Database](references/drift_database.md): Drift setup, dependencies, best practices for Flutter
+- [Code Reuse Strategy](references/code_reuse_strategy.md): Agentic coding reuse strategies, tools (DCM, MCP servers), research data
 
 ## Skills (Slash Commands)
 
@@ -82,6 +83,11 @@ Universal skills (`/init-project`) are also available across all projects.
 ## Blog
 
 - [Token Efficiency & Multilingual Docs](../blog/2026-03-17-token-efficiency-and-multilingual-docs.md): Discussion on document language choice, token measurement, and _KO translation approach
+- [Data Layer Design Review](../blog/2026-03-17-data-layer-design-review.md): copyWith null pattern, index strategy, design review process
+
+## Daily Reports
+
+- [2026-03-17](../daily/2026-03-17.md): Data layer design review — 8 design gaps fixed in 3 commits
 
 ## Personal
 

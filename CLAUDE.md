@@ -83,3 +83,19 @@ Do NOT start any implementation work before reading both files.
 ### Architecture Decisions
 
 - Record in `docs/adr/NNNN-title.md` when a technical choice is made or changed
+
+## Code Reuse
+
+Before writing new code, **search existing code first:**
+
+- Utility functions → `lib/core/utils/`
+- Shared models → `lib/shared/models/`
+- Repository interfaces → `lib/shared/repositories/`
+- Constants → `lib/core/constants/`
+- Widgets → `lib/features/*/ui/widgets/`
+
+Rules:
+- Reuse existing repository methods — check interfaces before adding new queries
+- Reuse existing helpers (e.g., `_queryByDateRange`, `_toModel`) inside implementations
+- Extract to `core/utils/` when 2+ features need the same logic
+- After implementation, run `/simplify` to catch missed reuse opportunities
