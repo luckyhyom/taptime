@@ -55,9 +55,12 @@ class Presets extends Table {
 ///
 /// presetId로 프리셋과 연결되며,
 /// startedAt에 인덱스를 걸어 날짜별 조회 성능을 최적화한다.
+/// 복합 인덱스(presetId + startedAt)는 프리셋별 날짜 범위 조회를
+/// 최적화한다 (홈 화면의 프리셋별 진행률 등).
 @DataClassName('SessionRow')
 @TableIndex(name: 'idx_sessions_preset_id', columns: {#presetId})
 @TableIndex(name: 'idx_sessions_started_at', columns: {#startedAt})
+@TableIndex(name: 'idx_sessions_preset_started', columns: {#presetId, #startedAt})
 class Sessions extends Table {
   TextColumn get id => text()();
 
@@ -108,4 +111,39 @@ class UserSettingsTable extends Table {
   // 명시적으로 테이블 이름을 지정한다.
   @override
   String get tableName => 'user_settings';
+}
+
+/// 활성 타이머 테이블 — 현재 실행 중인 타이머 상태를 저장한다.
+///
+/// 단일행 패턴: id를 항상 'singleton'으로 고정하여
+/// 테이블에 0개 또는 1개의 행만 존재하도록 한다.
+/// 앱 크래시 후 복구할 때 이 데이터로 타이머를 이어서 진행한다.
+@DataClassName('ActiveTimerRow')
+class ActiveTimers extends Table {
+  /// 항상 'singleton' — 단일행 패턴
+  TextColumn get id => text()();
+
+  /// 외래키: 이 타이머가 실행 중인 프리셋의 id.
+  /// 프리셋이 삭제되면 활성 타이머도 함께 삭제된다.
+  TextColumn get presetId => text().references(Presets, #id, onDelete: KeyAction.cascade)();
+
+  /// 타이머가 최초로 시작된 시각
+  DateTimeColumn get startedAt => dateTime()();
+
+  /// 지금까지 누적된 일시정지 시간 (초 단위)
+  IntColumn get pausedDurationSeconds => integer().withDefault(const Constant(0))();
+
+  /// 현재 일시정지 상태인지 여부
+  BoolColumn get isPaused => boolean().withDefault(const Constant(false))();
+
+  /// 현재 일시정지가 시작된 시각 (running이면 null)
+  DateTimeColumn get pausedAt => dateTime().nullable()();
+
+  /// 마지막 저장 시점의 남은 시간 (초 단위)
+  IntColumn get remainingSeconds => integer()();
+
+  DateTimeColumn get createdAt => dateTime().clientDefault(DateTime.now)();
+
+  @override
+  Set<Column<Object>> get primaryKey => {id};
 }

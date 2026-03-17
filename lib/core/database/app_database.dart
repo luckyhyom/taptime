@@ -16,7 +16,7 @@ part 'app_database.g.dart';
 /// 생성자에 QueryExecutor를 받을 수 있도록 설계하여,
 /// 테스트 시 인메모리 DB를 주입할 수 있다.
 /// 예: AppDatabase(NativeDatabase.memory())
-@DriftDatabase(tables: [Presets, Sessions, UserSettingsTable])
+@DriftDatabase(tables: [Presets, Sessions, UserSettingsTable, ActiveTimers])
 class AppDatabase extends _$AppDatabase {
   /// [executor]를 지정하지 않으면 기본 SQLite 파일 연결을 사용한다.
   /// 테스트에서는 NativeDatabase.memory()를 전달하여
