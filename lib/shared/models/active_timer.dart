@@ -77,7 +77,6 @@ class ActiveTimer {
       startedAt: startedAt,
       pausedDurationSeconds: pausedDurationSeconds,
       isPaused: isPaused,
-      pausedAt: null,
       remainingSeconds: remainingSeconds,
       createdAt: createdAt,
     );

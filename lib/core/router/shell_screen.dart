@@ -11,10 +11,10 @@ import 'package:flutter/material.dart';
 /// 해당 탭의 라우트로 네비게이션한다.
 class ShellScreen extends StatelessWidget {
   const ShellScreen({
-    super.key,
     required this.navigationShell,
     required this.currentIndex,
     required this.onDestinationSelected,
+    super.key,
   });
 
   /// GoRouter가 주입하는 현재 탭의 화면
