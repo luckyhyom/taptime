@@ -6,22 +6,18 @@
 
 ## Current Status
 
-- **Active Phase:** Phase 1 (Foundation) — 2 tasks remaining
-- **Last Updated:** 2026-03-17
+- **Active Phase:** Phase 2 (Presets) — ready to start
+- **Last Updated:** 2026-03-18
 - **Blocker:** None
 
 ## Notes for Next Agent
 
 ### Immediate Next Task
 
-Phase 1 final task. **Steps:**
-1. GoRouter setup (`lib/core/router/app_router.dart`) — StatefulShellRoute with bottom nav + push routes
-2. Riverpod providers (`lib/core/providers/app_providers.dart`) — DB, repositories, settings
-3. PresetSeeder wiring — call `seedIfEmpty()` during provider initialization
-4. App entry point (`lib/app.dart`, `lib/main.dart`) — MaterialApp.router with theme and router
-5. Run `flutter analyze` and `flutter run` to verify everything works
-
-Reference: Check Context7 for GoRouter StatefulShellRoute API before implementing.
+Phase 2: Presets UI. Start with:
+1. Home screen with preset grid (2 columns)
+2. Preset card widget (icon, name, duration, daily progress)
+3. Default presets visible on first launch
 
 ### Environment
 
@@ -36,6 +32,16 @@ Reference: Check Context7 for GoRouter StatefulShellRoute API before implementin
 - Research materials in `docs/references/` (read on demand)
 
 ## Recent Work
+
+### 2026-03-18 — Phase 1 Completion
+
+- GoRouter setup with StatefulShellRoute (3 tabs: home/stats/settings)
+- Full-screen push routes for timer, preset form, history
+- Riverpod providers: DB, 4 repositories, settings stream, app init
+- PresetSeeder wired via FutureProvider
+- App entry point: MaterialApp.router with light/dark theme
+- Added `/flutter-verify` skill and sub-agent workflow guidelines to CLAUDE.md
+- iOS build verified successfully
 
 ### 2026-03-17 — Data Layer Design Review + Rules
 
