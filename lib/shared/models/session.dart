@@ -14,7 +14,7 @@ enum SessionStatus { completed, stopped }
 /// Preset과 마찬가지로 Drift와 독립된 순수 Dart 클래스이다.
 @immutable
 class Session {
-  const Session({
+  Session({
     required this.id,
     required this.presetId,
     required this.startedAt,
@@ -23,7 +23,8 @@ class Session {
     required this.status,
     required this.createdAt,
     this.memo,
-  });
+  })  : assert(durationSeconds >= 0, 'durationSeconds must be >= 0'),
+        assert(!endedAt.isBefore(startedAt), 'endedAt must not be before startedAt');
 
   /// UUID v4
   final String id;

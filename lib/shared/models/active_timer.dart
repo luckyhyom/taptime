@@ -19,7 +19,9 @@ class ActiveTimer {
     required this.remainingSeconds,
     required this.createdAt,
     this.pausedAt,
-  });
+  })  : assert(remainingSeconds >= 0, 'remainingSeconds must be >= 0'),
+        assert(pausedDurationSeconds >= 0, 'pausedDurationSeconds must be >= 0'),
+        assert(!isPaused || pausedAt != null, 'pausedAt required when isPaused');
 
   /// 항상 'singleton' — 테이블에 하나의 행만 존재하도록 한다.
   final String id;

@@ -10,7 +10,7 @@ import 'package:flutter/foundation.dart';
 /// DB 행(PresetRow) ↔ Preset 변환은 Repository 구현체가 담당한다.
 @immutable
 class Preset {
-  const Preset({
+  Preset({
     required this.id,
     required this.name,
     required this.durationMin,
@@ -20,7 +20,9 @@ class Preset {
     required this.sortOrder,
     required this.createdAt,
     required this.updatedAt,
-  });
+  })  : assert(durationMin >= 1 && durationMin <= 180, 'durationMin must be 1~180'),
+        assert(name.isNotEmpty && name.length <= 20, 'name must be 1~20 chars'),
+        assert(dailyGoalMin >= 0, 'dailyGoalMin must be >= 0');
 
   /// UUID v4 — 기기 간 충돌 없는 고유 식별자
   final String id;
