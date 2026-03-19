@@ -94,3 +94,47 @@ Add `features/<name>/domain/` only when:
 - Business logic cannot live in the ViewModel without becoming complex
 - Multiple repositories need orchestration for a single operation
 - Logic needs to be tested independently from UI and data layers
+
+## Error Handling
+
+- Repository impls: catch Drift exceptions, throw `AppException` subtypes (`DatabaseException`, `NotFoundException`, etc.)
+- Notifier: try/catch `AppException`, store error in state for UI to display
+- UI: read error from Notifier state, show SnackBar or inline message
+- Never let raw Drift/SQLite exceptions reach UI
+
+## State Management Patterns
+
+| Pattern | When to Use | Example |
+|---------|------------|---------|
+| `StreamProvider` | Read-only reactive data | Preset list, settings stream |
+| `Notifier` / `AutoDisposeNotifier` | Interactive state with mutations | Forms, timer controls |
+| `FutureProvider` | One-shot async data | App initialization |
+
+- `StateNotifier` is Riverpod 1.x legacy — do not use
+- `AsyncNotifier` — use only when async state loading is needed (e.g., fetching remote data)
+- For form state, prefer synchronous `Notifier` with `isSubmitting` flag
+
+## Cross-Feature Data Flow
+
+- Features access other features' data via **shared repository providers** (defined in `lib/shared/`)
+- NEVER import another feature's UI providers or widgets directly
+- Example: Timer feature needs Preset data → inject `PresetRepository` via Riverpod, not `presetListProvider`
+- Home aggregates data from multiple repos (preset, session) — this is fine via shared providers
+
+## Database Migration
+
+When changing the schema:
+
+1. Increment `schemaVersion` in `app_database.dart`
+2. Add a new `if (from < N)` block in `onUpgrade`
+3. Use `m.addColumn()`, `m.createTable()`, etc. for schema changes
+4. Test migration with both fresh install and upgrade scenarios
+
+## Model Conventions
+
+- Constructor validation: use `assert` for invariants (range, non-empty, consistency)
+- Serialization: all models must have `toMap()` and `fromMap()` methods
+- Enum fields: use `.name` for `toMap()`, `safeEnumByName()` for `fromMap()`
+- DateTime fields: ISO 8601 strings in `toMap()`, accept both `DateTime` and `String` in `fromMap()`
+- `@immutable` annotation on all model classes
+- Identity-based equality (`==` by id) for entities

@@ -50,8 +50,19 @@ class AppDatabase extends _$AppDatabase {
   /// SQLite는 기본적으로 외래키를 검사하지 않는다.
   /// 이 설정이 없으면 Sessions의 presetId가 존재하지 않는
   /// Preset을 참조해도 에러가 발생하지 않는다.
+  /// 마이그레이션 전략.
+  ///
+  /// - onCreate: 처음 DB를 생성할 때 모든 테이블을 만든다.
+  /// - onUpgrade: schemaVersion이 올라갈 때 스키마를 변경한다.
+  ///   새 버전이 추가되면 `if (from < N)` 블록을 추가한다.
+  /// - beforeOpen: 매 연결 시 외래키 제약조건을 활성화한다.
   @override
   MigrationStrategy get migration => MigrationStrategy(
+    onCreate: (m) => m.createAll(),
+    onUpgrade: (m, from, to) async {
+      // 새 스키마 버전이 추가되면 여기에 마이그레이션 코드를 작성한다.
+      // 예: if (from < 2) { await m.addColumn(presets, presets.locationTrigger); }
+    },
     beforeOpen: (details) async {
       await customStatement('PRAGMA foreign_keys = ON');
     },
