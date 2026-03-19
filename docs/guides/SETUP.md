@@ -107,23 +107,64 @@ All items should show `[✓]`. Example output:
 git clone https://github.com/luckyhyom/taptime.git
 cd taptime
 flutter pub get
-flutter run
 ```
 
-### Run on Specific Platform
+### Run on iOS Simulator (recommended for development)
+
+No Apple Developer account or code signing required.
 
 ```bash
-# iOS Simulator
-flutter run -d iphone
+# 1. Boot a simulator
+xcrun simctl list devices available | grep iPhone   # list available simulators
+xcrun simctl boot "iPhone 17"                       # boot by name
+open -a Simulator                                   # open Simulator app
 
+# 2. Run the app
+flutter run -d "iPhone 17"        # by name
+# or
+flutter run                       # auto-selects the booted simulator
+```
+
+### Run on Physical iOS Device
+
+Requires an Apple Developer account with code signing configured.
+
+1. Open `ios/Runner.xcworkspace` in Xcode
+2. Select **Runner** target → **Signing & Capabilities** → set **Team**
+3. Ensure a valid **Bundle ID** is set
+4. Trust the certificate on device: **Settings → General → Device Management**
+5. Run:
+
+```bash
+flutter run -d "iPhone"           # auto-selects connected device
+```
+
+### Run on Other Platforms
+
+```bash
 # Android Emulator
 flutter run -d android
 
 # Chrome (web)
 flutter run -d chrome
+
+# macOS (desktop)
+flutter run -d macos
+```
+
+### Useful Run Commands
+
+```bash
+flutter devices                   # list all connected devices
+flutter run --release             # release mode (no debug banner)
+flutter run --hot                 # hot reload enabled (default in debug)
 ```
 
 ## Troubleshooting
+
+### Physical device: "No valid code signing certificates"
+
+You need to set up code signing in Xcode. See [Run on Physical iOS Device](#run-on-physical-ios-device) above.
 
 ### CocoaPods issues
 
