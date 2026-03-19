@@ -24,6 +24,29 @@ class Preset {
         assert(name.isNotEmpty && name.length <= 20, 'name must be 1~20 chars'),
         assert(dailyGoalMin >= 0, 'dailyGoalMin must be >= 0');
 
+  /// Map에서 Preset 인스턴스를 생성한다.
+  ///
+  /// Supabase JSON, 내보내기/가져오기 등에서 사용한다.
+  /// DateTime 필드는 DateTime 객체와 ISO 8601 문자열 모두 허용한다.
+  factory Preset.fromMap(Map<String, dynamic> map) {
+    return Preset(
+      id: map['id'] as String,
+      name: map['name'] as String,
+      durationMin: map['durationMin'] as int,
+      icon: map['icon'] as String,
+      color: map['color'] as String,
+      dailyGoalMin: map['dailyGoalMin'] as int,
+      sortOrder: map['sortOrder'] as int,
+      createdAt: _parseDateTime(map['createdAt']),
+      updatedAt: _parseDateTime(map['updatedAt']),
+    );
+  }
+
+  static DateTime _parseDateTime(dynamic value) {
+    if (value is DateTime) return value;
+    return DateTime.parse(value as String);
+  }
+
   /// UUID v4 — 기기 간 충돌 없는 고유 식별자
   final String id;
 
@@ -82,6 +105,23 @@ class Preset {
 
   @override
   int get hashCode => id.hashCode;
+
+  /// JSON 직렬화용 Map으로 변환한다.
+  ///
+  /// DateTime은 ISO 8601 문자열로 변환한다.
+  Map<String, dynamic> toMap() {
+    return {
+      'id': id,
+      'name': name,
+      'durationMin': durationMin,
+      'icon': icon,
+      'color': color,
+      'dailyGoalMin': dailyGoalMin,
+      'sortOrder': sortOrder,
+      'createdAt': createdAt.toIso8601String(),
+      'updatedAt': updatedAt.toIso8601String(),
+    };
+  }
 
   @override
   String toString() => 'Preset(id: $id, name: $name, durationMin: $durationMin)';

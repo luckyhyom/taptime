@@ -23,6 +23,25 @@ class ActiveTimer {
         assert(pausedDurationSeconds >= 0, 'pausedDurationSeconds must be >= 0'),
         assert(!isPaused || pausedAt != null, 'pausedAt required when isPaused');
 
+  /// Map에서 ActiveTimer 인스턴스를 생성한다.
+  factory ActiveTimer.fromMap(Map<String, dynamic> map) {
+    return ActiveTimer(
+      id: map['id'] as String,
+      presetId: map['presetId'] as String,
+      startedAt: _parseDateTime(map['startedAt']),
+      pausedDurationSeconds: map['pausedDurationSeconds'] as int,
+      isPaused: map['isPaused'] as bool,
+      pausedAt: map['pausedAt'] == null ? null : _parseDateTime(map['pausedAt']),
+      remainingSeconds: map['remainingSeconds'] as int,
+      createdAt: _parseDateTime(map['createdAt']),
+    );
+  }
+
+  static DateTime _parseDateTime(dynamic value) {
+    if (value is DateTime) return value;
+    return DateTime.parse(value as String);
+  }
+
   /// 항상 'singleton' — 테이블에 하나의 행만 존재하도록 한다.
   final String id;
 
@@ -89,6 +108,20 @@ class ActiveTimer {
 
   @override
   int get hashCode => id.hashCode;
+
+  /// JSON 직렬화용 Map으로 변환한다.
+  Map<String, dynamic> toMap() {
+    return {
+      'id': id,
+      'presetId': presetId,
+      'startedAt': startedAt.toIso8601String(),
+      'pausedDurationSeconds': pausedDurationSeconds,
+      'isPaused': isPaused,
+      'pausedAt': pausedAt?.toIso8601String(),
+      'remainingSeconds': remainingSeconds,
+      'createdAt': createdAt.toIso8601String(),
+    };
+  }
 
   @override
   String toString() => 'ActiveTimer(presetId: $presetId, isPaused: $isPaused, remaining: $remainingSeconds)';

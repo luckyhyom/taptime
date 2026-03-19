@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import 'package:taptime/core/utils/enum_utils.dart';
+
 /// 사용자 설정 모델.
 ///
 /// 앱 전체에서 하나만 존재하는 설정값 (싱글턴 패턴).
@@ -7,6 +9,15 @@ import 'package:flutter/material.dart';
 @immutable
 class UserSettings {
   const UserSettings({required this.themeMode, required this.soundEnabled, required this.vibrationEnabled});
+
+  /// Map에서 UserSettings 인스턴스를 생성한다.
+  factory UserSettings.fromMap(Map<String, dynamic> map) {
+    return UserSettings(
+      themeMode: safeEnumByName(ThemeMode.values, map['themeMode'] as String?) ?? ThemeMode.system,
+      soundEnabled: map['soundEnabled'] as bool,
+      vibrationEnabled: map['vibrationEnabled'] as bool,
+    );
+  }
 
   /// 기본값으로 생성하는 팩토리.
   /// 앱 최초 실행 시 또는 설정이 아직 저장되지 않았을 때 사용한다.
@@ -29,6 +40,15 @@ class UserSettings {
       soundEnabled: soundEnabled ?? this.soundEnabled,
       vibrationEnabled: vibrationEnabled ?? this.vibrationEnabled,
     );
+  }
+
+  /// JSON 직렬화용 Map으로 변환한다.
+  Map<String, dynamic> toMap() {
+    return {
+      'themeMode': themeMode.name,
+      'soundEnabled': soundEnabled,
+      'vibrationEnabled': vibrationEnabled,
+    };
   }
 
   @override

@@ -82,17 +82,17 @@ class PresetRepositoryImpl implements PresetRepository {
   // 이 변환 덕분에 UI 레이어는 Drift를 전혀 알 필요가 없다.
 
   Preset _toModel(PresetRow row) {
-    return Preset(
-      id: row.id,
-      name: row.name,
-      durationMin: row.durationMin,
-      icon: row.icon,
-      color: row.color,
-      dailyGoalMin: row.dailyGoalMin,
-      sortOrder: row.sortOrder,
-      createdAt: row.createdAt,
-      updatedAt: row.updatedAt,
-    );
+    return Preset.fromMap({
+      'id': row.id,
+      'name': row.name,
+      'durationMin': row.durationMin,
+      'icon': row.icon,
+      'color': row.color,
+      'dailyGoalMin': row.dailyGoalMin,
+      'sortOrder': row.sortOrder,
+      'createdAt': row.createdAt,
+      'updatedAt': row.updatedAt,
+    });
   }
 
   // PresetsCompanion은 Drift가 생성하는 "부분 업데이트용" 클래스이다.
