@@ -7,7 +7,7 @@
 ## Current Status
 
 - **Active Phase:** Phase 2 (Presets) — ready to start
-- **Last Updated:** 2026-03-18
+- **Last Updated:** 2026-03-19
 - **Blocker:** None
 
 ## Notes for Next Agent
@@ -30,8 +30,19 @@ Phase 2: Presets UI. Start with:
 - All documents indexed in `docs/INDEX.md`
 - Development rules: `.claude/rules/` (project) + `~/.claude/rules/` (universal)
 - Research materials in `docs/references/` (read on demand)
+- ADR-0008 established: use `Notifier` for interactive state (forms, timer), `StreamProvider` for read-only reactive data
+- All 4 models now have constructor assertions, `toMap()`/`fromMap()`, and safe enum parsing
+- 56 tests passing (model validation, repository CRUD, cascade delete, enum fallback)
 
 ## Recent Work
+
+### 2026-03-19 — Design Completeness Review
+
+- **Commit 1**: Safe enum parsing utility (`safeEnumByName`) + model constructor assertions (Preset, Session, ActiveTimer)
+- **Commit 2**: `AppException` sealed hierarchy + `toMap()`/`fromMap()` on all 4 models; repo impls refactored to use `fromMap`
+- **Commit 3**: DB migration scaffold (`onCreate`/`onUpgrade`/`beforeOpen`) + 5 new sections in `architecture.md` (error handling, state management patterns, cross-feature data flow, migration, model conventions)
+- **Commit 4**: ADR-0008 Notifier pattern + testing rules update (mock convention, model testing, repository testing)
+- **Commit 5**: 55 new tests — model validation (3 files), mock repositories, PresetRepositoryImpl CRUD/sort/watch, SessionRepositoryImpl CRUD/date range/aggregation/cascade/enum fallback
 
 ### 2026-03-18 — Phase 1 Completion
 
@@ -52,9 +63,3 @@ Phase 2: Presets UI. Start with:
 - Added comment rules to `code-style.md` (detail levels, doc vs inline, section dividers)
 - Added code reuse rules to `CLAUDE.md` + research saved to `docs/references/code_reuse_strategy.md`
 - Restructured PROGRESS.md (slim format) and fixed PLAN.md terminology
-
-### 2026-03-15 — Phase 1 Foundation (Commits 1–7 of 8)
-
-- Theme, constants, utilities, shared models, repository interfaces, implementations
-- Drift DB schema + code generation, placeholder screens, ShellScreen
-- See git log for full details

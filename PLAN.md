@@ -28,6 +28,7 @@
 - [x] Auth/Calendar service interfaces + no-op implementations
 - [x] Data layer design review — 8 gaps fixed (`docs/issues/FEAT-001_data-layer-review.md`)
 - [x] Riverpod provider setup
+- [x] Design completeness review — safe enum parsing, model validation, error hierarchy, toMap/fromMap serialization, migration scaffold, architecture rules, ADR-0008 notifier pattern, model + repository tests
 
 ## Phase 2: Presets
 
