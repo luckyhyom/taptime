@@ -101,12 +101,13 @@ backend for unified life-pattern analytics in Taptime.
 |-----|------|-----------|------|
 | `NSWorkspace` notifications | App name, bundle ID, switch time | None | Core — app-level tracking |
 | `CGEventSource` | Seconds since last input | None | Core — idle detection |
-| `CGWindowListCopyWindowInfo` | Window titles (page titles, URLs) | Screen Recording | Browser/terminal site detection |
-| Accessibility API (`AXUIElement`) | URL bar value, UI elements | Accessibility | Precise URL-based classification |
+| AppleScript (`NSAppleScript`) | Browser active tab URL | None (Automation prompt) | Site tracking — recommended start |
+| `CGWindowListCopyWindowInfo` | Window titles (page titles) | Screen Recording | Alternative site tracking |
+| Accessibility API (`AXUIElement`) | URL bar value, UI elements | Accessibility | Precise URL (advanced) |
 
-- Screen Recording or Accessibility permission required for site-level tracking
-- This means **distribution outside Mac App Store** (notarized direct download)
-  - Same approach as RescueTime, Timing, and other time-tracking apps
+- **Recommended path:** AppleScript first (no permissions, Chrome/Safari only)
+- AppleScript-only approach may allow **Mac App Store** distribution
+- CGWindowList/Accessibility approach requires **notarized direct download**
 
 **Classification (what is this activity?):**
 
@@ -116,7 +117,12 @@ Three-phase approach, implement in order:
 |-------|--------|-------------|
 | 1. Rule-based | Domain/keyword → category table | `github.com` → Dev, `youtube.com` → Entertainment. User-editable. Covers ~80% of cases |
 | 2. Core ML | On-device text classifier | Trained on accumulated rule-based results. Apple Create ML + Natural Language framework. Model size: few MB |
-| 3. Local LLM (experimental) | MLX-based small model on Apple Silicon | Context-aware: "YouTube dev tutorial" → Learning vs Entertainment. Memory: 1-4GB |
+| 3. Local LLM (experimental) | MLX (embedded in app) | Context-aware: "YouTube dev tutorial" → Learning vs Entertainment. No separate install. Memory: 1-4GB |
+
+**Fallback chain:** User rules → Core ML → MLX (each step only if previous has no match)
+
+> Classification rules can be synced via Supabase and managed from the Taptime
+> mobile app — not only from the macOS settings window.
 
 **Filtering (what NOT to record):**
 
@@ -129,8 +135,8 @@ Three-phase approach, implement in order:
 ### Architecture
 
 ```
-Tracker (NSWorkspace + CGWindow + CGEvent)
-  → Classifier (rules → Core ML → LLM)
+Tracker (NSWorkspace + CGEvent + AppleScript)
+  → Classifier (rules → Core ML → MLX)
   → Filter (blocklist/allowlist)
   → SQLite (local buffer)
   → Supabase (periodic sync)
@@ -140,7 +146,7 @@ Tracker (NSWorkspace + CGWindow + CGEvent)
 
 - [ ] Swift project setup (menu bar app, SPM)
 - [ ] App switch tracker (NSWorkspace notifications)
-- [ ] Window title tracker (CGWindowListCopyWindowInfo)
+- [ ] Browser URL tracker (AppleScript for Chrome/Safari)
 - [ ] Idle detection (CGEventSource, 5-min threshold)
 - [ ] Rule-based classifier with JSON config
 - [ ] Filter engine (blocklist/allowlist)
@@ -149,7 +155,7 @@ Tracker (NSWorkspace + CGWindow + CGEvent)
 - [ ] Settings UI (SwiftUI): categories, rules, filters
 - [ ] Launch at login (SMAppService)
 - [ ] Core ML text classifier (after data accumulation)
-- [ ] Local LLM integration (experimental, MLX)
+- [ ] Local LLM integration (experimental, MLX embedded)
 
 ## v2.3 — Life Pattern Dashboard
 

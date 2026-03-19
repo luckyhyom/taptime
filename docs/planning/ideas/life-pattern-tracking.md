@@ -17,6 +17,14 @@
 > 로컬ai를 활용하여 무엇과 관련된 것인지 분류하는거죠.. 그리고 분류한것중에서도
 > 필터링을 통해 기록하지 않을것도 확인하구요.
 
+> 그럼 ios는 gps 기반만 하고, 나머지 기능은 mac os만 하는걸로 하면 가능한거죠?
+> Macbook을 사용할때 움직임이 없으면 기록을 멈추고, 움직임이 있는 브라우저에서
+> 무슨 사이트인지에 따라 시간을 분류하여 기록하는거에요. 사용자가 미리 사이트를
+> 정해놓을수도 있고, 로컬ai를 활용하여 무엇과 관련된 것인지 분류하는거죠..
+> 그리고 분류한것중에서도 필터링을 통해 기록하지 않을것도 확인하구요.
+> 이것들은 다 가능한거죠? flutter랑 swift 모두요. 그리고 taptime에 모두
+> 통합가능한가요?
+
 ## Context
 
 Taptime currently requires manual tap-to-start for time recording. This feature
@@ -31,6 +39,9 @@ surfaces:
 Combined, these features transform Taptime from a manual Pomodoro timer into a
 **life pattern analysis tool** that answers: "Where am I actually spending my
 time?"
+
+Taptime is **one product with multiple components** — a Flutter mobile app and a
+native Swift macOS companion — unified through Supabase sync.
 
 ## Technical Analysis
 
@@ -117,8 +128,15 @@ Info.plist:
 |-----|---------------|-----------|----------|
 | `NSWorkspace` notifications (`didActivateApplication`) | App name, bundle ID, switch timestamp | **None** | Core |
 | `CGEventSource.secondsSinceLastEventType` | Idle time (seconds since last input) | **None** | Core |
-| `CGWindowListCopyWindowInfo` | Window titles (browser tab titles, terminal paths) | **Screen Recording** | Required for site tracking |
-| Accessibility API (`AXUIElement`) | URL bar values, document names | **Accessibility** | Optional (precise URL) |
+| `CGWindowListCopyWindowInfo` | Window titles (browser tab titles, terminal paths) | **Screen Recording** | Site tracking (option A) |
+| AppleScript (`NSAppleScript`) | Browser active tab URL directly | **None** (Automation permission on first use) | Site tracking (option B, recommended start) |
+| Accessibility API (`AXUIElement`) | URL bar values, document names | **Accessibility** | Precise URL (option C) |
+
+> **AppleScript limitations:** Works reliably with Chrome and Safari only. Arc,
+> Firefox, and other browsers have uncertain or no AppleScript support. Apple is
+> trending toward Shortcuts/Intents as the preferred automation mechanism, so
+> long-term availability is not guaranteed. AppleScript is best suited for
+> **event-driven** queries (on app switch) rather than continuous polling.
 
 **Window title examples:**
 ```
@@ -126,6 +144,32 @@ Info.plist:
 "Stack Overflow - How to use CoreML - Safari"    → site: Stack Overflow, category: Development
 "hyomin@mac: ~/workspace/taptime — zsh"          → project: taptime, category: Development
 "YouTube - 10 hour rain sounds - Arc"            → site: YouTube, category: Entertainment
+```
+
+#### Browser URL Tracking — Approach Comparison
+
+| Approach | Accuracy | Complexity | Permission | Notes |
+|----------|---------|-----------|-----------|-------|
+| **AppleScript** | Medium | Low | Automation (auto-prompt) | Simplest. `tell app "Chrome" to get URL of active tab` |
+| **CGWindowList** | Low | Low | Screen Recording | Window title only, not full URL |
+| **Accessibility API** | Medium | Medium | Accessibility | Reads URL bar via AXUIElement |
+
+**Recommended path:** Start with AppleScript (simplest, no special permissions).
+If multi-browser support or higher accuracy is needed later, a Browser Extension
+(Chrome/Safari, Native Messaging) can be added as an upgrade.
+
+**AppleScript examples (called via `NSAppleScript` in Swift):**
+
+```applescript
+-- Chrome
+tell application "Google Chrome"
+    get URL of active tab of front window
+end tell
+
+-- Safari
+tell application "Safari"
+    get URL of current tab of front window
+end tell
 ```
 
 #### Classification Layer (What Is This Activity?)
@@ -165,18 +209,35 @@ Input:  window title text
 - Apple Natural Language framework for text classification
 - Fully local — no data leaves the device
 
-**Phase 3 — Local LLM (experimental, long-term):**
+**Phase 3 — Local LLM via MLX (experimental, long-term):**
 
 ```
 Input:  window title + context (previous 30min activity)
         "YouTube - Flutter geofencing tutorial" + prior: Xcode 40min
-  → MLX-based small LLM (Apple Silicon optimized)
+  → MLX model (embedded in Swift app)
   → Output: "Flutter development tutorial → Category: Development/Learning"
 ```
 
+- **MLX** (Apple's ML framework for Apple Silicon) runs small LLMs directly
+  inside the Swift app — no separate installation required
 - Can distinguish context: "YouTube dev tutorial" vs "YouTube music video"
-- MLX framework optimized for Apple Silicon Neural Engine
+- Embedded in the app binary, no user-facing setup (unlike Ollama which requires
+  separate install and running a server)
 - Memory overhead: 1-4GB (only suitable as opt-in advanced feature)
+
+#### Classification Pipeline (Fallback Chain)
+
+```
+URL / window title input
+  → Step 1: Check user-defined rules (domain/keyword match)
+  → Match found? → Use that category
+  → No match?
+    → Step 2: Core ML text classifier (if trained model exists)
+    → Confidence > threshold? → Use that category
+    → Low confidence?
+      → Step 3: MLX local LLM (if enabled)
+      → Store result + offer to add as new rule
+```
 
 #### Filter Layer (What NOT to Record)
 
@@ -194,26 +255,29 @@ Settings:
 
 #### Distribution
 
-Screen Recording and/or Accessibility permissions required for site-level
-tracking → **Mac App Store distribution is not practical.**
+If using AppleScript-only approach: **Mac App Store may be possible** (no
+Screen Recording or Accessibility required, only Automation permission).
 
-Distribute via **notarized direct download** (same approach as RescueTime,
-Timing, and other time-tracking apps).
+If using CGWindowList or Accessibility: **Mac App Store not practical** →
+distribute via **notarized direct download** (same as RescueTime, Timing).
+
+> **Note:** Classification rules (domain → category mappings) could be synced
+> via Supabase so users can manage them from the Taptime mobile app — not just
+> from the macOS SwiftUI settings window.
 
 #### Architecture
 
 ```
-┌──────────────────────────────────────────────┐
-│  Swift Menu Bar App                          │
-│                                              │
-│  Tracker ─→ Classifier ─→ Filter ─→ SQLite  │
-│  (NSWorkspace  (Rules →      (Block/  (local │
-│   CGWindow      CoreML →     Allow)   buffer)│
-│   CGEvent)      LLM)                    │    │
-│                                         ↓    │
-│                                    Supabase  │
-│                                    (sync)    │
-└──────────────────────────────────────────────┘
+┌──────────────────────────────────────────────────────┐
+│  Swift Menu Bar App                                  │
+│                                                      │
+│  Tracker ──────→ Classifier ─→ Filter ─→ SQLite     │
+│  (NSWorkspace     (Rules →      (Block/  (local      │
+│   CGEvent          Core ML →    Allow)   buffer)     │
+│   AppleScript)     MLX)             │                │
+│                                     ↓                │
+│                                Supabase (sync)       │
+└──────────────────────────────────────────────────────┘
 ```
 
 ---
@@ -263,14 +327,35 @@ v2.3 requires data from both v2.1 and v2.2.
 Implementation plan is recorded in [BACKLOG.md](../../BACKLOG.md) under
 v2.1, v2.2, v2.3, and v2.4 sections with detailed task checklists.
 
+## Open Questions
+
+- **Privacy: raw URLs vs categories-only for Supabase sync?** The macOS app
+  collects browsing URLs for classification. When syncing to Supabase, should
+  raw URLs be uploaded (enables re-classification and richer analytics) or only
+  the resulting category + domain (minimizes privacy exposure)? This affects both
+  the data model and user trust.
+- **AppleScript longevity:** Apple is moving toward Shortcuts/Intents. If
+  AppleScript support degrades in future macOS versions, the fallback is
+  CGWindowList (requires Screen Recording permission) or a Browser Extension.
+- **Browser Extension as upgrade path:** Not a core component, but adding a
+  Chrome/Safari extension later would provide the most accurate URL tracking
+  across all browsers — at the cost of requiring user installation.
+
 ## Takeaway
 
-- iOS geofencing is a mature, battery-efficient API — the main risk is App
-  Store review for "Always" location permission
-- macOS activity monitoring needs no special permissions for basic app tracking;
-  site-level tracking needs Screen Recording (forces non-App Store distribution)
-- Rule-based classification covers ~80% of use cases — defer AI until data
-  accumulates
-- Supabase is the natural sync layer (already planned for v2.0)
+- **Platform split:** iOS handles GPS only, macOS handles all activity monitoring
+- **Two components:** Flutter mobile app + native Swift macOS menu bar app
+- iOS geofencing is a mature, battery-efficient API — main risk is App Store
+  review for "Always" location permission
+- **Browser URL tracking:** Start with AppleScript (zero permission, simplest,
+  Chrome/Safari only). Browser Extension available as future upgrade for
+  multi-browser accuracy.
+- **Classification:** Rule-based covers ~80%. Core ML as middle ground after
+  data accumulates. MLX for embedded local LLM (no separate install).
+  Fallback chain: rules → Core ML → MLX.
+- macOS app with AppleScript-only approach may be App Store distributable;
+  CGWindowList/Accessibility approach requires notarized direct download
+- Supabase is the natural sync layer (already planned for v2.0) — also enables
+  managing classification rules from the mobile app
 - The macOS companion app is a separate Swift project (~1,300 lines), not a
   Flutter desktop app
