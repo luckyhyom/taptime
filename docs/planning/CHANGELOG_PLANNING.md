@@ -103,6 +103,44 @@ Isar was selected in the initial planning phase but turned out to be abandoned w
 
 ---
 
+## [2026-03-19] Life Pattern Tracking — Location + macOS Activity Monitor
+
+### Original (User Input)
+
+> 생활 패턴을 파악하기위해 시간을 기록하는 앱을 만들고싶습니다, IOS는 gps기능을
+> 통해 자신이 등록한 장소 (헬스장)에 있을때 설정한 프리셋으로 시간을 기록하고,
+> 맥북의 움직임을 감지해 실질적으로 시간을 어디에 소모했는지 파악하고싶어요.
+
+> Macbook은 브라우저나 터미널 사용도 감지해서 무슨 사이트인지에 따라 시간을
+> 분류하여 기록하는거에요. 사용자가 미리 사이트를 정해놓을수도 있고,
+> 로컬ai를 활용하여 무엇과 관련된 것인지 분류하는거죠.. 그리고 분류한것중에서도
+> 필터링을 통해 기록하지 않을것도 확인하구요.
+
+### Background
+
+User wants to evolve Taptime from a manual timer app into a life-pattern
+analysis tool. Two new capabilities: (1) iOS GPS geofencing to auto-detect
+arrival at registered places and prompt timer start, (2) a macOS companion
+menu bar app that tracks application and browser usage, classifies activities
+by site/domain, and syncs data for unified analytics.
+
+### Changes
+
+- **Created:** `BACKLOG.md` — separated post-MVP features from PLAN.md
+- **Created:** `docs/issues/FEAT-002_life-pattern-tracking.md` — full technical spec
+- **Updated:** `PLAN.md` — removed backlog section, added link to BACKLOG.md
+- **Updated:** `docs/INDEX.md` — added BACKLOG.md entry
+- **Added to backlog:** v2.1 (Location tracking), v2.2 (macOS companion), v2.3 (Pattern dashboard)
+
+### Impact
+
+- No impact on current MVP development — all features are post-v2.0
+- v2.0 (Supabase) becomes a prerequisite for cross-device data sharing
+- macOS companion is a separate native Swift project, not part of the Flutter codebase
+- Mac App Store distribution not viable for site-level tracking (Screen Recording permission) — plan for notarized direct download
+
+---
+
 <!-- TEMPLATE FOR NEW ENTRIES
 
 ## [YYYY-MM-DD] Change Title

@@ -7,6 +7,7 @@
 - [CLAUDE.md](../CLAUDE.md): Claude-specific workflow rules and session startup instructions
 - [AGENTS.md](../AGENTS.md): Cross-agent entry point (references CLAUDE.md)
 - [PLAN.md](../PLAN.md): Task checklist by phase — what needs to be done
+- [BACKLOG.md](../BACKLOG.md): Post-MVP features — location tracking, macOS companion, life patterns
 - [PROGRESS.md](../PROGRESS.md): Completion log and current status — what has been done
 
 ## Planning (Product Decisions)
@@ -14,6 +15,8 @@
 - [PRD](planning/PRD.md): Full product requirements and feature specification
 - [MVP Spec](planning/MVP_SPEC.md): MVP scope, data model, architecture, milestones
 - [Planning Changelog](planning/CHANGELOG_PLANNING.md): Product decision history with user input in Korean
+- [Ideas](planning/ideas/): Unconfirmed feature discussions and exploration
+  - [Life Pattern Tracking](planning/ideas/life-pattern-tracking.md): Location auto-tracking + macOS activity monitor
 
 ## Engineering Rules
 
