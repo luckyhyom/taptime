@@ -1,4 +1,4 @@
-<!-- translated from: docs/INDEX.md @ commit c197f75 (2026-03-17) -->
+<!-- translated from: docs/INDEX.md @ commit 8740555 (2026-03-19) -->
 
 # Taptime 문서 맵
 
@@ -9,13 +9,16 @@
 - [CLAUDE.md](../CLAUDE.md): Claude 전용 워크플로우 규칙 및 세션 시작 지침
 - [AGENTS.md](../AGENTS.md): 크로스 에이전트 진입점 (CLAUDE.md 참조)
 - [PLAN.md](../PLAN.md): 단계별 태스크 체크리스트 — 해야 할 일
-- [PROGRESS.md](../PROGRESS.md): 완료 로그 및 현재 상태 — 한 일
+- [BACKLOG.md](../BACKLOG.md): MVP 이후 기능 — 위치 추적, macOS companion, 생활 패턴
+- [PROGRESS.md](../PROGRESS.md): 완료 로그 및 현재 상태 — 지금까지 진행된 일
 
 ## 기획 (제품 결정)
 
 - [PRD](planning/PRD.md): 전체 제품 요구사항 및 기능 사양
 - [MVP 스펙](planning/MVP_SPEC.md): MVP 범위, 데이터 모델, 아키텍처, 마일스톤
 - [기획 변경 이력](planning/CHANGELOG_PLANNING.md): 사용자 입력(한국어) 포함 제품 결정 히스토리
+- [아이디어](planning/ideas/): 아직 확정되지 않은 기능 논의 및 탐색
+  - [생활 패턴 추적](planning/ideas/life-pattern-tracking.md): 위치 기반 자동 추적 + macOS 활동 모니터
 
 ## 엔지니어링 규칙
 
@@ -51,6 +54,7 @@
 - [아키텍처 패턴](references/architecture_patterns.md): Flutter에서의 Clean Architecture, MVVM, DDD, SOLID
 - [프로젝트 스캐폴딩](references/project_scaffolding.md): 스캐폴딩 도구, Documentation-as-Code, ADR 표준, Claude Code 플러그인
 - [Drift 데이터베이스](references/drift_database.md): Drift 설정, 의존성, Flutter 베스트 프랙티스
+- [코드 재사용 전략](references/code_reuse_strategy.md): Agentic coding 재사용 전략, 도구 (DCM, MCP servers), 조사 데이터
 
 ## 스킬 (슬래시 커맨드)
 
@@ -61,6 +65,7 @@ Claude Code 세션에서 `/커맨드명`으로 사용 가능한 커스텀 스킬
 - `/research <topic>` — 기존 참고자료 확인 후 필요 시 웹 검색
 - `/update-docs` — 작업 완료 후 PLAN.md와 PROGRESS.md 동기화
 - `/review-architecture [target]` — 아키텍처 규칙 준수 여부 검증
+- `/translate-docs` — 오래된 한국어 번역 파일 (`_KO.md`) 업데이트
 
 스킬은 `.claude/skills/` (프로젝트별)와 `~/.claude/skills/` (범용)에 정의되어 있습니다.
 범용 스킬 (`/init-project`)은 모든 프로젝트에서 사용 가능합니다.
@@ -78,6 +83,16 @@ Claude Code 세션에서 `/커맨드명`으로 사용 가능한 커스텀 스킬
 - [CocoaPods](tips/cocoapods.md): CocoaPods가 하는 일과 Flutter iOS에 필요한 이유
 - [인덱싱과 메모리](tips/indexing-and-memory.md): INDEX.md와 MEMORY.md 작동 방식, 에이전트 문서 검색
 - [서브에이전트 & 플랜 모드](tips/subagents-and-plan-mode.md): 서브에이전트와 플랜 모드 사용 시점 및 주의사항
+- [다국어 문서](tips/multilingual-docs.md): 한국어 번역 관리, 파일 suffix 방식, 동기화 추적
+
+## 블로그
+
+- [토큰 효율 & 다국어 문서](../blog/2026-03-17-token-efficiency-and-multilingual-docs.md): 문서 언어 선택, 토큰 측정, `_KO` 번역 방식에 대한 논의
+- [데이터 레이어 설계 리뷰](../blog/2026-03-17-data-layer-design-review.md): copyWith null 패턴, index 전략, 설계 리뷰 과정
+
+## 일일 리포트
+
+- [2026-03-17](../daily/2026-03-17.md): 데이터 레이어 설계 리뷰 — 3개 커밋에서 8개 설계 gap 수정
 
 ## 개인
 

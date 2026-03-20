@@ -48,6 +48,7 @@
 - [Competitive Analysis](references/competitive_analysis.md): 8 competing apps compared (aTimeLogger, Forest, Session, Toggl, etc.)
 - [Tech Stack](references/tech_stack.md): Flutter packages, DB comparison, dependency list
 - [Design System](references/design_system.md): Material 3, color palette, typography, iconography
+- [Design Inspiration Sources](references/design_inspiration_sources.md): Saved external inspiration sources used for early Taptime design exploration
 - [Commit Conventions](references/commit_conventions.md): Conventional Commits research and alternatives
 - [Architecture Patterns](references/architecture_patterns.md): Clean Architecture, MVVM, DDD, SOLID in Flutter
 - [Project Scaffolding](references/project_scaffolding.md): Scaffolding tools, Documentation-as-Code, ADR standards, Claude Code plugins
@@ -72,6 +73,7 @@ Universal skills (`/init-project`) are also available across all projects.
 
 - [Onboarding](guides/ONBOARDING.md): Reading order for newcomers
 - [Setup](guides/SETUP.md): Development environment setup (Flutter, Xcode, Android)
+- [Design Workflow](guides/DESIGN_WORKFLOW.md): How to save token presets, screenshots, and reference metadata for future UI work
 
 ## Tips
 

@@ -1,4 +1,4 @@
-<!-- translated from: docs/guides/SETUP.md @ commit c197f75 (2026-03-17) -->
+<!-- translated from: docs/guides/SETUP.md @ commit 79a4a15 (2026-03-19) -->
 
 # 개발 환경 설정
 
@@ -109,23 +109,64 @@ flutter doctor
 git clone https://github.com/luckyhyom/taptime.git
 cd taptime
 flutter pub get
-flutter run
 ```
 
-### 특정 플랫폼에서 실행
+### iOS 시뮬레이터에서 실행 (개발 권장)
+
+Apple Developer 계정이나 코드 서명 없이 실행할 수 있습니다.
 
 ```bash
-# iOS 시뮬레이터
-flutter run -d iphone
+# 1. 시뮬레이터 부팅
+xcrun simctl list devices available | grep iPhone   # 사용 가능한 시뮬레이터 목록
+xcrun simctl boot "iPhone 17"                       # 이름으로 부팅
+open -a Simulator                                   # Simulator 앱 열기
 
+# 2. 앱 실행
+flutter run -d "iPhone 17"        # 이름으로 지정
+# 또는
+flutter run                       # 부팅된 시뮬레이터 자동 선택
+```
+
+### 실제 iOS 기기에서 실행
+
+Apple Developer 계정과 코드 서명 설정이 필요합니다.
+
+1. Xcode에서 `ios/Runner.xcworkspace` 열기
+2. **Runner** 타깃 → **Signing & Capabilities** → **Team** 설정
+3. 유효한 **Bundle ID** 확인
+4. 기기에서 인증서 신뢰: **Settings → General → Device Management**
+5. 실행:
+
+```bash
+flutter run -d "iPhone"           # 연결된 기기를 자동 선택
+```
+
+### 다른 플랫폼에서 실행
+
+```bash
 # Android 에뮬레이터
 flutter run -d android
 
 # Chrome (웹)
 flutter run -d chrome
+
+# macOS (데스크톱)
+flutter run -d macos
+```
+
+### 유용한 실행 명령
+
+```bash
+flutter devices                   # 연결된 모든 기기 목록
+flutter run --release             # release 모드 (debug banner 없음)
+flutter run --hot                 # hot reload 활성화 (debug 기본값)
 ```
 
 ## 문제 해결
+
+### 실제 기기: "No valid code signing certificates"
+
+Xcode에서 코드 서명을 설정해야 합니다. 위의 [실제 iOS 기기에서 실행](#실제-ios-기기에서-실행) 섹션을 참고하세요.
 
 ### CocoaPods 문제
 
@@ -146,4 +187,4 @@ flutter pub get
 
 ### Xcode 서명 오류
 
-`ios/Runner.xcworkspace`를 Xcode에서 열기 → **Runner → Signing & Capabilities** → 개발 팀 선택.
+`ios/Runner.xcworkspace`를 Xcode에서 열고 **Runner → Signing & Capabilities**에서 개발 팀을 선택하세요.

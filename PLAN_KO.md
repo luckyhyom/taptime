@@ -1,4 +1,4 @@
-<!-- translated from: PLAN.md @ commit c197f75 (2026-03-17) -->
+<!-- translated from: PLAN.md @ commit a99674a (2026-03-19) -->
 
 # Taptime - 계획
 
@@ -23,12 +23,14 @@
 - [x] Flutter 프로젝트 초기화 (`flutter create`)
 - [x] 폴더 구조 설정 (기능 우선)
 - [x] 테마 설정 (라이트/다크, 컬러 팔레트, 타이포그래피)
-- [ ] GoRouter 라우팅 설정 (홈, 타이머, 프리셋 폼, 히스토리, 통계, 설정)
-- [x] Drift DB 스키마 정의 (Preset, Session, UserSettings)
-- [x] Repository 인터페이스 (도메인 레이어)
-- [x] 로컬 Repository 구현체 (인프라 레이어)
+- [x] GoRouter 라우팅 설정 (홈, 타이머, 프리셋 폼, 히스토리, 통계, 설정)
+- [x] Drift DB 스키마 정의 (Preset, Session, UserSettings, ActiveTimers)
+- [x] Repository 인터페이스 (shared layer)
+- [x] 로컬 Repository 구현체 (data layer)
 - [x] Auth/Calendar 서비스 인터페이스 + no-op 구현체
-- [ ] Riverpod 프로바이더 설정
+- [x] 데이터 레이어 설계 리뷰 — 8개 격차 수정 (`docs/issues/FEAT-001_data-layer-review.md`)
+- [x] Riverpod 프로바이더 설정
+- [x] 설계 완성도 리뷰 — 안전한 enum 파싱, 모델 validation, error hierarchy, toMap/fromMap serialization, migration scaffold, architecture rules, ADR-0008 notifier pattern, model + repository tests
 
 ## Phase 2: 프리셋
 
@@ -82,26 +84,4 @@
 
 ---
 
-## 백로그 (MVP 이후)
-
-### v1.1 — 동기부여 & 확장 통계
-- [ ] 히트맵 캘린더 (GitHub 스타일 활동 시각화)
-- [ ] 스트릭 추적 (연속 목표 달성 일수)
-- [ ] 스트릭 마일스톤 축하 (7, 30, 100일)
-- [ ] 휴식 타이머 (5분 짧은 / 15분 긴)
-- [ ] 주간/월간 목표
-- [ ] 월간 통계 뷰
-
-### v1.2 — Google Calendar & 이펙트
-- [ ] Google Calendar 연동 (클라이언트 사이드 OAuth)
-- [ ] 동기부여 이펙트 (완료 애니메이션)
-- [ ] 업적 뱃지
-
-### v2.0 — 클라우드 백업
-- [ ] Supabase 연동
-- [ ] Google/Apple 소셜 로그인 (백업 전용, 커스텀 계정 없음)
-- [ ] 클라우드 백업/복원
-
-### v2.1 — 플랫폼 확장
-- [ ] 홈 화면 위젯
-- [ ] Apple Watch / Wear OS 지원
+> MVP 이후 기능 → [BACKLOG.md](BACKLOG.md)

@@ -1,4 +1,4 @@
-<!-- translated from: CLAUDE.md @ commit c197f75 (2026-03-17) -->
+<!-- translated from: CLAUDE.md @ commit e0c1316 (2026-03-18) -->
 
 # Taptime - Claude Code 규칙
 
@@ -27,6 +27,8 @@
 
 - 모든 `.md` 문서는 **영어**로 작성해야 합니다
 - 예외: 사용자의 원본 입력은 "Original" 섹션에 **한국어**로 기록
+- `*_KO.md` 파일은 사람 독자를 위한 한국어 번역본이며, 에이전트는 이를 무시해야 합니다
+- 번역 관리 규칙은 `docs/tips/multilingual-docs.md`를 참조하세요
 
 ### 문서 맵
 
@@ -48,10 +50,10 @@
 | 파일 | 목적 | 내용 | 업데이트 시점 |
 |------|------|------|-------------|
 | `PLAN.md` | 해야 할 일 | 단계, 태스크, 우선순위, 백로그 | 태스크 추가/제거/완료(`[x]`) 시 |
-| `PROGRESS.md` | 완료된 일과 현재 상태 | 완료 로그, 현재 상태, 블로커, 다음 에이전트를 위한 노트 | 매 커밋 |
+| `PROGRESS.md` | 현재 상태 & 인수인계 | 상태, 다음 에이전트 노트, 최근 2-3개 세션만 | 매 커밋 |
 
 - **PLAN.md:** 단계별로 그룹화된 모든 태스크의 체크리스트. 태스크 완료 시 `[x]`로 표시. 여기에 상태나 로그를 넣지 마세요.
-- **PROGRESS.md:** 완료된 작업의 시간순 로그, 현재 활성 단계, 블로커, 인수인계 노트. 여기에 미래 태스크를 넣지 마세요.
+- **PROGRESS.md:** 다음 에이전트를 위한 현재 상태 + 인수인계 노트. 최근 2-3개 세션만 유지하고, 더 오래된 이력은 git log에 남깁니다. 여기에 미래 태스크를 넣지 마세요.
 
 ### 커밋 규칙
 
@@ -83,3 +85,38 @@
 ### 아키텍처 결정
 
 - 기술 선택이 이루어지거나 변경될 때 `docs/adr/NNNN-title.md`에 기록하세요
+
+## 서브에이전트 워크플로우
+
+메인 컨텍스트를 코드 작성에 집중시키기 위해 서브에이전트를 사용하세요.
+
+| 작업 | 에이전트 | 이유 |
+|------|---------|------|
+| API/라이브러리 문서 조회 | `context7-plugin:docs-researcher` | 문서가 길어서 요약만 메인 컨텍스트로 가져오기 위함 |
+| 코드베이스 탐색 (재사용, 패턴) | `Explore` agent | 메인 컨텍스트에서 수십 개 파일 읽기를 막기 위함 |
+| 구현 계획 수립 | `Plan` agent | 설계 결정을 코딩 컨텍스트와 분리하기 위함 |
+| 빌드 검증 (`analyze` + `test`) | `/flutter-verify` 또는 백그라운드 `general-purpose` agent | 빌드 출력이 가장 큰 컨텍스트 오염원이기 때문 |
+
+규칙:
+
+- 코드를 작성한 뒤 커밋 전에 `/flutter-verify`를 실행하세요
+- GoRouter, Riverpod, Drift 또는 패키지 API를 볼 때는 `docs-researcher`를 사용하고, 메인 컨텍스트에서 문서를 직접 가져오지 마세요
+- 여러 파일에서 재사용 가능한 코드를 찾을 때는 `Explore` agent를 사용하세요
+- Drift 스키마를 수정한 뒤에는 `dart run build_runner build --delete-conflicting-outputs`를 실행하세요
+
+## 코드 재사용
+
+새 코드를 작성하기 전에 **기존 코드를 먼저 검색하세요:**
+
+- Utility 함수 → `lib/core/utils/`
+- Shared 모델 → `lib/shared/models/`
+- Repository 인터페이스 → `lib/shared/repositories/`
+- Constants → `lib/core/constants/`
+- Widgets → `lib/features/*/ui/widgets/`
+
+규칙:
+
+- 새 쿼리를 추가하기 전에 기존 repository 메서드를 재사용할 수 있는지 확인하세요
+- 구현체 내부에서도 기존 helper (예: `_queryByDateRange`, `_toModel`)를 재사용하세요
+- 2개 이상 기능에서 같은 로직이 필요하면 `core/utils/`로 추출하세요
+- 구현 후에는 `/simplify`를 실행해 놓친 재사용 기회를 점검하세요
