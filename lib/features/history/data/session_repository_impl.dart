@@ -2,6 +2,7 @@ import 'package:drift/drift.dart';
 
 import 'package:taptime/core/database/app_database.dart';
 import 'package:taptime/core/utils/date_utils.dart';
+import 'package:taptime/core/utils/enum_utils.dart';
 import 'package:taptime/shared/models/session.dart';
 import 'package:taptime/shared/repositories/session_repository.dart';
 
@@ -80,16 +81,16 @@ class SessionRepositoryImpl implements SessionRepository {
   }
 
   Session _toModel(SessionRow row) {
-    return Session.fromMap({
-      'id': row.id,
-      'presetId': row.presetId,
-      'startedAt': row.startedAt,
-      'endedAt': row.endedAt,
-      'durationSeconds': row.durationSeconds,
-      'status': row.status,
-      'memo': row.memo,
-      'createdAt': row.createdAt,
-    });
+    return Session(
+      id: row.id,
+      presetId: row.presetId,
+      startedAt: row.startedAt,
+      endedAt: row.endedAt,
+      durationSeconds: row.durationSeconds,
+      status: safeEnumByName(SessionStatus.values, row.status) ?? SessionStatus.completed,
+      memo: row.memo,
+      createdAt: row.createdAt,
+    );
   }
 
   SessionsCompanion _toCompanion(Session session) {

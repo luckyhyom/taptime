@@ -1,6 +1,8 @@
 import 'package:drift/drift.dart';
+import 'package:flutter/material.dart';
 
 import 'package:taptime/core/database/app_database.dart';
+import 'package:taptime/core/utils/enum_utils.dart';
 import 'package:taptime/shared/models/user_settings.dart';
 import 'package:taptime/shared/repositories/user_settings_repository.dart';
 
@@ -48,11 +50,13 @@ class UserSettingsRepositoryImpl implements UserSettingsRepository {
 
   // ── 변환 ───────────────────────────────────────────────────
 
+  /// ThemeMode.values.byName()으로 문자열 → enum 변환.
+  /// DB에 'light', 'dark', 'system' 중 하나가 저장되어 있다.
   UserSettings _toModel(UserSettingsRow row) {
-    return UserSettings.fromMap({
-      'themeMode': row.themeMode,
-      'soundEnabled': row.soundEnabled,
-      'vibrationEnabled': row.vibrationEnabled,
-    });
+    return UserSettings(
+      themeMode: safeEnumByName(ThemeMode.values, row.themeMode) ?? ThemeMode.system,
+      soundEnabled: row.soundEnabled,
+      vibrationEnabled: row.vibrationEnabled,
+    );
   }
 }

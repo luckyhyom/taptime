@@ -43,16 +43,16 @@ class ActiveTimerRepositoryImpl implements ActiveTimerRepository {
   // ── 변환 ───────────────────────────────────────────────────
 
   ActiveTimer _toModel(ActiveTimerRow row) {
-    return ActiveTimer.fromMap({
-      'id': row.id,
-      'presetId': row.presetId,
-      'startedAt': row.startedAt,
-      'pausedDurationSeconds': row.pausedDurationSeconds,
-      'isPaused': row.isPaused,
-      'pausedAt': row.pausedAt,
-      'remainingSeconds': row.remainingSeconds,
-      'createdAt': row.createdAt,
-    });
+    return ActiveTimer(
+      id: row.id,
+      presetId: row.presetId,
+      startedAt: row.startedAt,
+      pausedDurationSeconds: row.pausedDurationSeconds,
+      isPaused: row.isPaused,
+      pausedAt: row.pausedAt,
+      remainingSeconds: row.remainingSeconds,
+      createdAt: row.createdAt,
+    );
   }
 
   ActiveTimersCompanion _toCompanion(ActiveTimer timer) {
