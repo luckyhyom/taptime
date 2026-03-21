@@ -42,13 +42,13 @@
 
 ## Phase 3: Timer
 
-- [ ] Timer screen UI (countdown, progress ring, controls)
-- [ ] Countdown timer logic (start, pause, resume, stop)
-- [ ] Background timer support
-- [ ] Timer state persistence (crash recovery)
-- [ ] Session auto-save on completion
-- [ ] Session save on manual stop (with confirmation)
-- [ ] Notification sound + vibration on completion
+- [x] Timer screen UI (countdown, progress ring, controls)
+- [x] Countdown timer logic (start, pause, resume, stop)
+- [x] Background timer support
+- [x] Timer state persistence (crash recovery)
+- [x] Session auto-save on completion
+- [x] Session save on manual stop (with confirmation)
+- [x] Notification sound + vibration on completion
 
 ## Phase 4: History
 

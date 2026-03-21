@@ -6,7 +6,7 @@
 
 ## Current Status
 
-- **Active Phase:** Phase 3 (Timer) — Phase 2 complete
+- **Active Phase:** Phase 4 (History) — Phase 3 complete
 - **Last Updated:** 2026-03-21
 - **Blocker:** None
 
@@ -14,10 +14,10 @@
 
 ### Immediate Next Task
 
-Phase 3: Timer screen. Start with:
-1. Timer screen UI (countdown display, progress ring, start/pause/stop controls)
-2. Countdown timer logic in `TimerNotifier` (Notifier per ADR-0008)
-3. Session auto-save on completion
+Phase 4: History screen. Start with:
+1. Session history screen (grouped by date) using `SessionRepository.watchSessionsByDate`
+2. Session list tile (preset icon, name, time range, duration, status badge)
+3. Edit session memo / delete session
 
 ### Environment
 
@@ -30,38 +30,48 @@ Phase 3: Timer screen. Start with:
 - All documents indexed in `docs/INDEX.md`
 - Development rules: `.claude/rules/` (project) + `~/.claude/rules/` (universal)
 - ADR-0008: Use `Notifier` for interactive state (forms, timer), `StreamProvider` for read-only reactive data
-- Design system: user has `design/base.html` (new design) and `design/current.html` (current Flutter design)
-  - Decision on applying new design (`design/base.html` tokens) is pending user review
-  - New design uses Manrope + Inter fonts, primary `#00000b`, secondary `#b71d3f`
-  - Tab bar structure stays as-is (Home/Stats/Settings per existing plan)
+- Design system: user has `design/대안.html` (new design) and `design/current.html` (current Flutter design)
+  - Decision on applying new design tokens is pending user review
 
-### Phase 2 Architecture Notes
+### Phase 3 Architecture Notes
 
-- `PresetFormNotifier` (`AutoDisposeFamilyNotifier<PresetFormState, String?>`) handles create/edit
-  - `null` arg = create mode, non-null arg = edit mode (loads from DB via microtask)
-- Home screen: `ConsumerStatefulWidget` with `_isReordering` local state
-  - Normal mode: 2-col GridView; edit mode: ReorderableListView
-  - Reorder saves via `presetRepositoryProvider.updateSortOrder(Map<String,int>)`
+- `TimerNotifier` (`AutoDisposeFamilyNotifier<TimerState, String>`) manages countdown
+  - Timestamp-based remaining calculation (not decrement-based) — accurate across background/foreground
+  - `Timer.periodic(1s)` is only for UI refresh; actual time from `_startedAt` + `_pausedDurationSeconds`
+  - Crash recovery: loads `ActiveTimer` from DB on build, restores or auto-completes
+  - Old ActiveTimer for different preset is auto-saved as stopped session
+  - `onAppResumed()` recalculates remaining when app returns to foreground
+- `ProgressRing` widget: CustomPainter-based circular progress, 12시 방향 시작
+- Timer screen: `ConsumerStatefulWidget` with `WidgetsBindingObserver` for lifecycle
+  - `PopScope` prevents back during active timer, shows stop confirmation
+  - Completion: `SystemSound.play` + `HapticFeedback.heavyImpact` respecting UserSettings
+- Sound/vibration uses Flutter built-in APIs (no extra packages)
+  - `audioplayers` + `flutter_local_notifications` can be added later for custom sounds + background notifications
 - All 56 tests still passing
 
+### Planning Review Notes (from this session)
+
+Document inconsistencies found — not blocking, can fix separately:
+- PRD.md header date not updated (still says 2026-03-14)
+- PRD section numbering gap (3.8 → 3.10)
+- Data Export/Import in PRD but not in any PLAN phase
+- Manual Session Entry in PRD but not in PLAN/BACKLOG
+- v2.1 GPS: user decided multiple sessions can start simultaneously at same location
+
 ## Recent Work
+
+### 2026-03-21 — Phase 3: Timer Implementation
+
+- `timer_notifier.dart`: `TimerStatus` enum, `TimerState` class, `TimerNotifier` with full countdown logic
+  - start/pause/resume/stop, crash recovery from `ActiveTimer`, session auto-save
+  - Timestamp-based remaining calculation, app lifecycle handling
+- `widgets/progress_ring.dart`: `CustomPainter` circular progress ring
+- `timer_screen.dart`: full UI — preset info, countdown display, progress ring, controls
+  - Completion dialog, stop confirmation, `PopScope` back prevention
+  - Sound + vibration on completion (UserSettings-aware)
 
 ### 2026-03-21 — Planning Refinement + Phase 2 UI
 
 - **Planning**: Redefined Taptime as automatic time management assistant (GPS opt-out, MacBook detection)
-  - GPS: auto-starts timer on geofence entry, sends notification, user can cancel to delete record
-  - Removed Google Calendar export; kept future read-only stats view in backlog
-  - Removed v1.1 streak milestones, replaced v1.2 with Google Calendar read-only stats
-  - Removed v2.4 widgets/Watch from backlog
-  - Updated PRD.md, BACKLOG.md, CHANGELOG_PLANNING.md
 - **Phase 2 UI**: Home screen reorder mode + preset form (create/edit/delete)
-  - `preset_form_notifier.dart`: `PresetFormState` + `PresetFormNotifier` + `presetFormProvider`
-  - `preset_form_screen.dart`: full form UI with icon picker, color picker, daily goal stepper
-  - `home_screen.dart`: upgraded to `ConsumerStatefulWidget`, added reorder mode, history button
-- **Design comparison**: created `design/current.html` (current Flutter) vs `design/base.html` (new design)
-
-### 2026-03-19 — Design Completeness Review
-
-- Safe enum parsing, model constructor assertions, `AppException` hierarchy, `toMap()`/`fromMap()`
-- DB migration scaffold, ADR-0008 Notifier pattern, testing rules
-- 56 tests — model validation, repository CRUD, cascade delete, enum fallback
+- **Design comparison**: created `design/current.html` vs `design/대안.html`
