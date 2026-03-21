@@ -45,6 +45,15 @@ MVP + v1.1 features are implemented:
 
 ## Recent Work
 
+### 2026-03-21 — UX Polish: Heatmap, Timer Navigation, Home Status
+
+- **Heatmap → GitHub contribution graph:** Rewrote `heatmap_calendar.dart` from calendar grid to horizontal 7-row layout (Mon-Sun rows × week columns), ~10px cells, English month/day labels
+- **Heatmap sort order:** Preset heatmaps in monthly stats now follow home screen `sortOrder`
+- **Drag reorder fix:** Wrapped drag handle with `ReorderableDragStartListener` for reliable drag-and-drop
+- **Timer navigation overhaul:** Removed X/home buttons and PopScope; swipe/back gesture navigates freely while timer persists via ActiveTimer DB
+- **Active timer on preset cards:** Home screen shows running/paused badge with mm:ss elapsed time on the active preset card
+- **Timer layout fix:** Rebalanced Spacer ratios (2:1:1:2) after top bar removal
+
 ### 2026-03-21 — v1.1 Motivation & Extended Stats + Per-Preset Refactoring
 
 - **Heatmap calendar:** GitHub-style monthly grid via CustomPaint, 4 intensity levels, tap → Today stats
