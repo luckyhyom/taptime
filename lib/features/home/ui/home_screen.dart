@@ -107,14 +107,21 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       itemCount: presets.length,
       itemBuilder: (context, index) {
         final preset = presets[index];
-        // 활성 타이머가 이 프리셋에 해당하면 상태를 전달한다.
-        final timerStatus = activeTimer?.presetId == preset.id
-            ? (activeTimer!.isPaused ? PresetTimerStatus.paused : PresetTimerStatus.running)
-            : PresetTimerStatus.none;
+        // 활성 타이머가 이 프리셋에 해당하면 상태와 경과 시간을 전달한다.
+        var timerStatus = PresetTimerStatus.none;
+        var timerElapsed = 0;
+        if (activeTimer != null && activeTimer.presetId == preset.id) {
+          timerStatus = activeTimer.isPaused ? PresetTimerStatus.paused : PresetTimerStatus.running;
+          final referenceTime = activeTimer.pausedAt ?? DateTime.now();
+          timerElapsed = (referenceTime.difference(activeTimer.startedAt).inSeconds
+              - activeTimer.pausedDurationSeconds)
+              .clamp(0, 999999);
+        }
         return PresetCard(
           preset: preset,
           todayMinutes: (todayDurations[preset.id] ?? 0) ~/ 60,
           timerStatus: timerStatus,
+          timerElapsedSeconds: timerElapsed,
           onTap: () => context.push(AppRoutes.timerPath(preset.id)),
           onLongPress: () => context.push(AppRoutes.presetEditPath(preset.id)),
         );

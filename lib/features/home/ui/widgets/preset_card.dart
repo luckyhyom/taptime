@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:taptime/core/constants/app_constants.dart';
 import 'package:taptime/core/theme/app_spacing.dart';
 import 'package:taptime/core/utils/color_utils.dart';
+import 'package:taptime/core/utils/date_utils.dart';
 import 'package:taptime/shared/models/preset.dart';
 
 /// 홈 화면 그리드에 표시되는 프리셋 카드.
@@ -20,6 +21,7 @@ class PresetCard extends StatelessWidget {
     required this.preset,
     this.todayMinutes = 0,
     this.timerStatus = PresetTimerStatus.none,
+    this.timerElapsedSeconds = 0,
     this.onTap,
     this.onLongPress,
     super.key,
@@ -32,6 +34,9 @@ class PresetCard extends StatelessWidget {
 
   /// 이 프리셋의 타이머 활성 상태
   final PresetTimerStatus timerStatus;
+
+  /// 타이머 경과 시간 (초)
+  final int timerElapsedSeconds;
 
   final VoidCallback? onTap;
   final VoidCallback? onLongPress;
@@ -74,7 +79,11 @@ class PresetCard extends StatelessWidget {
                   ),
                   const Spacer(),
                   if (timerStatus != PresetTimerStatus.none)
-                    _TimerStatusBadge(status: timerStatus, color: presetColor),
+                    _TimerStatusBadge(
+                      status: timerStatus,
+                      color: presetColor,
+                      elapsedSeconds: timerElapsedSeconds,
+                    ),
                 ],
               ),
 
@@ -126,10 +135,15 @@ class PresetCard extends StatelessWidget {
 
 /// 프리셋 카드 우측 상단에 표시되는 타이머 상태 배지.
 class _TimerStatusBadge extends StatelessWidget {
-  const _TimerStatusBadge({required this.status, required this.color});
+  const _TimerStatusBadge({
+    required this.status,
+    required this.color,
+    required this.elapsedSeconds,
+  });
 
   final PresetTimerStatus status;
   final Color color;
+  final int elapsedSeconds;
 
   @override
   Widget build(BuildContext context) {
@@ -151,7 +165,7 @@ class _TimerStatusBadge extends StatelessWidget {
           ),
           const SizedBox(width: 2),
           Text(
-            isRunning ? '실행 중' : '일시정지',
+            TimeFormatter.mmss(elapsedSeconds),
             style: TextStyle(fontSize: 10, fontWeight: FontWeight.w600, color: color),
           ),
         ],

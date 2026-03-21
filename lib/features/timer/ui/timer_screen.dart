@@ -86,7 +86,7 @@ class _TimerScreenState extends ConsumerState<TimerScreen> with WidgetsBindingOb
 
     return Column(
       children: [
-        const Spacer(),
+        const Spacer(flex: 2),
 
         // ── 프리셋 정보 ──────────────────────────────────
         Icon(icon, size: 40, color: color),
@@ -96,7 +96,7 @@ class _TimerScreenState extends ConsumerState<TimerScreen> with WidgetsBindingOb
           style: theme.textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w600),
         ),
 
-        const Spacer(flex: 2),
+        const Spacer(),
 
         // ── 프로그레스 링 + 시간 표시 ───────────────────
         ProgressRing(
@@ -114,12 +114,12 @@ class _TimerScreenState extends ConsumerState<TimerScreen> with WidgetsBindingOb
           ),
         ),
 
-        const Spacer(flex: 3),
+        const Spacer(),
 
         // ── 컨트롤 버튼 ──────────────────────────────────
         _buildControls(context, timerState, color),
 
-        const Spacer(),
+        const Spacer(flex: 2),
       ],
     );
   }
