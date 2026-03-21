@@ -6,7 +6,7 @@
 
 ## Current Status
 
-- **Active Phase:** MVP complete (Phases 0-7). Post-MVP planning available.
+- **Active Phase:** v1.1 complete (including per-preset refactoring). Next: v2.0 (Cloud Backup) or other Post-MVP.
 - **Last Updated:** 2026-03-21
 - **Blocker:** None
 
@@ -14,10 +14,11 @@
 
 ### Where We Are
 
-All MVP features are implemented and code-level polish is done:
-- Phases 0-6: fully complete (planning, foundation, presets, timer, history, stats, settings)
-- Phase 7: code fixes done, iOS simulator build confirmed (no build errors)
-- 57 tests passing, 0 analyzer issues
+MVP + v1.1 features are implemented:
+- Phases 0-7 (MVP): fully complete
+- v1.1: heatmap calendar, per-preset streak tracking, break timer, weekly/monthly goals, monthly stats — all done
+- Per-preset refactoring: global heatmap/streak replaced with per-preset versions, home streak badge removed
+- 61 tests passing, 0 analyzer issues
 - Remaining: user-side emulator testing (manual)
 
 ### Environment
@@ -44,7 +45,21 @@ All MVP features are implemented and code-level polish is done:
 
 ## Recent Work
 
-### 2026-03-21 — Phases 4-7 (this session)
+### 2026-03-21 — v1.1 Motivation & Extended Stats + Per-Preset Refactoring
+
+- **Heatmap calendar:** GitHub-style monthly grid via CustomPaint, 4 intensity levels, tap → Today stats
+- **Break timer:** Lightweight notifier (no DB), 5m/15m options in completion dialog, teal-themed screen
+- **Monthly stats tab:** 3rd tab in Stats screen with month navigator, total time, category donut, goal progress
+- **Weekly/monthly goals:** Extracted GoalProgressBar widget, added to week (×7) and month (×daysInMonth) views
+- **Per-preset refactoring:** Replaced global heatmap/streak with per-preset versions
+  - Added `getDailyTotalsForPreset` to session repository (interface + impl)
+  - Replaced `monthDailyTotalsProvider`/`currentStreakProvider` with family providers keyed by presetId
+  - Month stats: each preset with sessions gets its own colored heatmap + inline streak badge
+  - Removed home screen streak badge and deleted `streak_card.dart`
+  - HeatmapCalendar: added `activeColor` and `showCard` params for embedded use
+- Data layer: added `watchSessionsByMonth`, `getDailyTotalsForRange`, date_utils extensions
+
+### 2026-03-21 — Phases 4-7 (previous session)
 
 - **Phase 4 (History):** date navigator, session list tiles, memo edit bottom sheet, swipe-to-delete
 - **Phase 5 (Stats):** Today/Week tabs, per-preset bar charts, goal progress, 7-day bar chart, donut chart

@@ -87,18 +87,12 @@
 
 ### v1.1 — Motivation & Extended Stats
 
-- [ ] Heatmap calendar (GitHub-style activity visualization)
-- [ ] Streak tracking (consecutive days meeting goals)
-- [ ] Break timer (5m short / 15m long)
-- [ ] Weekly/monthly goals
-- [ ] Monthly statistics view
-
-### v1.2 — Google Calendar Statistics (Read-Only)
-
-> View Google Calendar events inside Taptime for context — not sync or export.
-
-- [ ] Google Calendar read-only integration (OAuth, view events)
-- [ ] Calendar context view alongside Taptime sessions
+- [x] Heatmap calendar (GitHub-style activity visualization)
+- [x] Streak tracking (consecutive days meeting goals)
+- [x] Break timer (5m short / 15m long)
+- [x] Weekly/monthly goals
+- [x] Monthly statistics view
+- [x] Per-preset heatmap & streak (individual heatmaps per preset with color + inline streak)
 
 ### v2.0 — Cloud Backup
 
