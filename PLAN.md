@@ -53,10 +53,10 @@
 
 ## Phase 4: History
 
-- [ ] Session history screen (grouped by date)
-- [ ] Session list tile (icon, name, time range, duration, status)
-- [ ] Edit session memo
-- [ ] Delete session
+- [x] Session history screen (grouped by date)
+- [x] Session list tile (icon, name, time range, duration, status)
+- [x] Edit session memo
+- [x] Delete session
 
 ## Phase 5: Statistics
 

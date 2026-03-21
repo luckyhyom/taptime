@@ -6,7 +6,7 @@
 
 ## Current Status
 
-- **Active Phase:** Phase 4 (History) — Phase 3 complete
+- **Active Phase:** Phase 5 (Statistics) — Phase 4 complete
 - **Last Updated:** 2026-03-21
 - **Blocker:** None
 
@@ -14,10 +14,11 @@
 
 ### Immediate Next Task
 
-Phase 4: History screen. Start with:
-1. Session history screen (grouped by date) using `SessionRepository.watchSessionsByDate`
-2. Session list tile (preset icon, name, time range, duration, status badge)
-3. Edit session memo / delete session
+Phase 5: Statistics screen. Start with:
+1. Statistics screen with tab layout (Today / Week)
+2. Today tab: total time, per-preset bar chart, goal progress bars
+3. Week tab: daily totals bar chart, category donut chart
+4. Date navigation (prev/next)
 
 ### Environment
 
@@ -59,6 +60,12 @@ Document inconsistencies found — not blocking, can fix separately:
 - v2.1 GPS: user decided multiple sessions can start simultaneously at same location
 
 ## Recent Work
+
+### 2026-03-21 — Phase 4: History Implementation
+
+- `history_providers.dart`: `selectedDateProvider`, `sessionsForDateProvider`, `presetMapProvider`
+- `widgets/session_list_tile.dart`: preset icon/color, time range, duration, status badge, Dismissible delete
+- `history_screen.dart`: date navigator (prev/next/오늘), session list, memo edit bottom sheet
 
 ### 2026-03-21 — Document Consolidation
 
