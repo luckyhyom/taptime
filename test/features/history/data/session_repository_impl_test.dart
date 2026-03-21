@@ -151,6 +151,70 @@ void main() {
     });
   });
 
+  group('월별 조회', () {
+    test('watchSessionsByMonth는 해당 월의 세션만 스트림으로 반환한다', () async {
+      await sessionRepo.createSession(makeSession());
+      await sessionRepo.createSession(
+        makeSession(id: 's2', startedAt: yesterday, endedAt: yesterdayEnd),
+      );
+      // 다른 달 세션
+      await sessionRepo.createSession(
+        makeSession(
+          id: 's3',
+          startedAt: DateTime(2026, 2, 15, 10),
+          endedAt: DateTime(2026, 2, 15, 10, 25),
+        ),
+      );
+
+      final sessions = await sessionRepo.watchSessionsByMonth(2026, 3).first;
+      expect(sessions, hasLength(2));
+    });
+  });
+
+  group('일별 총 시간 집계', () {
+    test('getDailyTotalsForRange는 날짜별 총 시간을 반환한다', () async {
+      await sessionRepo.createSession(makeSession(durationSeconds: 600));
+      await sessionRepo.createSession(makeSession(id: 's2', durationSeconds: 900));
+      await sessionRepo.createSession(
+        makeSession(id: 's3', startedAt: yesterday, endedAt: yesterdayEnd, durationSeconds: 300),
+      );
+
+      final result = await sessionRepo.getDailyTotalsForRange(
+        DateTime(2026, 3, 18),
+        DateTime(2026, 3, 19, 23, 59, 59),
+      );
+
+      expect(result[DateTime(2026, 3, 19)], 1500); // 600 + 900
+      expect(result[DateTime(2026, 3, 18)], 300);
+    });
+
+    test('세션이 없는 범위는 빈 맵을 반환한다', () async {
+      final result = await sessionRepo.getDailyTotalsForRange(
+        DateTime(2026),
+        DateTime(2026, 1, 31, 23, 59, 59),
+      );
+      expect(result, isEmpty);
+    });
+
+    test('getDailyTotalsForPreset은 해당 프리셋의 시간만 반환한다', () async {
+      await sessionRepo.createSession(makeSession(durationSeconds: 600));
+      await sessionRepo.createSession(makeSession(id: 's2', presetId: 'preset-2', durationSeconds: 300));
+      await sessionRepo.createSession(
+        makeSession(id: 's3', startedAt: yesterday, endedAt: yesterdayEnd, durationSeconds: 400),
+      );
+
+      final result = await sessionRepo.getDailyTotalsForPreset(
+        DateTime(2026, 3, 18),
+        DateTime(2026, 3, 19, 23, 59, 59),
+        'preset-1',
+      );
+
+      expect(result[DateTime(2026, 3, 19)], 600); // preset-1만
+      expect(result[DateTime(2026, 3, 18)], 400);
+      expect(result.containsKey(DateTime(2026, 3, 20)), isFalse);
+    });
+  });
+
   group('cascade 삭제', () {
     test('프리셋 삭제 시 관련 세션도 함께 삭제된다', () async {
       await sessionRepo.createSession(makeSession());

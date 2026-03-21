@@ -8,6 +8,7 @@ import 'package:taptime/core/theme/app_spacing.dart';
 import 'package:taptime/core/utils/color_utils.dart';
 import 'package:taptime/core/utils/date_utils.dart';
 import 'package:taptime/features/stats/ui/stats_providers.dart';
+import 'package:taptime/features/stats/ui/widgets/goal_progress_bar.dart';
 import 'package:taptime/shared/models/preset.dart';
 
 /// 주간 통계 뷰.
@@ -78,6 +79,8 @@ class WeekStatsView extends ConsumerWidget {
                     presetMap: presetMap,
                     totalSeconds: totalSeconds,
                   ),
+                  // 주간 목표 달성률
+                  ..._buildWeeklyGoals(presetTotals, presetMap, context),
                   const SizedBox(height: AppSpacing.padding),
                 ],
               );
@@ -86,6 +89,32 @@ class WeekStatsView extends ConsumerWidget {
         ),
       ],
     );
+  }
+
+  /// 주간 목표가 있는 프리셋의 달성률 위젯 목록을 생성한다.
+  static List<Widget> _buildWeeklyGoals(
+    Map<String, int> presetTotals,
+    Map<String, Preset> presetMap,
+    BuildContext context,
+  ) {
+    final withGoals = presetTotals.entries
+        .where((e) => (presetMap[e.key]?.dailyGoalMin ?? 0) > 0)
+        .toList()
+      ..sort((a, b) => b.value.compareTo(a.value));
+
+    if (withGoals.isEmpty) return [];
+
+    return [
+      const SizedBox(height: AppSpacing.sectionGap),
+      Text('주간 목표 달성률', style: Theme.of(context).textTheme.titleMedium),
+      const SizedBox(height: AppSpacing.grid),
+      for (final entry in withGoals)
+        GoalProgressBar(
+          preset: presetMap[entry.key]!,
+          actualMinutes: entry.value ~/ 60,
+          goalMinutes: presetMap[entry.key]!.dailyGoalMin * 7,
+        ),
+    ];
   }
 
   static bool _isCurrentWeek(DateTime weekStart) {

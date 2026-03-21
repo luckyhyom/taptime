@@ -15,6 +15,19 @@ extension DateTimeX on DateTime {
   /// 두 DateTime이 같은 날인지 비교.
   /// 시간은 무시하고 년/월/일만 비교한다.
   bool isSameDay(DateTime other) => year == other.year && month == other.month && day == other.day;
+
+  /// 해당 월의 첫째 날 (1일 00:00:00).
+  DateTime get startOfMonth => DateTime(year, month);
+
+  /// 해당 월의 마지막 시각.
+  /// month + 1의 0일 = 현재 월의 마지막 날 (Dart DateTime 관례).
+  DateTime get endOfMonth => DateTime(year, month + 1, 0, 23, 59, 59, 999);
+
+  /// 해당 월의 일수 (28~31).
+  int get daysInMonth => DateTime(year, month + 1, 0).day;
+
+  /// 해당 주의 월요일 (ISO 8601 기준 주 시작).
+  DateTime get startOfWeek => DateTime(year, month, day - (weekday - 1));
 }
 
 /// 시간 포맷 유틸리티.

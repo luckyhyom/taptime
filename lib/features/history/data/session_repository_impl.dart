@@ -70,6 +70,36 @@ class SessionRepositoryImpl implements SessionRepository {
     return _queryByDateRange(start, end).watch().map((rows) => rows.map(_toModel).toList());
   }
 
+  @override
+  Stream<List<Session>> watchSessionsByMonth(int year, int month) {
+    final start = DateTime(year, month);
+    final end = DateTime(year, month + 1, 0, 23, 59, 59, 999);
+    return _queryByDateRange(start, end).watch().map((rows) => rows.map(_toModel).toList());
+  }
+
+  @override
+  Future<Map<DateTime, int>> getDailyTotalsForRange(DateTime start, DateTime end) async {
+    final sessions = await getSessionsByDateRange(start, end);
+    final result = <DateTime, int>{};
+    for (final session in sessions) {
+      final day = session.startedAt.startOfDay;
+      result[day] = (result[day] ?? 0) + session.durationSeconds;
+    }
+    return result;
+  }
+
+  @override
+  Future<Map<DateTime, int>> getDailyTotalsForPreset(DateTime start, DateTime end, String presetId) async {
+    final sessions = await getSessionsByDateRange(start, end);
+    final result = <DateTime, int>{};
+    for (final session in sessions) {
+      if (session.presetId != presetId) continue;
+      final day = session.startedAt.startOfDay;
+      result[day] = (result[day] ?? 0) + session.durationSeconds;
+    }
+    return result;
+  }
+
   // ── 내부 헬퍼 ──────────────────────────────────────────────
 
   /// 날짜 범위로 세션을 조회하는 공통 쿼리 빌더.

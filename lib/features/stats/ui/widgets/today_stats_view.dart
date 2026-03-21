@@ -7,6 +7,7 @@ import 'package:taptime/core/theme/app_spacing.dart';
 import 'package:taptime/core/utils/color_utils.dart';
 import 'package:taptime/core/utils/date_utils.dart';
 import 'package:taptime/features/stats/ui/stats_providers.dart';
+import 'package:taptime/features/stats/ui/widgets/goal_progress_bar.dart';
 import 'package:taptime/shared/models/preset.dart';
 
 /// 오늘(일간) 통계 뷰.
@@ -25,8 +26,7 @@ class TodayStatsView extends ConsumerWidget {
       children: [
         _DayNavigator(
           date: date,
-          onPrevious: () =>
-              ref.read(statsDayProvider.notifier).state = date.subtract(const Duration(days: 1)),
+          onPrevious: () => ref.read(statsDayProvider.notifier).state = date.subtract(const Duration(days: 1)),
           onNext: date.isSameDay(DateTime.now())
               ? null
               : () => ref.read(statsDayProvider.notifier).state = date.add(const Duration(days: 1)),
@@ -49,8 +49,7 @@ class TodayStatsView extends ConsumerWidget {
                 presetTotals[s.presetId] = (presetTotals[s.presetId] ?? 0) + s.durationSeconds;
                 totalSeconds += s.durationSeconds;
               }
-              final sorted = presetTotals.entries.toList()
-                ..sort((a, b) => b.value.compareTo(a.value));
+              final sorted = presetTotals.entries.toList()..sort((a, b) => b.value.compareTo(a.value));
               final maxSeconds = sorted.first.value;
 
               // 목표가 있는 프리셋 필터링
@@ -74,9 +73,10 @@ class TodayStatsView extends ConsumerWidget {
                     Text('목표 달성률', style: Theme.of(context).textTheme.titleMedium),
                     const SizedBox(height: AppSpacing.grid),
                     for (final entry in withGoals)
-                      _GoalProgressBar(
+                      GoalProgressBar(
                         preset: presetMap[entry.key]!,
                         actualMinutes: entry.value ~/ 60,
+                        goalMinutes: presetMap[entry.key]!.dailyGoalMin,
                       ),
                   ],
                 ],
@@ -198,53 +198,6 @@ class _PresetTimeBar extends StatelessWidget {
               TimeFormatter.humanize(seconds ~/ 60),
               textAlign: TextAlign.right,
               style: theme.textTheme.bodySmall?.copyWith(fontWeight: FontWeight.w600),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-// ── 목표 달성률 바 ──────────────────────────────────────────
-
-class _GoalProgressBar extends StatelessWidget {
-  const _GoalProgressBar({required this.preset, required this.actualMinutes});
-
-  final Preset preset;
-  final int actualMinutes;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final color = ColorUtils.fromHex(preset.color);
-    final goal = preset.dailyGoalMin;
-    final progress = (actualMinutes / goal).clamp(0.0, 1.0);
-    final percentage = (progress * 100).round();
-
-    return Padding(
-      padding: const EdgeInsets.only(bottom: AppSpacing.grid),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(preset.name, style: theme.textTheme.bodyMedium),
-              Text(
-                '${TimeFormatter.humanize(actualMinutes)} / ${TimeFormatter.humanize(goal)} ($percentage%)',
-                style: theme.textTheme.bodySmall,
-              ),
-            ],
-          ),
-          const SizedBox(height: 4),
-          ClipRRect(
-            borderRadius: BorderRadius.circular(4),
-            child: LinearProgressIndicator(
-              value: progress,
-              minHeight: 8,
-              backgroundColor: color.withValues(alpha: 0.1),
-              valueColor: AlwaysStoppedAnimation(color),
             ),
           ),
         ],
