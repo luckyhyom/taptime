@@ -54,7 +54,6 @@ class _TimerScreenState extends ConsumerState<TimerScreen> with WidgetsBindingOb
   Widget build(BuildContext context) {
     final timerState = ref.watch(timerProvider(widget.presetId));
     final color = ColorUtils.fromHex(timerState.presetColor);
-    final isActive = timerState.status == TimerStatus.running || timerState.status == TimerStatus.paused;
 
     // 완료/에러 시 다이얼로그 표시 + 알림 효과
     ref.listen(timerProvider(widget.presetId), (prev, next) {
@@ -69,19 +68,14 @@ class _TimerScreenState extends ConsumerState<TimerScreen> with WidgetsBindingOb
       }
     });
 
-    // 타이머 활성 중에는 뒤로가기를 차단하고 확인 다이얼로그를 표시한다
-    return PopScope(
-      canPop: !isActive,
-      onPopInvokedWithResult: (didPop, _) {
-        if (!didPop) _showStopConfirmation(context);
-      },
-      child: Scaffold(
-        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-        body: SafeArea(
-          child: timerState.status == TimerStatus.loading
-              ? const Center(child: CircularProgressIndicator())
-              : _buildBody(context, timerState, color),
-        ),
+    // 스와이프로 자유롭게 이동 가능. 타이머는 ActiveTimer DB에 저장되어
+    // 다시 프리셋을 탭하면 복구된다.
+    return Scaffold(
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+      body: SafeArea(
+        child: timerState.status == TimerStatus.loading
+            ? const Center(child: CircularProgressIndicator())
+            : _buildBody(context, timerState, color),
       ),
     );
   }
@@ -92,35 +86,6 @@ class _TimerScreenState extends ConsumerState<TimerScreen> with WidgetsBindingOb
 
     return Column(
       children: [
-        // ── 상단 바 ──────────────────────────────────────
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
-          child: Row(
-            children: [
-              IconButton(
-                icon: const Icon(Icons.close),
-                tooltip: '닫기',
-                onPressed: () {
-                  final isActive =
-                      timerState.status == TimerStatus.running || timerState.status == TimerStatus.paused;
-                  if (isActive) {
-                    _showStopConfirmation(context);
-                  } else {
-                    context.pop();
-                  }
-                },
-              ),
-              const Spacer(),
-              // 홈 버튼: 타이머 실행 중에도 이동 가능 (타이머는 백그라운드에서 계속 동작)
-              IconButton(
-                icon: const Icon(Icons.home),
-                tooltip: '홈',
-                onPressed: () => context.go(AppRoutes.home),
-              ),
-            ],
-          ),
-        ),
-
         const Spacer(),
 
         // ── 프리셋 정보 ──────────────────────────────────
@@ -200,7 +165,7 @@ class _TimerScreenState extends ConsumerState<TimerScreen> with WidgetsBindingOb
           icon: Icons.check_rounded,
           label: '완료',
           color: color,
-          onPressed: () => context.pop(),
+          onPressed: () => context.go(AppRoutes.home),
         );
       case TimerStatus.loading:
         return const SizedBox.shrink();
@@ -237,9 +202,7 @@ class _TimerScreenState extends ConsumerState<TimerScreen> with WidgetsBindingOb
           TextButton(
             onPressed: () {
               Navigator.of(ctx).pop();
-              context
-                ..pop()
-                ..push(AppRoutes.breakTimerPath(AppConstants.shortBreakSeconds));
+              context.go(AppRoutes.breakTimerPath(AppConstants.shortBreakSeconds));
             },
             child: const Text('짧은 휴식 5분'),
           ),
@@ -247,9 +210,7 @@ class _TimerScreenState extends ConsumerState<TimerScreen> with WidgetsBindingOb
           TextButton(
             onPressed: () {
               Navigator.of(ctx).pop();
-              context
-                ..pop()
-                ..push(AppRoutes.breakTimerPath(AppConstants.longBreakSeconds));
+              context.go(AppRoutes.breakTimerPath(AppConstants.longBreakSeconds));
             },
             child: const Text('긴 휴식 15분'),
           ),
@@ -257,7 +218,7 @@ class _TimerScreenState extends ConsumerState<TimerScreen> with WidgetsBindingOb
           TextButton(
             onPressed: () {
               Navigator.of(ctx).pop();
-              context.pop();
+              context.go(AppRoutes.home);
             },
             child: const Text('완료'),
           ),
@@ -289,7 +250,7 @@ class _TimerScreenState extends ConsumerState<TimerScreen> with WidgetsBindingOb
               Navigator.of(ctx).pop();
               final success = await ref.read(timerProvider(widget.presetId).notifier).stop();
               if (success && context.mounted) {
-                context.pop();
+                context.go(AppRoutes.home);
               }
             },
             child: Text(

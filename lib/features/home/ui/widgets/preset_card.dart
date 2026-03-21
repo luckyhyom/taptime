@@ -12,10 +12,14 @@ import 'package:taptime/shared/models/preset.dart';
 ///
 /// todayMinutes는 오늘 이 프리셋으로 기록한 누적 시간이다.
 /// Phase 3(타이머)에서 실제 세션 데이터가 연결되기 전까지는 0으로 표시된다.
+/// 프리셋 카드의 타이머 활성 상태.
+enum PresetTimerStatus { none, running, paused }
+
 class PresetCard extends StatelessWidget {
   const PresetCard({
     required this.preset,
     this.todayMinutes = 0,
+    this.timerStatus = PresetTimerStatus.none,
     this.onTap,
     this.onLongPress,
     super.key,
@@ -25,6 +29,9 @@ class PresetCard extends StatelessWidget {
 
   /// 오늘 이 프리셋으로 기록한 시간 (분 단위)
   final int todayMinutes;
+
+  /// 이 프리셋의 타이머 활성 상태
+  final PresetTimerStatus timerStatus;
 
   final VoidCallback? onTap;
   final VoidCallback? onLongPress;
@@ -53,16 +60,22 @@ class PresetCard extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // ── 아이콘 배지 ─────────────────────────────────────
-              // 프리셋 색상을 배경에 연하게 깔고, 아이콘을 진한 색으로 표시한다.
-              Container(
-                width: 48,
-                height: 48,
-                decoration: BoxDecoration(
-                  color: presetColor.withValues(alpha: 0.15),
-                  borderRadius: BorderRadius.circular(AppSpacing.cardRadius),
-                ),
-                child: Icon(icon, color: presetColor, size: 28),
+              // ── 아이콘 배지 + 타이머 상태 ─────────────────────────
+              Row(
+                children: [
+                  Container(
+                    width: 48,
+                    height: 48,
+                    decoration: BoxDecoration(
+                      color: presetColor.withValues(alpha: 0.15),
+                      borderRadius: BorderRadius.circular(AppSpacing.cardRadius),
+                    ),
+                    child: Icon(icon, color: presetColor, size: 28),
+                  ),
+                  const Spacer(),
+                  if (timerStatus != PresetTimerStatus.none)
+                    _TimerStatusBadge(status: timerStatus, color: presetColor),
+                ],
               ),
 
               const SizedBox(height: AppSpacing.gap),
@@ -104,6 +117,44 @@ class PresetCard extends StatelessWidget {
             ],
           ),
         ),
+      ),
+    );
+  }
+}
+
+// ── 타이머 상태 배지 ────────────────────────────────────────────
+
+/// 프리셋 카드 우측 상단에 표시되는 타이머 상태 배지.
+class _TimerStatusBadge extends StatelessWidget {
+  const _TimerStatusBadge({required this.status, required this.color});
+
+  final PresetTimerStatus status;
+  final Color color;
+
+  @override
+  Widget build(BuildContext context) {
+    final isRunning = status == PresetTimerStatus.running;
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: isRunning ? 0.15 : 0.1),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(
+            isRunning ? Icons.play_arrow_rounded : Icons.pause_rounded,
+            size: 14,
+            color: color,
+          ),
+          const SizedBox(width: 2),
+          Text(
+            isRunning ? '실행 중' : '일시정지',
+            style: TextStyle(fontSize: 10, fontWeight: FontWeight.w600, color: color),
+          ),
+        ],
       ),
     );
   }

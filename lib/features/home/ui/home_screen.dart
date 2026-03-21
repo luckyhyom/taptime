@@ -10,6 +10,7 @@ import 'package:taptime/core/theme/app_spacing.dart';
 import 'package:taptime/core/utils/color_utils.dart';
 import 'package:taptime/features/home/ui/preset_providers.dart';
 import 'package:taptime/features/home/ui/widgets/preset_card.dart';
+import 'package:taptime/shared/models/active_timer.dart';
 import 'package:taptime/shared/models/preset.dart';
 
 /// 홈 화면.
@@ -74,9 +75,10 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             return _buildReorderList(presets);
           }
 
-          // 기본 모드: 2열 그리드 (오늘 진행률 포함)
+          // 기본 모드: 2열 그리드 (오늘 진행률 + 타이머 상태 포함)
           final todayDurations = ref.watch(todayDurationByPresetProvider).valueOrNull ?? {};
-          return _buildGrid(presets, todayDurations);
+          final activeTimer = ref.watch(activeTimerProvider).valueOrNull;
+          return _buildGrid(presets, todayDurations, activeTimer);
         },
       ),
       // 편집 모드에서는 FAB를 숨긴다.
@@ -92,7 +94,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     );
   }
 
-  Widget _buildGrid(List<Preset> presets, Map<String, int> todayDurations) {
+  Widget _buildGrid(List<Preset> presets, Map<String, int> todayDurations, ActiveTimer? activeTimer) {
     return GridView.builder(
       padding: const EdgeInsets.all(AppSpacing.padding),
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
@@ -105,9 +107,14 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       itemCount: presets.length,
       itemBuilder: (context, index) {
         final preset = presets[index];
+        // 활성 타이머가 이 프리셋에 해당하면 상태를 전달한다.
+        final timerStatus = activeTimer?.presetId == preset.id
+            ? (activeTimer!.isPaused ? PresetTimerStatus.paused : PresetTimerStatus.running)
+            : PresetTimerStatus.none;
         return PresetCard(
           preset: preset,
           todayMinutes: (todayDurations[preset.id] ?? 0) ~/ 60,
+          timerStatus: timerStatus,
           onTap: () => context.push(AppRoutes.timerPath(preset.id)),
           onLongPress: () => context.push(AppRoutes.presetEditPath(preset.id)),
         );
