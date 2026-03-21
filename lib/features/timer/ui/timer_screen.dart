@@ -96,7 +96,10 @@ class _TimerScreenState extends ConsumerState<TimerScreen> with WidgetsBindingOb
           style: theme.textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w600),
         ),
 
-        const Spacer(),
+        // 고정 간격으로 요소들을 하나의 그룹으로 묶는다.
+        // Spacer 대신 SizedBox를 사용하여 화면 크기에 관계없이
+        // 일관된 배치를 유지한다.
+        const SizedBox(height: 32),
 
         // ── 프로그레스 링 + 시간 표시 ───────────────────
         ProgressRing(
@@ -114,12 +117,12 @@ class _TimerScreenState extends ConsumerState<TimerScreen> with WidgetsBindingOb
           ),
         ),
 
-        const Spacer(),
+        const SizedBox(height: 48),
 
         // ── 컨트롤 버튼 ──────────────────────────────────
         _buildControls(context, timerState, color),
 
-        const Spacer(flex: 2),
+        const Spacer(flex: 3),
       ],
     );
   }

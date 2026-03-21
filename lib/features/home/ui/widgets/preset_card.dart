@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 
 import 'package:taptime/core/constants/app_constants.dart';
@@ -134,7 +136,10 @@ class PresetCard extends StatelessWidget {
 // ── 타이머 상태 배지 ────────────────────────────────────────────
 
 /// 프리셋 카드 우측 상단에 표시되는 타이머 상태 배지.
-class _TimerStatusBadge extends StatelessWidget {
+///
+/// 실행 중일 때 매초 경과 시간을 갱신한다.
+/// StatefulWidget인 이유: 주기적 Timer로 매초 setState를 호출하기 위함.
+class _TimerStatusBadge extends StatefulWidget {
   const _TimerStatusBadge({
     required this.status,
     required this.color,
@@ -146,13 +151,53 @@ class _TimerStatusBadge extends StatelessWidget {
   final int elapsedSeconds;
 
   @override
+  State<_TimerStatusBadge> createState() => _TimerStatusBadgeState();
+}
+
+class _TimerStatusBadgeState extends State<_TimerStatusBadge> {
+  Timer? _ticker;
+  late int _displaySeconds;
+
+  @override
+  void initState() {
+    super.initState();
+    _displaySeconds = widget.elapsedSeconds;
+    _startTickerIfNeeded();
+  }
+
+  @override
+  void didUpdateWidget(_TimerStatusBadge oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    // 외부에서 새 값이 들어오면(일시정지/재개 등) 동기화한다.
+    _displaySeconds = widget.elapsedSeconds;
+    if (oldWidget.status != widget.status) {
+      _startTickerIfNeeded();
+    }
+  }
+
+  @override
+  void dispose() {
+    _ticker?.cancel();
+    super.dispose();
+  }
+
+  void _startTickerIfNeeded() {
+    _ticker?.cancel();
+    if (widget.status == PresetTimerStatus.running) {
+      _ticker = Timer.periodic(const Duration(seconds: 1), (_) {
+        setState(() => _displaySeconds++);
+      });
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final isRunning = status == PresetTimerStatus.running;
+    final isRunning = widget.status == PresetTimerStatus.running;
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
-        color: color.withValues(alpha: isRunning ? 0.15 : 0.1),
+        color: widget.color.withValues(alpha: isRunning ? 0.15 : 0.1),
         borderRadius: BorderRadius.circular(12),
       ),
       child: Row(
@@ -161,12 +206,12 @@ class _TimerStatusBadge extends StatelessWidget {
           Icon(
             isRunning ? Icons.play_arrow_rounded : Icons.pause_rounded,
             size: 14,
-            color: color,
+            color: widget.color,
           ),
           const SizedBox(width: 2),
           Text(
-            TimeFormatter.mmss(elapsedSeconds),
-            style: TextStyle(fontSize: 10, fontWeight: FontWeight.w600, color: color),
+            TimeFormatter.mmss(_displaySeconds),
+            style: TextStyle(fontSize: 10, fontWeight: FontWeight.w600, color: widget.color),
           ),
         ],
       ),
