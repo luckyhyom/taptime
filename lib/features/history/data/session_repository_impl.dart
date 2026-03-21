@@ -120,6 +120,7 @@ class SessionRepositoryImpl implements SessionRepository {
       status: safeEnumByName(SessionStatus.values, row.status) ?? SessionStatus.completed,
       memo: row.memo,
       createdAt: row.createdAt,
+      updatedAt: row.updatedAt,
     );
   }
 
@@ -133,6 +134,7 @@ class SessionRepositoryImpl implements SessionRepository {
       status: Value(session.status.name),
       memo: Value(session.memo),
       createdAt: Value(session.createdAt),
+      updatedAt: Value(session.updatedAt),
     );
   }
 }

@@ -233,9 +233,10 @@ void main() {
     test('잘못된 status 문자열이 DB에 있을 때 completed로 fallback한다', () async {
       // DB에 직접 잘못된 status를 삽입한다
       await db.customInsert(
-        'INSERT INTO sessions (id, preset_id, started_at, ended_at, duration_seconds, status, created_at) '
+        'INSERT INTO sessions (id, preset_id, started_at, ended_at, duration_seconds, status, created_at, updated_at) '
         "VALUES ('bad', 'preset-1', ${todayStart.millisecondsSinceEpoch ~/ 1000}, "
         "${todayEnd.millisecondsSinceEpoch ~/ 1000}, 1500, 'invalid_status', "
+        '${todayStart.millisecondsSinceEpoch ~/ 1000}, '
         '${todayStart.millisecondsSinceEpoch ~/ 1000})',
       );
 

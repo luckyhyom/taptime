@@ -25,8 +25,10 @@ class Session {
     required this.status,
     required this.createdAt,
     this.memo,
+    DateTime? updatedAt,
   })  : assert(durationSeconds >= 0, 'durationSeconds must be >= 0'),
-        assert(!endedAt.isBefore(startedAt), 'endedAt must not be before startedAt');
+        assert(!endedAt.isBefore(startedAt), 'endedAt must not be before startedAt'),
+        updatedAt = updatedAt ?? createdAt;
 
   /// Map에서 Session 인스턴스를 생성한다.
   factory Session.fromMap(Map<String, dynamic> map) {
@@ -39,6 +41,7 @@ class Session {
       status: safeEnumByName(SessionStatus.values, map['status'] as String?) ?? SessionStatus.completed,
       memo: map['memo'] as String?,
       createdAt: _parseDateTime(map['createdAt']),
+      updatedAt: map['updatedAt'] == null ? null : _parseDateTime(map['updatedAt']),
     );
   }
 
@@ -71,7 +74,11 @@ class Session {
 
   final DateTime createdAt;
 
-  Session copyWith({DateTime? endedAt, int? durationSeconds, SessionStatus? status, String? memo}) {
+  /// 마지막 수정 시각. 동기화 시 충돌 해결(last-write-wins)에 사용.
+  /// 생성 시 createdAt과 동일하며, 메모 수정 등의 변경 시 갱신된다.
+  final DateTime updatedAt;
+
+  Session copyWith({DateTime? endedAt, int? durationSeconds, SessionStatus? status, String? memo, DateTime? updatedAt}) {
     return Session(
       id: id,
       presetId: presetId,
@@ -81,6 +88,7 @@ class Session {
       status: status ?? this.status,
       memo: memo ?? this.memo,
       createdAt: createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
     );
   }
 
@@ -97,6 +105,7 @@ class Session {
       durationSeconds: durationSeconds,
       status: status,
       createdAt: createdAt,
+      updatedAt: DateTime.now(),
     );
   }
 
@@ -118,6 +127,7 @@ class Session {
       'status': status.name,
       'memo': memo,
       'createdAt': createdAt.toIso8601String(),
+      'updatedAt': updatedAt.toIso8601String(),
     };
   }
 

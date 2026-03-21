@@ -26,7 +26,7 @@ class AppDatabase extends _$AppDatabase {
   /// 스키마 버전 — 테이블 구조를 변경할 때마다 이 값을 올린다.
   /// Drift가 이전 버전과 비교하여 마이그레이션을 실행한다.
   @override
-  int get schemaVersion => 1;
+  int get schemaVersion => 2;
 
   /// SQLite 파일 연결을 생성한다.
   ///
@@ -60,8 +60,20 @@ class AppDatabase extends _$AppDatabase {
   MigrationStrategy get migration => MigrationStrategy(
     onCreate: (m) => m.createAll(),
     onUpgrade: (m, from, to) async {
-      // 새 스키마 버전이 추가되면 여기에 마이그레이션 코드를 작성한다.
-      // 예: if (from < 2) { await m.addColumn(presets, presets.locationTrigger); }
+      if (from < 2) {
+        // 동기화를 위한 컬럼 추가.
+        // Sessions: updatedAt, deletedAt, syncStatus, lastSyncedAt
+        await m.addColumn(sessions, sessions.updatedAt);
+        await m.addColumn(sessions, sessions.deletedAt);
+        await m.addColumn(sessions, sessions.syncStatus);
+        await m.addColumn(sessions, sessions.lastSyncedAt);
+        // Presets: deletedAt, syncStatus, lastSyncedAt
+        await m.addColumn(presets, presets.deletedAt);
+        await m.addColumn(presets, presets.syncStatus);
+        await m.addColumn(presets, presets.lastSyncedAt);
+        // 기존 세션의 updatedAt을 createdAt 값으로 채운다.
+        await customStatement('UPDATE sessions SET updated_at = created_at WHERE updated_at IS NULL');
+      }
     },
     beforeOpen: (details) async {
       await customStatement('PRAGMA foreign_keys = ON');

@@ -47,6 +47,15 @@ class Presets extends Table {
   DateTimeColumn get createdAt => dateTime().clientDefault(DateTime.now)();
   DateTimeColumn get updatedAt => dateTime().clientDefault(DateTime.now)();
 
+  /// 소프트 삭제 시각. null이면 활성 상태, non-null이면 삭제됨.
+  DateTimeColumn get deletedAt => dateTime().nullable()();
+
+  /// 동기화 상태: 'synced' 또는 'pending'
+  TextColumn get syncStatus => text().withDefault(const Constant('pending'))();
+
+  /// 마지막으로 클라우드와 동기화된 시각
+  DateTimeColumn get lastSyncedAt => dateTime().nullable()();
+
   @override
   Set<Column<Object>> get primaryKey => {id};
 }
@@ -82,6 +91,18 @@ class Sessions extends Table {
   TextColumn get memo => text().nullable()();
 
   DateTimeColumn get createdAt => dateTime().clientDefault(DateTime.now)();
+
+  /// 마지막 수정 시각. 동기화 시 충돌 해결에 사용.
+  DateTimeColumn get updatedAt => dateTime().clientDefault(DateTime.now)();
+
+  /// 소프트 삭제 시각. null이면 활성 상태, non-null이면 삭제됨.
+  DateTimeColumn get deletedAt => dateTime().nullable()();
+
+  /// 동기화 상태: 'synced' 또는 'pending'
+  TextColumn get syncStatus => text().withDefault(const Constant('pending'))();
+
+  /// 마지막으로 클라우드와 동기화된 시각
+  DateTimeColumn get lastSyncedAt => dateTime().nullable()();
 
   @override
   Set<Column<Object>> get primaryKey => {id};
