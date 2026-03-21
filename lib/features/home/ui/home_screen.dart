@@ -74,8 +74,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             return _buildReorderList(presets);
           }
 
-          // 기본 모드: 2열 그리드
-          return _buildGrid(presets);
+          // 기본 모드: 2열 그리드 (오늘 진행률 포함)
+          final todayDurations = ref.watch(todayDurationByPresetProvider).valueOrNull ?? {};
+          return _buildGrid(presets, todayDurations);
         },
       ),
       // 편집 모드에서는 FAB를 숨긴다.
@@ -91,7 +92,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     );
   }
 
-  Widget _buildGrid(List<Preset> presets) {
+  Widget _buildGrid(List<Preset> presets, Map<String, int> todayDurations) {
     return GridView.builder(
       padding: const EdgeInsets.all(AppSpacing.padding),
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
@@ -106,6 +107,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         final preset = presets[index];
         return PresetCard(
           preset: preset,
+          todayMinutes: (todayDurations[preset.id] ?? 0) ~/ 60,
           onTap: () => context.push(AppRoutes.timerPath(preset.id)),
           onLongPress: () => context.push(AppRoutes.presetEditPath(preset.id)),
         );

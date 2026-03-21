@@ -270,9 +270,9 @@ class TimerNotifier extends AutoDisposeFamilyNotifier<TimerState, String> {
       totalPaused += now.difference(_pausedAt!).inSeconds;
     }
     final durationSeconds = now.difference(_startedAt!).inSeconds - totalPaused;
-    // 스톱워치 모드(totalSeconds == 0)에서는 상한 제한 없이 실제 경과 시간을 저장
+    // 카운트다운 모드: 설정 시간 이내로 제한. 스톱워치 모드: 상한 없이 음수만 방지.
     final clampedDuration =
-        state.isStopwatch ? durationSeconds.clamp(0, durationSeconds) : durationSeconds.clamp(0, state.totalSeconds);
+        state.isStopwatch ? durationSeconds.clamp(0, durationSeconds.abs()) : durationSeconds.clamp(0, state.totalSeconds);
 
     try {
       await ref.read(sessionRepositoryProvider).createSession(
@@ -398,7 +398,7 @@ class TimerNotifier extends AutoDisposeFamilyNotifier<TimerState, String> {
       totalPaused += now.difference(activeTimer.pausedAt!).inSeconds;
     }
     final durationSeconds = now.difference(activeTimer.startedAt).inSeconds - totalPaused;
-    final clampedDuration = totalSeconds > 0 ? durationSeconds.clamp(0, totalSeconds) : durationSeconds.clamp(0, durationSeconds);
+    final clampedDuration = totalSeconds > 0 ? durationSeconds.clamp(0, totalSeconds) : durationSeconds.clamp(0, durationSeconds.abs());
 
     await ref.read(sessionRepositoryProvider).createSession(
       Session(

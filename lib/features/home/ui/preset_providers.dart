@@ -12,3 +12,18 @@ final presetListProvider = StreamProvider<List<Preset>>((ref) {
   final repo = ref.watch(presetRepositoryProvider);
   return repo.watchAllPresets();
 });
+
+/// 오늘 프리셋별 총 소요 시간 (초 단위).
+///
+/// 홈 화면 프리셋 카드의 일일 진행률 표시에 사용한다.
+/// 새 세션이 저장되면 자동으로 갱신된다.
+final todayDurationByPresetProvider = StreamProvider<Map<String, int>>((ref) {
+  final repo = ref.watch(sessionRepositoryProvider);
+  return repo.watchSessionsByDate(DateTime.now()).map((sessions) {
+    final result = <String, int>{};
+    for (final s in sessions) {
+      result[s.presetId] = (result[s.presetId] ?? 0) + s.durationSeconds;
+    }
+    return result;
+  });
+});

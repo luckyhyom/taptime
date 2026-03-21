@@ -124,8 +124,9 @@ class SettingsScreen extends ConsumerWidget {
     await ref.read(presetRepositoryProvider).deleteAllPresets();
     // 설정을 기본값으로 복원
     await ref.read(userSettingsRepositoryProvider).updateSettings(UserSettings.defaults());
-    // 기본 프리셋 재생성 (앱 초기화 로직 재실행)
+    // 기본 프리셋 재생성 (앱 초기화 로직 재실행 후 완료 대기)
     ref.invalidate(appInitProvider);
+    await ref.read(appInitProvider.future);
 
     if (context.mounted) {
       ScaffoldMessenger.of(context).showSnackBar(

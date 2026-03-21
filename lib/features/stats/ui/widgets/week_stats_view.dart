@@ -334,7 +334,7 @@ class _DonutPainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(covariant _DonutPainter oldDelegate) => true;
+  bool shouldRepaint(covariant _DonutPainter oldDelegate) => oldDelegate.segments != segments;
 }
 
 class _LegendItem extends StatelessWidget {
