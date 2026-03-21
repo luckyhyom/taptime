@@ -60,6 +60,12 @@ Document inconsistencies found — not blocking, can fix separately:
 
 ## Recent Work
 
+### 2026-03-21 — Document Consolidation
+
+- Merged all BACKLOG.md tasks into PLAN.md as Post-MVP section (v1.1 ~ v2.3)
+- Added stopwatch mode (dd816fe) to Phase 3 task list
+- BACKLOG.md retained as detailed technical reference
+
 ### 2026-03-21 — Phase 3: Timer Implementation
 
 - `timer_notifier.dart`: `TimerStatus` enum, `TimerState` class, `TimerNotifier` with full countdown logic

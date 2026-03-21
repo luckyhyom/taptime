@@ -49,6 +49,7 @@
 - [x] Session auto-save on completion
 - [x] Session save on manual stop (with confirmation)
 - [x] Notification sound + vibration on completion
+- [x] Stopwatch mode (durationMin=0, unlimited time tracking)
 
 ## Phase 4: History
 
@@ -82,4 +83,74 @@
 
 ---
 
-> Post-MVP features → [BACKLOG.md](BACKLOG.md)
+## Post-MVP
+
+### v1.1 — Motivation & Extended Stats
+
+- [ ] Heatmap calendar (GitHub-style activity visualization)
+- [ ] Streak tracking (consecutive days meeting goals)
+- [ ] Break timer (5m short / 15m long)
+- [ ] Weekly/monthly goals
+- [ ] Monthly statistics view
+
+### v1.2 — Google Calendar Statistics (Read-Only)
+
+> View Google Calendar events inside Taptime for context — not sync or export.
+
+- [ ] Google Calendar read-only integration (OAuth, view events)
+- [ ] Calendar context view alongside Taptime sessions
+
+### v2.0 — Cloud Backup
+
+> Prerequisite for v2.1+ features that require cross-device data sharing.
+
+- [ ] Supabase integration
+- [ ] Google/Apple social login (backup-only, no custom accounts)
+- [ ] Cloud backup/restore
+
+### v2.1 — Location-Based Auto Tracking (iOS)
+
+> Auto-detect arrival at registered places and prompt to start a timer.
+> Depends on: v2.0 (Supabase).
+
+- [ ] Add `LocationTrigger` model (placeName, lat/lng, radius)
+- [ ] Add optional location field to Preset
+- [ ] Location registration UI (map or current location)
+- [ ] Geofence monitoring service (Platform Channel or package)
+- [ ] Entry/exit notification handling
+- [ ] Auto-start option (skip confirmation)
+- [ ] Settings: enable/disable location tracking globally
+
+### v2.2 — macOS Activity Monitor (Companion App)
+
+> Separate native Swift menu bar app. Shares data via Supabase.
+> Depends on: v2.0 (Supabase).
+
+- [ ] Swift project setup (menu bar app, SPM)
+- [ ] App switch tracker (NSWorkspace notifications)
+- [ ] Browser URL tracker (AppleScript for Chrome/Safari)
+- [ ] Idle detection (CGEventSource, 5-min threshold)
+- [ ] Rule-based classifier with JSON config
+- [ ] Filter engine (blocklist/allowlist)
+- [ ] Local SQLite storage
+- [ ] Supabase sync (periodic upload)
+- [ ] Settings UI (SwiftUI): categories, rules, filters
+- [ ] Launch at login (SMAppService)
+- [ ] Core ML text classifier (after data accumulation)
+- [ ] Local LLM integration (experimental, MLX embedded)
+
+### v2.3 — Life Pattern Dashboard
+
+> Unified analytics combining iOS + macOS data.
+> Depends on: v2.1 + v2.2.
+
+- [ ] Daily timeline — hour-by-hour visualization
+- [ ] Category time distribution — donut chart
+- [ ] Day-of-week patterns
+- [ ] Device comparison — Mac vs Mobile time breakdown
+- [ ] Location insights — time spent per registered place
+- [ ] Productive vs unproductive ratio
+
+---
+
+> Post-MVP details and technical notes → [BACKLOG.md](BACKLOG.md)
