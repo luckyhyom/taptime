@@ -6,7 +6,7 @@
 
 ## Current Status
 
-- **Active Phase:** Phase 7 (Polish) — Phases 0-6 complete
+- **Active Phase:** Phase 7 (Polish) — nearly complete, emulator testing remaining
 - **Last Updated:** 2026-03-21
 - **Blocker:** None
 
@@ -14,11 +14,8 @@
 
 ### Immediate Next Task
 
-Phase 7: Polish. All MVP features are implemented. Focus on:
-1. Edge case handling (empty states, error states)
-2. Performance optimization
-3. iOS + Android emulator testing
-4. Bug fixes
+Phase 7 remaining: iOS + Android emulator testing.
+All code-level polish is done. Build and test on devices.
 
 ### Environment
 
@@ -60,6 +57,13 @@ Document inconsistencies found — not blocking, can fix separately:
 - v2.1 GPS: user decided multiple sessions can start simultaneously at same location
 
 ## Recent Work
+
+### 2026-03-21 — Phase 7: Polish
+
+- Connected `todayDurationByPreset` to PresetCard (daily progress was always 0)
+- Fixed DonutPainter.shouldRepaint (always returned true → compare segments)
+- Fixed stopwatch clamp no-op in timer_notifier
+- Added await for appInitProvider re-seed in settings reset
 
 ### 2026-03-21 — Phases 4-6 Implementation
 
