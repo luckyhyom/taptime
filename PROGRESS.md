@@ -6,60 +6,62 @@
 
 ## Current Status
 
-- **Active Phase:** Phase 2 (Presets) — ready to start
-- **Last Updated:** 2026-03-19
+- **Active Phase:** Phase 3 (Timer) — Phase 2 complete
+- **Last Updated:** 2026-03-21
 - **Blocker:** None
 
 ## Notes for Next Agent
 
 ### Immediate Next Task
 
-Phase 2: Presets UI. Start with:
-1. Home screen with preset grid (2 columns)
-2. Preset card widget (icon, name, duration, daily progress)
-3. Default presets visible on first launch
+Phase 3: Timer screen. Start with:
+1. Timer screen UI (countdown display, progress ring, start/pause/stop controls)
+2. Countdown timer logic in `TimerNotifier` (Notifier per ADR-0008)
+3. Session auto-save on completion
 
 ### Environment
 
 - Flutter 3.41.4, Xcode 26.3, CocoaPods 1.16.2
 - Android SDK: deferred (SDK 36 + BuildTools 28.0.3 needed later)
-- Claude Code plugin: Context7 installed and working
+- iOS simulator: use `flutter run` (physical device needs Xcode code signing)
 
 ### Key Context
 
 - All documents indexed in `docs/INDEX.md`
 - Development rules: `.claude/rules/` (project) + `~/.claude/rules/` (universal)
-- Research materials in `docs/references/` (read on demand)
-- ADR-0008 established: use `Notifier` for interactive state (forms, timer), `StreamProvider` for read-only reactive data
-- All 4 models now have constructor assertions, `toMap()`/`fromMap()`, and safe enum parsing
-- 56 tests passing (model validation, repository CRUD, cascade delete, enum fallback)
+- ADR-0008: Use `Notifier` for interactive state (forms, timer), `StreamProvider` for read-only reactive data
+- Design system: user has `design/base.html` (new design) and `design/current.html` (current Flutter design)
+  - Decision on applying new design (`design/base.html` tokens) is pending user review
+  - New design uses Manrope + Inter fonts, primary `#00000b`, secondary `#b71d3f`
+  - Tab bar structure stays as-is (Home/Stats/Settings per existing plan)
+
+### Phase 2 Architecture Notes
+
+- `PresetFormNotifier` (`AutoDisposeFamilyNotifier<PresetFormState, String?>`) handles create/edit
+  - `null` arg = create mode, non-null arg = edit mode (loads from DB via microtask)
+- Home screen: `ConsumerStatefulWidget` with `_isReordering` local state
+  - Normal mode: 2-col GridView; edit mode: ReorderableListView
+  - Reorder saves via `presetRepositoryProvider.updateSortOrder(Map<String,int>)`
+- All 56 tests still passing
 
 ## Recent Work
 
+### 2026-03-21 — Planning Refinement + Phase 2 UI
+
+- **Planning**: Redefined Taptime as automatic time management assistant (GPS opt-out, MacBook detection)
+  - GPS: auto-starts timer on geofence entry, sends notification, user can cancel to delete record
+  - Removed Google Calendar export; kept future read-only stats view in backlog
+  - Removed v1.1 streak milestones, replaced v1.2 with Google Calendar read-only stats
+  - Removed v2.4 widgets/Watch from backlog
+  - Updated PRD.md, BACKLOG.md, CHANGELOG_PLANNING.md
+- **Phase 2 UI**: Home screen reorder mode + preset form (create/edit/delete)
+  - `preset_form_notifier.dart`: `PresetFormState` + `PresetFormNotifier` + `presetFormProvider`
+  - `preset_form_screen.dart`: full form UI with icon picker, color picker, daily goal stepper
+  - `home_screen.dart`: upgraded to `ConsumerStatefulWidget`, added reorder mode, history button
+- **Design comparison**: created `design/current.html` (current Flutter) vs `design/base.html` (new design)
+
 ### 2026-03-19 — Design Completeness Review
 
-- **Commit 1**: Safe enum parsing utility (`safeEnumByName`) + model constructor assertions (Preset, Session, ActiveTimer)
-- **Commit 2**: `AppException` sealed hierarchy + `toMap()`/`fromMap()` on all 4 models; repo impls refactored to use `fromMap`
-- **Commit 3**: DB migration scaffold (`onCreate`/`onUpgrade`/`beforeOpen`) + 5 new sections in `architecture.md` (error handling, state management patterns, cross-feature data flow, migration, model conventions)
-- **Commit 4**: ADR-0008 Notifier pattern + testing rules update (mock convention, model testing, repository testing)
-- **Commit 5**: 55 new tests — model validation (3 files), mock repositories, PresetRepositoryImpl CRUD/sort/watch, SessionRepositoryImpl CRUD/date range/aggregation/cascade/enum fallback
-
-### 2026-03-18 — Phase 1 Completion
-
-- GoRouter setup with StatefulShellRoute (3 tabs: home/stats/settings)
-- Full-screen push routes for timer, preset form, history
-- Riverpod providers: DB, 4 repositories, settings stream, app init
-- PresetSeeder wired via FutureProvider
-- App entry point: MaterialApp.router with light/dark theme
-- Added `/flutter-verify` skill and sub-agent workflow guidelines to CLAUDE.md
-- iOS build verified successfully
-
-### 2026-03-17 — Data Layer Design Review + Rules
-
-- Data layer design review: 8 gaps found and fixed in 3 commits (`docs/issues/FEAT-001_data-layer-review.md`)
-  - ActiveTimer model/table/repository (crash recovery)
-  - Sessions composite index, aggregate queries, reactive stream
-  - Session.clearMemo(), PresetRepository.deleteAllPresets(), PresetSeeder
-- Added comment rules to `code-style.md` (detail levels, doc vs inline, section dividers)
-- Added code reuse rules to `CLAUDE.md` + research saved to `docs/references/code_reuse_strategy.md`
-- Restructured PROGRESS.md (slim format) and fixed PLAN.md terminology
+- Safe enum parsing, model constructor assertions, `AppException` hierarchy, `toMap()`/`fromMap()`
+- DB migration scaffold, ADR-0008 Notifier pattern, testing rules
+- 56 tests — model validation, repository CRUD, cascade delete, enum fallback

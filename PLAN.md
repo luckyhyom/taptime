@@ -32,13 +32,13 @@
 
 ## Phase 2: Presets
 
-- [ ] Home screen with preset grid (2 columns)
-- [ ] Preset card widget (icon, name, duration, daily progress)
-- [ ] Default presets on first launch (Study, Exercise, Reading)
-- [ ] Preset create screen (name, duration, icon, color, daily goal)
-- [ ] Preset edit screen
-- [ ] Preset delete with confirmation
-- [ ] Preset reorder (drag-and-drop)
+- [x] Home screen with preset grid (2 columns)
+- [x] Preset card widget (icon, name, duration, daily progress)
+- [x] Default presets on first launch (Study, Exercise, Reading)
+- [x] Preset create screen (name, duration, icon, color, daily goal)
+- [x] Preset edit screen
+- [x] Preset delete with confirmation
+- [x] Preset reorder (drag-and-drop)
 
 ## Phase 3: Timer
 
