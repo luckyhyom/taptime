@@ -110,6 +110,14 @@ class _TimerScreenState extends ConsumerState<TimerScreen> with WidgetsBindingOb
                   }
                 },
               ),
+              const Spacer(),
+              // 타이머 비활성 시 홈 버튼 표시
+              if (timerState.status != TimerStatus.running && timerState.status != TimerStatus.paused)
+                IconButton(
+                  icon: const Icon(Icons.home),
+                  tooltip: '홈',
+                  onPressed: () => context.go(AppRoutes.home),
+                ),
             ],
           ),
         ),

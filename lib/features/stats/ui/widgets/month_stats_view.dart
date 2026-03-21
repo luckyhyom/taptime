@@ -46,11 +46,17 @@ class MonthStatsView extends ConsumerWidget {
             data: (sessions) {
               final presetMap = presetMapAsync.valueOrNull ?? {};
 
-              // 이 달에 세션이 있는 프리셋 ID 추출 (시간순 정렬)
+              // 이 달에 세션이 있는 프리셋 ID 추출 (홈 화면 sortOrder 기준)
               final activePresetIds = <String>{};
               for (final s in sessions) {
                 activePresetIds.add(s.presetId);
               }
+              final sortedPresetIds = activePresetIds.toList()
+                ..sort((a, b) {
+                  final sa = presetMap[a]?.sortOrder ?? 999;
+                  final sb = presetMap[b]?.sortOrder ?? 999;
+                  return sa.compareTo(sb);
+                });
 
               return ListView(
                 padding: const EdgeInsets.symmetric(horizontal: AppSpacing.padding),
@@ -62,7 +68,7 @@ class MonthStatsView extends ConsumerWidget {
                       child: Center(child: Text('이 달에 기록이 없습니다.')),
                     )
                   else
-                    for (final presetId in activePresetIds)
+                    for (final presetId in sortedPresetIds)
                       _PresetHeatmapSection(
                         presetId: presetId,
                         preset: presetMap[presetId],
