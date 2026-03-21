@@ -74,4 +74,12 @@ abstract final class AppConstants {
   // ── 프리셋 이름 ──────────────────────────────────────────────
 
   static const presetNameMaxLength = 20;
+
+  // ── 브레이크 타이머 ────────────────────────────────────────────
+
+  /// 짧은 휴식 시간 (5분)
+  static const shortBreakSeconds = 300;
+
+  /// 긴 휴식 시간 (15분)
+  static const longBreakSeconds = 900;
 }

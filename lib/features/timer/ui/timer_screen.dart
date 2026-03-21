@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 
 import 'package:taptime/core/constants/app_constants.dart';
 import 'package:taptime/core/providers/app_providers.dart';
+import 'package:taptime/core/router/app_router.dart';
 import 'package:taptime/core/theme/app_spacing.dart';
 import 'package:taptime/core/utils/color_utils.dart';
 import 'package:taptime/core/utils/date_utils.dart';
@@ -225,12 +226,33 @@ class _TimerScreenState extends ConsumerState<TimerScreen> with WidgetsBindingOb
         title: const Text('완료!'),
         content: Text('${timerState.presetName} $minutes분을 완료했습니다.'),
         actions: [
+          // 짧은 휴식
+          TextButton(
+            onPressed: () {
+              Navigator.of(ctx).pop();
+              context
+                ..pop()
+                ..push(AppRoutes.breakTimerPath(AppConstants.shortBreakSeconds));
+            },
+            child: const Text('짧은 휴식 5분'),
+          ),
+          // 긴 휴식
+          TextButton(
+            onPressed: () {
+              Navigator.of(ctx).pop();
+              context
+                ..pop()
+                ..push(AppRoutes.breakTimerPath(AppConstants.longBreakSeconds));
+            },
+            child: const Text('긴 휴식 15분'),
+          ),
+          // 완료
           TextButton(
             onPressed: () {
               Navigator.of(ctx).pop();
               context.pop();
             },
-            child: const Text('확인'),
+            child: const Text('완료'),
           ),
         ],
       ),

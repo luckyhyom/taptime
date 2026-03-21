@@ -7,6 +7,7 @@ import 'package:taptime/features/home/ui/home_screen.dart';
 import 'package:taptime/features/preset/ui/preset_form_screen.dart';
 import 'package:taptime/features/settings/ui/settings_screen.dart';
 import 'package:taptime/features/stats/ui/stats_screen.dart';
+import 'package:taptime/features/timer/ui/break_timer_screen.dart';
 import 'package:taptime/features/timer/ui/timer_screen.dart';
 
 /// 라우트 경로 상수.
@@ -25,6 +26,7 @@ abstract final class AppRoutes {
   static const timer = '/timer/:presetId';
   static const presetNew = '/preset/new';
   static const presetEdit = '/preset/edit/:presetId';
+  static const breakTimer = '/break/:durationSeconds';
 
   /// 타이머 라우트에 presetId를 삽입한다.
   /// 사용 예: `context.push(AppRoutes.timerPath('abc-123'))`
@@ -32,6 +34,9 @@ abstract final class AppRoutes {
 
   /// 프리셋 수정 라우트에 presetId를 삽입한다.
   static String presetEditPath(String presetId) => '/preset/edit/$presetId';
+
+  /// 브레이크 타이머 라우트에 시간(초)을 삽입한다.
+  static String breakTimerPath(int seconds) => '/break/$seconds';
 }
 
 // ── Navigator 키 ──────────────────────────────────────────────
@@ -143,6 +148,14 @@ final GoRouter appRouter = GoRouter(
       path: AppRoutes.history,
       parentNavigatorKey: _rootNavigatorKey,
       builder: (context, state) => const HistoryScreen(),
+    ),
+    GoRoute(
+      path: AppRoutes.breakTimer,
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) {
+        final seconds = int.parse(state.pathParameters['durationSeconds']!);
+        return BreakTimerScreen(durationSeconds: seconds);
+      },
     ),
   ],
 );
