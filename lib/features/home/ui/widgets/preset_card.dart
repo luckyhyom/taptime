@@ -23,7 +23,8 @@ class PresetCard extends StatelessWidget {
     required this.preset,
     this.todayMinutes = 0,
     this.timerStatus = PresetTimerStatus.none,
-    this.timerElapsedSeconds = 0,
+    this.timerDisplaySeconds = 0,
+    this.isCountdown = false,
     this.onTap,
     this.onLongPress,
     super.key,
@@ -37,8 +38,11 @@ class PresetCard extends StatelessWidget {
   /// 이 프리셋의 타이머 활성 상태
   final PresetTimerStatus timerStatus;
 
-  /// 타이머 경과 시간 (초)
-  final int timerElapsedSeconds;
+  /// 배지에 표시할 시간 (초). 카운트다운이면 남은 시간, 스톱워치면 경과 시간.
+  final int timerDisplaySeconds;
+
+  /// 카운트다운 모드 여부. true면 매초 감소, false면 매초 증가.
+  final bool isCountdown;
 
   final VoidCallback? onTap;
   final VoidCallback? onLongPress;
@@ -84,7 +88,8 @@ class PresetCard extends StatelessWidget {
                     _TimerStatusBadge(
                       status: timerStatus,
                       color: presetColor,
-                      elapsedSeconds: timerElapsedSeconds,
+                      displaySeconds: timerDisplaySeconds,
+                      isCountdown: isCountdown,
                     ),
                 ],
               ),
@@ -137,18 +142,21 @@ class PresetCard extends StatelessWidget {
 
 /// 프리셋 카드 우측 상단에 표시되는 타이머 상태 배지.
 ///
-/// 실행 중일 때 매초 경과 시간을 갱신한다.
+/// 실행 중일 때 매초 시간을 갱신한다.
+/// 카운트다운이면 감소, 스톱워치면 증가.
 /// StatefulWidget인 이유: 주기적 Timer로 매초 setState를 호출하기 위함.
 class _TimerStatusBadge extends StatefulWidget {
   const _TimerStatusBadge({
     required this.status,
     required this.color,
-    required this.elapsedSeconds,
+    required this.displaySeconds,
+    required this.isCountdown,
   });
 
   final PresetTimerStatus status;
   final Color color;
-  final int elapsedSeconds;
+  final int displaySeconds;
+  final bool isCountdown;
 
   @override
   State<_TimerStatusBadge> createState() => _TimerStatusBadgeState();
@@ -161,7 +169,7 @@ class _TimerStatusBadgeState extends State<_TimerStatusBadge> {
   @override
   void initState() {
     super.initState();
-    _displaySeconds = widget.elapsedSeconds;
+    _displaySeconds = widget.displaySeconds;
     _startTickerIfNeeded();
   }
 
@@ -169,7 +177,7 @@ class _TimerStatusBadgeState extends State<_TimerStatusBadge> {
   void didUpdateWidget(_TimerStatusBadge oldWidget) {
     super.didUpdateWidget(oldWidget);
     // 외부에서 새 값이 들어오면(일시정지/재개 등) 동기화한다.
-    _displaySeconds = widget.elapsedSeconds;
+    _displaySeconds = widget.displaySeconds;
     if (oldWidget.status != widget.status) {
       _startTickerIfNeeded();
     }
@@ -185,7 +193,14 @@ class _TimerStatusBadgeState extends State<_TimerStatusBadge> {
     _ticker?.cancel();
     if (widget.status == PresetTimerStatus.running) {
       _ticker = Timer.periodic(const Duration(seconds: 1), (_) {
-        setState(() => _displaySeconds++);
+        setState(() {
+          // 카운트다운: 감소 (0 이하로 내려가지 않음), 스톱워치: 증가
+          if (widget.isCountdown) {
+            _displaySeconds = (_displaySeconds - 1).clamp(0, 999999);
+          } else {
+            _displaySeconds++;
+          }
+        });
       });
     }
   }
@@ -203,8 +218,9 @@ class _TimerStatusBadgeState extends State<_TimerStatusBadge> {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
+          // 실행 중 = ⏸(일시정지 가능), 일시정지 = ▶(재개 가능)
           Icon(
-            isRunning ? Icons.play_arrow_rounded : Icons.pause_rounded,
+            isRunning ? Icons.pause_rounded : Icons.play_arrow_rounded,
             size: 14,
             color: widget.color,
           ),

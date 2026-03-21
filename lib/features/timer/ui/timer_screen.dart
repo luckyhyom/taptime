@@ -84,46 +84,50 @@ class _TimerScreenState extends ConsumerState<TimerScreen> with WidgetsBindingOb
     final icon = AppConstants.presetIcons[timerState.presetIcon] ?? Icons.timer;
     final theme = Theme.of(context);
 
-    return Column(
-      children: [
-        const Spacer(flex: 2),
+    // SizedBox.expand: Column이 화면 전체 너비를 차지하도록 하여
+    // 자식 위젯들이 수평 중앙에 배치되게 한다.
+    return SizedBox.expand(
+      child: Column(
+        children: [
+          const Spacer(flex: 2),
 
-        // ── 프리셋 정보 ──────────────────────────────────
-        Icon(icon, size: 40, color: color),
-        const SizedBox(height: AppSpacing.gap),
-        Text(
-          timerState.presetName,
-          style: theme.textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w600),
-        ),
+          // ── 프리셋 정보 ──────────────────────────────────
+          Icon(icon, size: 40, color: color),
+          const SizedBox(height: AppSpacing.gap),
+          Text(
+            timerState.presetName,
+            style: theme.textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w600),
+          ),
 
-        // 고정 간격으로 요소들을 하나의 그룹으로 묶는다.
-        // Spacer 대신 SizedBox를 사용하여 화면 크기에 관계없이
-        // 일관된 배치를 유지한다.
-        const SizedBox(height: 32),
+          // 고정 간격으로 요소들을 하나의 그룹으로 묶는다.
+          // Spacer 대신 SizedBox를 사용하여 화면 크기에 관계없이
+          // 일관된 배치를 유지한다.
+          const SizedBox(height: 32),
 
-        // ── 프로그레스 링 + 시간 표시 ───────────────────
-        ProgressRing(
-          progress: timerState.isStopwatch ? 0 : timerState.progress,
-          color: color,
-          child: Text(
-            TimeFormatter.mmss(
-              timerState.isStopwatch ? timerState.elapsedSeconds : timerState.remainingSeconds,
-            ),
-            style: theme.textTheme.displayLarge?.copyWith(
-              fontWeight: FontWeight.w300,
-              letterSpacing: 2,
-              fontFeatures: const [FontFeature.tabularFigures()],
+          // ── 프로그레스 링 + 시간 표시 ───────────────────
+          ProgressRing(
+            progress: timerState.isStopwatch ? 0 : timerState.progress,
+            color: color,
+            child: Text(
+              TimeFormatter.mmss(
+                timerState.isStopwatch ? timerState.elapsedSeconds : timerState.remainingSeconds,
+              ),
+              style: theme.textTheme.displayLarge?.copyWith(
+                fontWeight: FontWeight.w300,
+                letterSpacing: 2,
+                fontFeatures: const [FontFeature.tabularFigures()],
+              ),
             ),
           ),
-        ),
 
-        const SizedBox(height: 48),
+          const SizedBox(height: 48),
 
-        // ── 컨트롤 버튼 ──────────────────────────────────
-        _buildControls(context, timerState, color),
+          // ── 컨트롤 버튼 ──────────────────────────────────
+          _buildControls(context, timerState, color),
 
-        const Spacer(flex: 3),
-      ],
+          const Spacer(flex: 3),
+        ],
+      ),
     );
   }
 

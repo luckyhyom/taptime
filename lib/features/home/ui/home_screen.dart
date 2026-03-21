@@ -107,21 +107,32 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       itemCount: presets.length,
       itemBuilder: (context, index) {
         final preset = presets[index];
-        // 활성 타이머가 이 프리셋에 해당하면 상태와 경과 시간을 전달한다.
+        // 활성 타이머가 이 프리셋에 해당하면 상태와 표시 시간을 전달한다.
         var timerStatus = PresetTimerStatus.none;
-        var timerElapsed = 0;
+        var timerDisplaySeconds = 0;
+        var isCountdown = false;
         if (activeTimer != null && activeTimer.presetId == preset.id) {
           timerStatus = activeTimer.isPaused ? PresetTimerStatus.paused : PresetTimerStatus.running;
           final referenceTime = activeTimer.pausedAt ?? DateTime.now();
-          timerElapsed = (referenceTime.difference(activeTimer.startedAt).inSeconds
+          final elapsed = (referenceTime.difference(activeTimer.startedAt).inSeconds
               - activeTimer.pausedDurationSeconds)
               .clamp(0, 999999);
+          // 카운트다운(durationMin > 0): 타이머 화면과 동일하게 남은 시간 표시.
+          // 스톱워치(durationMin == 0): 경과 시간 표시.
+          final totalSeconds = preset.durationMin * 60;
+          if (totalSeconds > 0) {
+            isCountdown = true;
+            timerDisplaySeconds = (totalSeconds - elapsed).clamp(0, totalSeconds);
+          } else {
+            timerDisplaySeconds = elapsed;
+          }
         }
         return PresetCard(
           preset: preset,
           todayMinutes: (todayDurations[preset.id] ?? 0) ~/ 60,
           timerStatus: timerStatus,
-          timerElapsedSeconds: timerElapsed,
+          timerDisplaySeconds: timerDisplaySeconds,
+          isCountdown: isCountdown,
           onTap: () => context.push(AppRoutes.timerPath(preset.id)),
           onLongPress: () => context.push(AppRoutes.presetEditPath(preset.id)),
         );
