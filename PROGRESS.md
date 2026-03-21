@@ -6,20 +6,22 @@
 
 ## Current Status
 
-- **Active Phase:** v1.1 complete (including per-preset refactoring). Next: v2.0 (Cloud Backup) or other Post-MVP.
-- **Last Updated:** 2026-03-21
-- **Blocker:** None
+- **Active Phase:** v2.0 Cloud Backup — Phases A-D complete, Phase E (UI) next
+- **Last Updated:** 2026-03-22
+- **Blocker:** Supabase project not yet created (needed before testing auth/sync)
 
 ## Notes for Next Agent
 
 ### Where We Are
 
-MVP + v1.1 features are implemented:
-- Phases 0-7 (MVP): fully complete
-- v1.1: heatmap calendar, per-preset streak tracking, break timer, weekly/monthly goals, monthly stats — all done
-- Per-preset refactoring: global heatmap/streak replaced with per-preset versions, home streak badge removed
+v2.0 Cloud Backup in progress:
+- **Phase A (Foundation):** done
+- **Phase B (Auth):** done
+- **Phase C (Sync Engine):** done — sync service interface, mappers, metadata, connectivity monitor, push/pull with conflict resolution
+- **Phase D (Provider Rewiring):** done — soft delete, deletedAt IS NULL filters, sync-aware decorator repos, conditional provider wrapping, SyncStatusDb constants extracted
+- **Phase E (UI):** next — sync status widget, home sync icon, settings last sync time
 - 61 tests passing, 0 analyzer issues
-- Remaining: user-side emulator testing (manual)
+- Supabase project creation is a prerequisite for end-to-end auth/sync testing
 
 ### Environment
 
@@ -45,6 +47,42 @@ MVP + v1.1 features are implemented:
 
 ## Recent Work
 
+### 2026-03-22 — v2.0 Phase C+D: Sync Engine + Provider Rewiring
+
+- **Phase C (Sync Engine):**
+  - Created `SyncService` interface with `SyncStatus` enum (idle/syncing/synced/error)
+  - Created `SupabaseMappers` — camelCase ↔ snake_case conversion (row-to-JSON + JSON-to-model)
+  - Created `SyncMetadata` — lastPullTimestamp + lastSyncTime in SharedPreferences
+  - Created `ConnectivityMonitor` — wraps connectivity_plus for online/offline detection
+  - Created `SupabaseSyncService` — bidirectional push/pull with last-write-wins conflict resolution
+  - Fixed pull timestamp bug: capture lastPull once before both table pulls
+- **Phase D (Provider Rewiring):**
+  - Extracted `SyncStatusDb` constants to `core/database/sync_constants.dart`
+  - Modified `PresetRepositoryImpl` — soft delete, `deletedAt IS NULL` on reads, `syncStatus='pending'` on writes
+  - Modified `SessionRepositoryImpl` — same soft delete + filter treatment
+  - Created `SyncAwarePresetRepository` decorator — triggers `syncNow()` after writes
+  - Created `SyncAwareSessionRepository` decorator — same pattern
+  - Added `syncServiceProvider` to `app_providers.dart` — lifecycle tied to login state
+  - Modified repo providers for conditional decorator wrapping
+  - Updated cascade delete test for soft delete behavior
+  - Added `formatter: page_width: 120` to `analysis_options.yaml`
+
+### 2026-03-21 — v2.0 Phase A+B: Foundation + Auth
+
+- **Phase A (Foundation):**
+  - Added `supabase_flutter`, `google_sign_in`, `sign_in_with_apple`, `connectivity_plus`, `crypto` to pubspec
+  - Created `SupabaseConfig` with placeholder values and conditional init in `main.dart`
+  - Drift schema v2: added `updatedAt`, `deletedAt`, `syncStatus`, `lastSyncedAt` columns
+  - Created `supabase/migrations/001_initial_schema.sql` with RLS + Realtime
+- **Phase B (Auth):**
+  - Created `AuthUser` model and `AuthService` interface in `shared/`
+  - Implemented `SupabaseAuthService` — Google (`signInWithIdToken` + `google_sign_in`) and Apple (nonce + SHA-256 + `sign_in_with_apple`)
+  - Fixed `AuthUser` name collision with supabase_flutter via `hide` directive
+  - Created `auth_providers.dart` — `authServiceProvider`, `authStateProvider`, `isLoggedInProvider`
+  - Created `LoginScreen` with Google/Apple buttons, loading state, error handling
+  - Added account section to `SettingsScreen` — login/logout with profile display
+  - Added `/login` route to `app_router.dart`
+
 ### 2026-03-21 — UX Polish: Heatmap, Timer Navigation, Home Status
 
 - **Heatmap → GitHub contribution graph:** Rewrote `heatmap_calendar.dart` from calendar grid to horizontal 7-row layout (Mon-Sun rows × week columns), ~10px cells, English month/day labels
@@ -68,11 +106,6 @@ MVP + v1.1 features are implemented:
   - HeatmapCalendar: added `activeColor` and `showCard` params for embedded use
 - Data layer: added `watchSessionsByMonth`, `getDailyTotalsForRange`, date_utils extensions
 
-### 2026-03-21 — Phases 4-7 (previous session)
+### Earlier — Phases 0-7 (MVP) + v1.1
 
-- **Phase 4 (History):** date navigator, session list tiles, memo edit bottom sheet, swipe-to-delete
-- **Phase 5 (Stats):** Today/Week tabs, per-preset bar charts, goal progress, 7-day bar chart, donut chart
-- **Phase 6 (Settings):** theme toggle, sound/vibration switches, data reset with cascade + re-seed
-- **Phase 7 (Polish):** connected daily progress to PresetCard, fixed DonutPainter repaint, stopwatch clamp, settings reset await
-- Refactored `presetMapProvider` to `app_providers.dart` for cross-feature use
-- Merged BACKLOG.md into PLAN.md Post-MVP section (v1.1 ~ v2.3)
+- See git log for details
