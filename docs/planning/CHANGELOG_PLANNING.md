@@ -141,6 +141,47 @@ by site/domain, and syncs data for unified analytics.
 
 ---
 
+## [2026-03-21] Scope Reduction & Direction Clarification
+
+### Original (User Input)
+
+> 고민해본 결과, Tabtime은 시간관리를 보조하는 역할을 했으면 좋겠습니다. 일상 생활에서
+> 일일히 시간 기록을 하기 귀찮거나, 시간 기록을 까먹고 놓치는 경우가 있습니다.
+> 이것을 보조하기 위해 gps 위치 기반, macbook 사용 상태 감지를 통해 어느정도의 시간관리
+> 보조 역할을 하고. 구글 캘린더에는 사용자가 직접 tabtime에 기록된 정보를 참고하여
+> 입력하는거죠.
+
+> GPS 위치 기반은, 일단은 기록을 시작하고, 알림을 보내놓습니다. 사용자가 늦게라도
+> 취소를 하면 해당 기록은 제거되는거죠.
+
+> 백로그에 있는 후보들을 제거합시다. 이제 문서를 정리해주세요.
+
+### Background
+
+User redefined Taptime's role from a manual Pomodoro timer to a time management
+assistant — auto-recording as much as possible so users don't have to think about it.
+Google Calendar remains user-managed; Taptime only provides reference data.
+Scope was trimmed to accelerate delivery by removing non-essential backlog items.
+
+### Changes
+
+- **Changed:** GPS UX model from opt-in (user taps to start) → opt-out (auto-starts, user can cancel)
+  - Updated `BACKLOG.md` v2.1 UX flow
+- **Removed from BACKLOG.md:**
+  - v1.1: Streak milestone celebrations (7, 30, 100 days)
+  - v1.2: Google Calendar export, completion animations, achievement badges (entire v1.2 replaced)
+  - v2.4: iOS widget, Apple Watch / Wear OS support
+- **Replaced:** v1.2 Google Calendar export → v1.2 Google Calendar statistics (read-only view)
+- **Updated:** `docs/planning/PRD.md` — removed motivational effects section, updated Google Calendar section, updated roadmap table
+
+### Impact
+
+- Delivery scope is narrower and more focused on core recording + analytics
+- Google Calendar integration philosophy shifted: Taptime is a reference, not a sync target
+- GPS auto-recording (v2.1) is now opt-out — sessions accumulate by default, cancelled only when wrong
+
+---
+
 <!-- TEMPLATE FOR NEW ENTRIES
 
 ## [YYYY-MM-DD] Change Title

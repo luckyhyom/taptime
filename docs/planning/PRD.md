@@ -106,7 +106,6 @@ Per-preset or global daily/weekly time targets. Progress is calculated from reco
 
 - **Heatmap:** GitHub-style contribution calendar showing daily activity intensity
 - **Streaks:** consecutive days meeting daily goals, displayed on home screen
-- Streak milestones (7, 30, 100 days) with visual celebration
 
 ### 3.7 Data Export/Import
 
@@ -114,18 +113,12 @@ Per-preset or global daily/weekly time targets. Progress is calculated from reco
 - Import from JSON (device migration)
 - MVP scope — minimal safety net before cloud backup exists
 
-### 3.8 Motivational Effects (Post-MVP)
+### 3.8 Google Calendar Statistics (Post-MVP)
 
-- Completion animation on timer finish (confetti, glow, etc.)
-- Cumulative visualization (e.g., blocks stacking, garden growing)
-- Achievement badges
-
-### 3.9 Google Calendar Integration (Post-MVP)
-
-- Export sessions as calendar events
-- Architecture: repository pattern with calendar adapter interface
-- Client-side OAuth2 with `flutter_secure_storage` for token management
-- No backend required — direct Google API calls from client
+- Read-only view of Google Calendar events inside Taptime for context
+- User references Taptime data and enters events into Google Calendar manually
+- Architecture: repository pattern with calendar adapter interface (already scaffolded)
+- Client-side OAuth2, read-only scope only
 
 ### 3.10 Cloud Backup (Post-MVP)
 
@@ -201,8 +194,10 @@ Per-preset or global daily/weekly time targets. Progress is calculated from reco
 
 | Phase | Features |
 |-------|----------|
-| **MVP** | Presets, Timer, Session recording, Basic stats, Daily goals, Data export/import |
+| **MVP** | Presets, Timer, Session recording, Basic stats, Daily goals |
 | **v1.1** | Heatmap, Streaks, Break timer, Weekly/monthly stats |
-| **v1.2** | Google Calendar sync (client-side OAuth), Motivational effects |
+| **v1.2** | Google Calendar statistics (read-only view) |
 | **v2.0** | Cloud backup via Supabase (Google/Apple sign-in) |
-| **v2.1** | Widgets, Watch app, Shortcuts integration |
+| **v2.1** | GPS location-based auto recording (opt-out) |
+| **v2.2** | macOS companion app (activity monitor) |
+| **v2.3** | Life Pattern Dashboard (unified analytics) |

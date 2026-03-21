@@ -7,16 +7,17 @@
 
 - [ ] Heatmap calendar (GitHub-style activity visualization)
 - [ ] Streak tracking (consecutive days meeting goals)
-- [ ] Streak milestone celebrations (7, 30, 100 days)
 - [ ] Break timer (5m short / 15m long)
 - [ ] Weekly/monthly goals
 - [ ] Monthly statistics view
 
-## v1.2 — Google Calendar & Effects
+## v1.2 — Google Calendar Statistics (Read-Only)
 
-- [ ] Google Calendar integration (client-side OAuth)
-- [ ] Motivational effects (completion animations)
-- [ ] Achievement badges
+> View Google Calendar events inside Taptime for context — not sync or export.
+> User continues to manage Google Calendar manually.
+
+- [ ] Google Calendar read-only integration (OAuth, view events)
+- [ ] Calendar context view alongside Taptime sessions
 
 ## v2.0 — Cloud Backup
 
@@ -58,9 +59,11 @@ geofenced area, the app shows a notification prompting the user to start the tim
 ```
 User registers location on preset (map pin or current location)
   → iOS monitors geofence in background
-  → Entry detected → local notification: "Arrived at [Gym]. Start workout timer?"
-  → User taps notification → app opens with preset ready → timer starts
-  → (Optional) Exit detected → "Stop timer?" notification
+  → Entry detected → timer auto-starts immediately
+  → Local notification: "Arrived at [Gym]. Workout timer started. [Cancel]"
+  → User ignores → session recorded as-is
+  → User taps Cancel → session deleted
+  → (Optional) Exit detected → timer stops, session saved
 ```
 
 ### Tasks
@@ -176,7 +179,3 @@ reveal how the user actually spends their time across devices and locations.
 - [ ] Location insights — time spent per registered place
 - [ ] Productive vs unproductive ratio (based on category classification)
 
-## v2.4 — Platform Extensions
-
-- [ ] iOS home screen widget
-- [ ] Apple Watch / Wear OS support
