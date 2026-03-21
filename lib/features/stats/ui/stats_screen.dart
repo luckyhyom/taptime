@@ -1,17 +1,55 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-/// 통계 화면 — 오늘/주간 통계를 표시한다.
+import 'package:taptime/features/stats/ui/widgets/today_stats_view.dart';
+import 'package:taptime/features/stats/ui/widgets/week_stats_view.dart';
+
+/// 통계 화면 — 오늘/주간 탭으로 구성된다.
 ///
-/// Phase 5에서 차트, 목표 진행률, 날짜 네비게이션 등을 구현할 예정.
-class StatsScreen extends ConsumerWidget {
+/// TabBar로 Today/Week 뷰를 전환하며,
+/// 각 뷰는 독립적인 날짜 선택과 데이터 표시를 가진다.
+class StatsScreen extends ConsumerStatefulWidget {
   const StatsScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<StatsScreen> createState() => _StatsScreenState();
+}
+
+class _StatsScreenState extends ConsumerState<StatsScreen> with SingleTickerProviderStateMixin {
+  late final TabController _tabController;
+
+  @override
+  void initState() {
+    super.initState();
+    _tabController = TabController(length: 2, vsync: this);
+  }
+
+  @override
+  void dispose() {
+    _tabController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('통계')),
-      body: const Center(child: Text('통계가 여기에 표시됩니다')),
+      appBar: AppBar(
+        title: const Text('통계'),
+        bottom: TabBar(
+          controller: _tabController,
+          tabs: const [
+            Tab(text: '오늘'),
+            Tab(text: '주간'),
+          ],
+        ),
+      ),
+      body: TabBarView(
+        controller: _tabController,
+        children: const [
+          TodayStatsView(),
+          WeekStatsView(),
+        ],
+      ),
     );
   }
 }

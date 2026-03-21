@@ -6,6 +6,7 @@ import 'package:taptime/features/history/data/session_repository_impl.dart';
 import 'package:taptime/features/preset/data/preset_repository_impl.dart';
 import 'package:taptime/features/settings/data/user_settings_repository_impl.dart';
 import 'package:taptime/features/timer/data/active_timer_repository_impl.dart';
+import 'package:taptime/shared/models/preset.dart';
 import 'package:taptime/shared/models/user_settings.dart';
 import 'package:taptime/shared/repositories/active_timer_repository.dart';
 import 'package:taptime/shared/repositories/preset_repository.dart';
@@ -56,6 +57,18 @@ final activeTimerRepositoryProvider = Provider<ActiveTimerRepository>((ref) {
 /// 사용자 설정 리포지토리 프로바이더.
 final userSettingsRepositoryProvider = Provider<UserSettingsRepository>((ref) {
   return UserSettingsRepositoryImpl(ref.watch(databaseProvider));
+});
+
+// ── 프리셋 맵 ────────────────────────────────────────────────
+
+/// 프리셋 ID → Preset 매핑.
+///
+/// 여러 feature(history, stats 등)에서 세션의 프리셋 정보를
+/// 조회할 때 공유한다. 프리셋이 변경되면 자동으로 맵이 갱신된다.
+final presetMapProvider = StreamProvider<Map<String, Preset>>((ref) {
+  return ref.watch(presetRepositoryProvider).watchAllPresets().map(
+        (presets) => {for (final p in presets) p.id: p},
+      );
 });
 
 // ── 설정 스트림 ───────────────────────────────────────────────
