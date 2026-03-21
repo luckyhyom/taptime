@@ -60,19 +60,19 @@
 
 ## Phase 5: Statistics
 
-- [ ] Statistics screen with tab layout (Today / Week)
-- [ ] Today: total time, per-preset bar chart, goal progress bars
-- [ ] Week: daily totals bar chart, category donut chart
-- [ ] Date navigation (prev/next)
+- [x] Statistics screen with tab layout (Today / Week)
+- [x] Today: total time, per-preset bar chart, goal progress bars
+- [x] Week: daily totals bar chart, category donut chart
+- [x] Date navigation (prev/next)
 
 ## Phase 6: Settings
 
-- [ ] Settings screen
-- [ ] Theme toggle (light/dark/system)
-- [ ] Sound on/off
-- [ ] Vibration on/off
-- [ ] Reset all data (with confirmation)
-- [ ] App version display
+- [x] Settings screen
+- [x] Theme toggle (light/dark/system)
+- [x] Sound on/off
+- [x] Vibration on/off
+- [x] Reset all data (with confirmation)
+- [x] App version display
 
 ## Phase 7: Polish
 

@@ -6,7 +6,7 @@
 
 ## Current Status
 
-- **Active Phase:** Phase 5 (Statistics) — Phase 4 complete
+- **Active Phase:** Phase 7 (Polish) — Phases 0-6 complete
 - **Last Updated:** 2026-03-21
 - **Blocker:** None
 
@@ -14,11 +14,11 @@
 
 ### Immediate Next Task
 
-Phase 5: Statistics screen. Start with:
-1. Statistics screen with tab layout (Today / Week)
-2. Today tab: total time, per-preset bar chart, goal progress bars
-3. Week tab: daily totals bar chart, category donut chart
-4. Date navigation (prev/next)
+Phase 7: Polish. All MVP features are implemented. Focus on:
+1. Edge case handling (empty states, error states)
+2. Performance optimization
+3. iOS + Android emulator testing
+4. Bug fixes
 
 ### Environment
 
@@ -61,7 +61,14 @@ Document inconsistencies found — not blocking, can fix separately:
 
 ## Recent Work
 
-### 2026-03-21 — Phase 4: History Implementation
+### 2026-03-21 — Phases 4-6 Implementation
+
+- **Phase 4 (History):** date navigator, session list tiles, memo edit bottom sheet, swipe-to-delete
+- **Phase 5 (Stats):** Today/Week tabs, per-preset bar charts, goal progress, 7-day bar chart, donut chart (CustomPainter)
+- **Phase 6 (Settings):** theme toggle (SegmentedButton), sound/vibration switches, data reset with cascade delete + re-seed
+- Refactored `presetMapProvider` to `app_providers.dart` for cross-feature use
+
+### 2026-03-21 — Phase 4: History Implementation (detail)
 
 - `history_providers.dart`: `selectedDateProvider`, `sessionsForDateProvider`, `presetMapProvider`
 - `widgets/session_list_tile.dart`: preset icon/color, time range, duration, status badge, Dismissible delete
