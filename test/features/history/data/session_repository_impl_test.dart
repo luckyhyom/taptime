@@ -215,17 +215,16 @@ void main() {
     });
   });
 
-  group('cascade 삭제', () {
-    test('프리셋 삭제 시 관련 세션도 함께 삭제된다', () async {
+  group('소프트 삭제', () {
+    test('프리셋 소프트 삭제 시 세션은 유지된다', () async {
       await sessionRepo.createSession(makeSession());
       await sessionRepo.createSession(makeSession(id: 's2', presetId: 'preset-2'));
 
-      // preset-1 삭제 → s1도 삭제됨
+      // preset-1 소프트 삭제 → 세션은 영향 없음 (FK CASCADE는 hard delete에만 적용)
       await presetRepo.deletePreset('preset-1');
 
       final sessions = await sessionRepo.getSessionsByDate(today);
-      expect(sessions, hasLength(1));
-      expect(sessions.first.presetId, 'preset-2');
+      expect(sessions, hasLength(2));
     });
   });
 

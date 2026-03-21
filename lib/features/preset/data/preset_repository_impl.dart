@@ -1,6 +1,7 @@
 import 'package:drift/drift.dart';
 
 import 'package:taptime/core/database/app_database.dart';
+import 'package:taptime/core/database/sync_constants.dart';
 import 'package:taptime/shared/models/preset.dart';
 import 'package:taptime/shared/repositories/preset_repository.dart';
 
@@ -21,7 +22,10 @@ class PresetRepositoryImpl implements PresetRepository {
   Future<List<Preset>> getAllPresets() async {
     // Drift의 select()는 SQL SELECT를 타입 안전하게 빌드한다.
     // orderBy로 정렬 순서를 지정하고, get()으로 실행한다.
-    final rows = await (_db.select(_db.presets)..orderBy([(t) => OrderingTerm.asc(t.sortOrder)])).get();
+    final rows = await (_db.select(_db.presets)
+          ..where((t) => t.deletedAt.isNull())
+          ..orderBy([(t) => OrderingTerm.asc(t.sortOrder)]))
+        .get();
     return rows.map(_toModel).toList();
   }
 
@@ -29,14 +33,19 @@ class PresetRepositoryImpl implements PresetRepository {
   Stream<List<Preset>> watchAllPresets() {
     // watch()는 get()과 같은 쿼리를 Stream으로 반환한다.
     // DB에 변경이 생기면 자동으로 새 결과를 emit한다.
-    return (_db.select(
-      _db.presets,
-    )..orderBy([(t) => OrderingTerm.asc(t.sortOrder)])).watch().map((rows) => rows.map(_toModel).toList());
+    return (_db.select(_db.presets)
+          ..where((t) => t.deletedAt.isNull())
+          ..orderBy([(t) => OrderingTerm.asc(t.sortOrder)]))
+        .watch()
+        .map((rows) => rows.map(_toModel).toList());
   }
 
   @override
   Future<Preset?> getPresetById(String id) async {
-    final row = await (_db.select(_db.presets)..where((t) => t.id.equals(id))).getSingleOrNull();
+    final row = await (_db.select(_db.presets)
+          ..where((t) => t.id.equals(id))
+          ..where((t) => t.deletedAt.isNull()))
+        .getSingleOrNull();
     return row == null ? null : _toModel(row);
   }
 
@@ -54,7 +63,14 @@ class PresetRepositoryImpl implements PresetRepository {
 
   @override
   Future<void> deletePreset(String id) async {
-    await (_db.delete(_db.presets)..where((t) => t.id.equals(id))).go();
+    final now = DateTime.now();
+    await (_db.update(_db.presets)..where((t) => t.id.equals(id))).write(
+      PresetsCompanion(
+        deletedAt: Value(now),
+        updatedAt: Value(now),
+        syncStatus: const Value(SyncStatusDb.pending),
+      ),
+    );
   }
 
   @override
@@ -66,11 +82,16 @@ class PresetRepositoryImpl implements PresetRepository {
   Future<void> updateSortOrder(Map<String, int> idToSortOrder) async {
     // 여러 행을 한번에 업데이트할 때는 batch를 사용한다.
     // 개별 update를 반복하는 것보다 성능이 좋다.
+    final now = DateTime.now();
     await _db.batch((batch) {
       for (final entry in idToSortOrder.entries) {
         batch.update(
           _db.presets,
-          PresetsCompanion(sortOrder: Value(entry.value)),
+          PresetsCompanion(
+            sortOrder: Value(entry.value),
+            updatedAt: Value(now),
+            syncStatus: const Value(SyncStatusDb.pending),
+          ),
           where: ($PresetsTable t) => t.id.equals(entry.key),
         );
       }
@@ -109,6 +130,7 @@ class PresetRepositoryImpl implements PresetRepository {
       sortOrder: Value(preset.sortOrder),
       createdAt: Value(preset.createdAt),
       updatedAt: Value(preset.updatedAt),
+      syncStatus: const Value(SyncStatusDb.pending),
     );
   }
 }

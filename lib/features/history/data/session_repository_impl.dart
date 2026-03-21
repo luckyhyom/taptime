@@ -1,6 +1,7 @@
 import 'package:drift/drift.dart';
 
 import 'package:taptime/core/database/app_database.dart';
+import 'package:taptime/core/database/sync_constants.dart';
 import 'package:taptime/core/utils/date_utils.dart';
 import 'package:taptime/core/utils/enum_utils.dart';
 import 'package:taptime/shared/models/session.dart';
@@ -45,7 +46,14 @@ class SessionRepositoryImpl implements SessionRepository {
 
   @override
   Future<void> deleteSession(String id) async {
-    await (_db.delete(_db.sessions)..where((t) => t.id.equals(id))).go();
+    final now = DateTime.now();
+    await (_db.update(_db.sessions)..where((t) => t.id.equals(id))).write(
+      SessionsCompanion(
+        deletedAt: Value(now),
+        updatedAt: Value(now),
+        syncStatus: const Value(SyncStatusDb.pending),
+      ),
+    );
   }
 
   @override
@@ -107,6 +115,7 @@ class SessionRepositoryImpl implements SessionRepository {
   SimpleSelectStatement<$SessionsTable, SessionRow> _queryByDateRange(DateTime start, DateTime end) {
     return _db.select(_db.sessions)
       ..where((t) => t.startedAt.isBetweenValues(start, end))
+      ..where((t) => t.deletedAt.isNull())
       ..orderBy([(t) => OrderingTerm.desc(t.startedAt)]);
   }
 
@@ -135,6 +144,7 @@ class SessionRepositoryImpl implements SessionRepository {
       memo: Value(session.memo),
       createdAt: Value(session.createdAt),
       updatedAt: Value(session.updatedAt),
+      syncStatus: const Value(SyncStatusDb.pending),
     );
   }
 }

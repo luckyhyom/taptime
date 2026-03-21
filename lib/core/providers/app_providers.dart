@@ -1,10 +1,16 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:supabase_flutter/supabase_flutter.dart' hide Session;
 
+import 'package:taptime/core/config/supabase_config.dart';
 import 'package:taptime/core/database/app_database.dart';
 import 'package:taptime/core/database/preset_seeder.dart';
+import 'package:taptime/core/providers/auth_providers.dart';
 import 'package:taptime/features/history/data/session_repository_impl.dart';
 import 'package:taptime/features/preset/data/preset_repository_impl.dart';
 import 'package:taptime/features/settings/data/user_settings_repository_impl.dart';
+import 'package:taptime/features/sync/data/supabase_sync_service.dart';
+import 'package:taptime/features/sync/data/sync_aware_preset_repository.dart';
+import 'package:taptime/features/sync/data/sync_aware_session_repository.dart';
 import 'package:taptime/features/timer/data/active_timer_repository_impl.dart';
 import 'package:taptime/shared/models/preset.dart';
 import 'package:taptime/shared/models/user_settings.dart';
@@ -12,6 +18,7 @@ import 'package:taptime/shared/repositories/active_timer_repository.dart';
 import 'package:taptime/shared/repositories/preset_repository.dart';
 import 'package:taptime/shared/repositories/session_repository.dart';
 import 'package:taptime/shared/repositories/user_settings_repository.dart';
+import 'package:taptime/shared/services/sync_service.dart';
 
 // ── 데이터베이스 ──────────────────────────────────────────────
 
@@ -29,24 +36,55 @@ final databaseProvider = Provider<AppDatabase>((ref) {
   return db;
 });
 
+// ── 동기화 ─────────────────────────────────────────────────
+
+/// 동기화 서비스 프로바이더.
+///
+/// 로그인 상태에서만 동기화 서비스를 생성하고 시작한다.
+/// 로그아웃 시 자동으로 중단 및 해제된다.
+final syncServiceProvider = Provider<SyncService?>((ref) {
+  if (!SupabaseConfig.isConfigured) return null;
+
+  final isLoggedIn = ref.watch(isLoggedInProvider);
+  if (!isLoggedIn) return null;
+
+  final db = ref.watch(databaseProvider);
+  final service = SupabaseSyncService(
+    db: db,
+    client: Supabase.instance.client,
+  )..start();
+
+  ref.onDispose(service.stop);
+
+  return service;
+});
+
 // ── 리포지토리 ────────────────────────────────────────────────
 
 /// 프리셋 리포지토리 프로바이더.
 ///
-/// 인터페이스 타입(PresetRepository)으로 노출하여
-/// UI 레이어가 구현체(PresetRepositoryImpl)에 의존하지 않게 한다.
-/// 나중에 클라우드 구현으로 교체할 때 이 프로바이더만 수정하면 된다.
-///
-/// `ref.watch`는 다른 프로바이더의 값을 가져오면서 의존 관계를 등록한다.
-/// databaseProvider의 값이 바뀌면 이 프로바이더도 자동으로 재생성된다.
-/// `ref.read`는 값만 한 번 읽고 의존 관계를 등록하지 않는다.
+/// 로그인 상태에서는 SyncAwarePresetRepository로 감싸서
+/// 로컬 쓰기 후 자동으로 동기화를 트리거한다.
 final presetRepositoryProvider = Provider<PresetRepository>((ref) {
-  return PresetRepositoryImpl(ref.watch(databaseProvider));
+  final base = PresetRepositoryImpl(ref.watch(databaseProvider));
+  final syncService = ref.watch(syncServiceProvider);
+  if (syncService != null) {
+    return SyncAwarePresetRepository(base, syncService);
+  }
+  return base;
 });
 
 /// 세션 리포지토리 프로바이더.
+///
+/// 로그인 상태에서는 SyncAwareSessionRepository로 감싸서
+/// 로컬 쓰기 후 자동으로 동기화를 트리거한다.
 final sessionRepositoryProvider = Provider<SessionRepository>((ref) {
-  return SessionRepositoryImpl(ref.watch(databaseProvider));
+  final base = SessionRepositoryImpl(ref.watch(databaseProvider));
+  final syncService = ref.watch(syncServiceProvider);
+  if (syncService != null) {
+    return SyncAwareSessionRepository(base, syncService);
+  }
+  return base;
 });
 
 /// 활성 타이머 리포지토리 프로바이더.
