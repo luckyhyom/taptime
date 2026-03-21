@@ -111,13 +111,12 @@ class _TimerScreenState extends ConsumerState<TimerScreen> with WidgetsBindingOb
                 },
               ),
               const Spacer(),
-              // 타이머 비활성 시 홈 버튼 표시
-              if (timerState.status != TimerStatus.running && timerState.status != TimerStatus.paused)
-                IconButton(
-                  icon: const Icon(Icons.home),
-                  tooltip: '홈',
-                  onPressed: () => context.go(AppRoutes.home),
-                ),
+              // 홈 버튼: 타이머 실행 중에도 이동 가능 (타이머는 백그라운드에서 계속 동작)
+              IconButton(
+                icon: const Icon(Icons.home),
+                tooltip: '홈',
+                onPressed: () => context.go(AppRoutes.home),
+              ),
             ],
           ),
         ),

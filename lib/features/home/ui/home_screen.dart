@@ -126,6 +126,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         return _PresetReorderTile(
           key: ValueKey(preset.id),
           preset: preset,
+          index: index,
         );
       },
     );
@@ -156,9 +157,10 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 /// 그리드의 카드 대신 리스트 형태로 표시하여
 /// 드래그 앤 드롭 인터랙션을 직관적으로 만든다.
 class _PresetReorderTile extends StatelessWidget {
-  const _PresetReorderTile({required this.preset, super.key});
+  const _PresetReorderTile({required this.preset, required this.index, super.key});
 
   final Preset preset;
+  final int index;
 
   @override
   Widget build(BuildContext context) {
@@ -166,8 +168,6 @@ class _PresetReorderTile extends StatelessWidget {
     final icon = AppConstants.presetIcons[preset.icon] ?? Icons.timer;
 
     return Card(
-      // ReorderableListView 내에서 각 아이템은 고유 Key를 가져야 한다.
-      // key는 상위에서 ValueKey(preset.id)로 전달된다.
       margin: const EdgeInsets.only(bottom: AppSpacing.gap),
       child: ListTile(
         contentPadding: const EdgeInsets.symmetric(
@@ -185,11 +185,14 @@ class _PresetReorderTile extends StatelessWidget {
         ),
         title: Text(preset.name, style: const TextStyle(fontWeight: FontWeight.w600)),
         subtitle: Text('${preset.durationMin}분'),
-        // 드래그 핸들 아이콘: 사용자가 이 아이콘을 잡고 드래그한다.
-        // ReorderableListView의 기본 핸들과 동일하게 동작한다.
-        trailing: Icon(
-          Icons.drag_handle,
-          color: Theme.of(context).colorScheme.onSurfaceVariant,
+        // ReorderableDragStartListener로 감싸야 핸들을 잡고 바로 드래그할 수 있다.
+        // 기본 동작(long press)은 불안정하므로 명시적 핸들을 사용한다.
+        trailing: ReorderableDragStartListener(
+          index: index,
+          child: Icon(
+            Icons.drag_handle,
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
+          ),
         ),
       ),
     );
