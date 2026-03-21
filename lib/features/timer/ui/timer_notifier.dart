@@ -29,6 +29,7 @@ class TimerState {
     this.presetIcon = 'timer',
     this.presetColor = '#4A90D9',
     this.remainingSeconds = 0,
+    this.elapsedSeconds = 0,
     this.totalSeconds = 0,
     this.status = TimerStatus.loading,
     this.error,
@@ -38,16 +39,22 @@ class TimerState {
   final String presetIcon;
   final String presetColor;
 
-  /// 남은 시간 (초). 매 틱마다 타임스탬프로 재계산된다.
+  /// 남은 시간 (초). 카운트다운 모드에서만 사용.
   final int remainingSeconds;
 
-  /// 전체 타이머 시간 (초). 프로그레스 링의 분모.
+  /// 경과 시간 (초). 스톱워치 모드에서 표시용.
+  final int elapsedSeconds;
+
+  /// 전체 타이머 시간 (초). 0이면 스톱워치(무제한) 모드.
   final int totalSeconds;
 
   final TimerStatus status;
   final String? error;
 
-  /// 진행률 (0.0 ~ 1.0). 프로그레스 링에 사용.
+  /// 스톱워치(무제한) 모드 여부. durationMin이 0인 프리셋.
+  bool get isStopwatch => totalSeconds == 0;
+
+  /// 진행률 (0.0 ~ 1.0). 카운트다운 모드에서만 의미 있음.
   double get progress => totalSeconds > 0 ? 1 - (remainingSeconds / totalSeconds) : 0;
 
   TimerState copyWith({
@@ -55,6 +62,7 @@ class TimerState {
     String? presetIcon,
     String? presetColor,
     int? remainingSeconds,
+    int? elapsedSeconds,
     int? totalSeconds,
     TimerStatus? status,
     String? error,
@@ -65,6 +73,7 @@ class TimerState {
       presetIcon: presetIcon ?? this.presetIcon,
       presetColor: presetColor ?? this.presetColor,
       remainingSeconds: remainingSeconds ?? this.remainingSeconds,
+      elapsedSeconds: elapsedSeconds ?? this.elapsedSeconds,
       totalSeconds: totalSeconds ?? this.totalSeconds,
       status: status ?? this.status,
       error: clearError ? null : (error ?? this.error),
@@ -135,6 +144,20 @@ class TimerNotifier extends AutoDisposeFamilyNotifier<TimerState, String> {
     _pausedDurationSeconds = activeTimer.pausedDurationSeconds;
 
     final totalSeconds = preset.durationMin * 60;
+
+    // 스톱워치 모드: 완료 없이 경과 시간만 복구
+    if (totalSeconds == 0) {
+      state = TimerState(
+        presetName: preset.name,
+        presetIcon: preset.icon,
+        presetColor: preset.color,
+        elapsedSeconds: _calculateElapsed(),
+        status: activeTimer.isPaused ? TimerStatus.paused : TimerStatus.running,
+      );
+      if (!activeTimer.isPaused) _startTicking();
+      return;
+    }
+
     final remaining = _calculateRemaining(totalSeconds);
 
     // 앱이 꺼져있는 동안 타이머가 이미 만료됨
@@ -215,8 +238,11 @@ class TimerNotifier extends AutoDisposeFamilyNotifier<TimerState, String> {
     _ticker?.cancel();
     _pausedAt = DateTime.now();
 
-    final remaining = _calculateRemaining(state.totalSeconds);
-    state = state.copyWith(status: TimerStatus.paused, remainingSeconds: remaining);
+    if (state.isStopwatch) {
+      state = state.copyWith(status: TimerStatus.paused, elapsedSeconds: _calculateElapsed());
+    } else {
+      state = state.copyWith(status: TimerStatus.paused, remainingSeconds: _calculateRemaining(state.totalSeconds));
+    }
 
     _persistActiveTimer();
   }
@@ -244,6 +270,9 @@ class TimerNotifier extends AutoDisposeFamilyNotifier<TimerState, String> {
       totalPaused += now.difference(_pausedAt!).inSeconds;
     }
     final durationSeconds = now.difference(_startedAt!).inSeconds - totalPaused;
+    // 스톱워치 모드(totalSeconds == 0)에서는 상한 제한 없이 실제 경과 시간을 저장
+    final clampedDuration =
+        state.isStopwatch ? durationSeconds.clamp(0, durationSeconds) : durationSeconds.clamp(0, state.totalSeconds);
 
     try {
       await ref.read(sessionRepositoryProvider).createSession(
@@ -252,7 +281,7 @@ class TimerNotifier extends AutoDisposeFamilyNotifier<TimerState, String> {
           presetId: _preset!.id,
           startedAt: _startedAt!,
           endedAt: now,
-          durationSeconds: durationSeconds.clamp(0, state.totalSeconds),
+          durationSeconds: clampedDuration,
           status: SessionStatus.stopped,
           createdAt: now,
         ),
@@ -274,6 +303,12 @@ class TimerNotifier extends AutoDisposeFamilyNotifier<TimerState, String> {
   void onAppResumed() {
     if (state.status != TimerStatus.running) return;
 
+    if (state.isStopwatch) {
+      state = state.copyWith(elapsedSeconds: _calculateElapsed());
+      _startTicking();
+      return;
+    }
+
     final remaining = _calculateRemaining(state.totalSeconds);
     if (remaining <= 0) {
       _ticker?.cancel();
@@ -286,16 +321,17 @@ class TimerNotifier extends AutoDisposeFamilyNotifier<TimerState, String> {
 
   // ── 내부 로직 ──────────────────────────────────────────────
 
-  /// 타임스탬프 기반으로 남은 시간을 계산한다.
-  ///
-  /// 실제 경과 시간 = (기준 시각 - 시작 시각) - 누적 일시정지 시간
-  /// 기준 시각: 실행 중이면 현재, 일시정지 중이면 일시정지 시각
+  /// 타임스탬프 기반으로 경과 시간을 계산한다.
+  int _calculateElapsed() {
+    if (_startedAt == null) return 0;
+    final referenceTime = _pausedAt ?? DateTime.now();
+    return (referenceTime.difference(_startedAt!).inSeconds - _pausedDurationSeconds).clamp(0, 999999);
+  }
+
+  /// 타임스탬프 기반으로 남은 시간을 계산한다 (카운트다운 모드 전용).
   int _calculateRemaining(int totalSeconds) {
     if (_startedAt == null) return totalSeconds;
-
-    final referenceTime = _pausedAt ?? DateTime.now();
-    final elapsed = referenceTime.difference(_startedAt!).inSeconds - _pausedDurationSeconds;
-    return (totalSeconds - elapsed).clamp(0, totalSeconds);
+    return (totalSeconds - _calculateElapsed()).clamp(0, totalSeconds);
   }
 
   void _startTicking() {
@@ -309,6 +345,13 @@ class TimerNotifier extends AutoDisposeFamilyNotifier<TimerState, String> {
       return;
     }
 
+    if (state.isStopwatch) {
+      // 스톱워치 모드: 경과 시간만 갱신, 완료 없음
+      state = state.copyWith(elapsedSeconds: _calculateElapsed());
+      return;
+    }
+
+    // 카운트다운 모드
     final remaining = _calculateRemaining(state.totalSeconds);
     if (remaining <= 0) {
       _ticker?.cancel();
@@ -355,6 +398,7 @@ class TimerNotifier extends AutoDisposeFamilyNotifier<TimerState, String> {
       totalPaused += now.difference(activeTimer.pausedAt!).inSeconds;
     }
     final durationSeconds = now.difference(activeTimer.startedAt).inSeconds - totalPaused;
+    final clampedDuration = totalSeconds > 0 ? durationSeconds.clamp(0, totalSeconds) : durationSeconds.clamp(0, durationSeconds);
 
     await ref.read(sessionRepositoryProvider).createSession(
       Session(
@@ -362,7 +406,7 @@ class TimerNotifier extends AutoDisposeFamilyNotifier<TimerState, String> {
         presetId: activeTimer.presetId,
         startedAt: activeTimer.startedAt,
         endedAt: now,
-        durationSeconds: durationSeconds.clamp(0, totalSeconds),
+        durationSeconds: clampedDuration,
         status: SessionStatus.stopped,
         createdAt: now,
       ),

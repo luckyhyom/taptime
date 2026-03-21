@@ -20,7 +20,7 @@ class Preset {
     required this.sortOrder,
     required this.createdAt,
     required this.updatedAt,
-  })  : assert(durationMin >= 1 && durationMin <= 180, 'durationMin must be 1~180'),
+  })  : assert(durationMin >= 0 && durationMin <= 180, 'durationMin must be 0~180 (0 = unlimited)'),
         assert(name.isNotEmpty && name.length <= 20, 'name must be 1~20 chars'),
         assert(dailyGoalMin >= 0, 'dailyGoalMin must be >= 0');
 

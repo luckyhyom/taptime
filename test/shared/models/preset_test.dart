@@ -30,12 +30,16 @@ void main() {
       expect(preset.durationMin, 25);
     });
 
-    test('durationMin이 1 미만이면 실패한다', () {
-      expect(() => makePreset(durationMin: 0), throwsA(isA<AssertionError>()));
+    test('durationMin이 0 미만이면 실패한다', () {
+      expect(() => makePreset(durationMin: -1), throwsA(isA<AssertionError>()));
     });
 
     test('durationMin이 180 초과이면 실패한다', () {
       expect(() => makePreset(durationMin: 181), throwsA(isA<AssertionError>()));
+    });
+
+    test('durationMin 0은 허용된다 (무제한/스톱워치 모드)', () {
+      expect(makePreset(durationMin: 0).durationMin, 0);
     });
 
     test('durationMin 경계값 1과 180은 허용된다', () {

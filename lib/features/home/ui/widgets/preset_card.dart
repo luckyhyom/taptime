@@ -75,7 +75,10 @@ class PresetCard extends StatelessWidget {
                 overflow: TextOverflow.ellipsis,
               ),
               const SizedBox(height: 4),
-              Text('${preset.durationMin}분', style: theme.textTheme.bodySmall),
+              Text(
+                preset.durationMin > 0 ? '${preset.durationMin}분' : '무제한',
+                style: theme.textTheme.bodySmall,
+              ),
 
               // Column 내부에서 남은 공간을 차지하여
               // 진행률 바를 카드 하단에 고정한다.

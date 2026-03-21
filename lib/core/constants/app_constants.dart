@@ -66,7 +66,8 @@ abstract final class AppConstants {
   // ── 타이머 범위 ──────────────────────────────────────────────
   // 프리셋 생성 시 설정할 수 있는 타이머 시간의 최소/최대값 (분 단위).
 
-  static const timerMinMinutes = 1;
+  /// 0 = 무제한(스톱워치) 모드
+  static const timerMinMinutes = 0;
   static const timerMaxMinutes = 180;
   static const timerDefaultMinutes = 25;
 

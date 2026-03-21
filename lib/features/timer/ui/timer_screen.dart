@@ -125,12 +125,14 @@ class _TimerScreenState extends ConsumerState<TimerScreen> with WidgetsBindingOb
 
         const Spacer(flex: 2),
 
-        // ── 프로그레스 링 + 카운트다운 ───────────────────
+        // ── 프로그레스 링 + 시간 표시 ───────────────────
         ProgressRing(
-          progress: timerState.progress,
+          progress: timerState.isStopwatch ? 0 : timerState.progress,
           color: color,
           child: Text(
-            TimeFormatter.mmss(timerState.remainingSeconds),
+            TimeFormatter.mmss(
+              timerState.isStopwatch ? timerState.elapsedSeconds : timerState.remainingSeconds,
+            ),
             style: theme.textTheme.displayLarge?.copyWith(
               fontWeight: FontWeight.w300,
               letterSpacing: 2,
@@ -237,7 +239,7 @@ class _TimerScreenState extends ConsumerState<TimerScreen> with WidgetsBindingOb
 
   void _showStopConfirmation(BuildContext context) {
     final timerState = ref.read(timerProvider(widget.presetId));
-    final elapsed = timerState.totalSeconds - timerState.remainingSeconds;
+    final elapsed = timerState.isStopwatch ? timerState.elapsedSeconds : timerState.totalSeconds - timerState.remainingSeconds;
     final elapsedMin = elapsed ~/ 60;
     final elapsedSec = elapsed % 60;
 

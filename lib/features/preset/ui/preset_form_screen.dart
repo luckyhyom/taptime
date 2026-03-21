@@ -118,6 +118,7 @@ class _PresetFormScreenState extends ConsumerState<PresetFormScreen> {
               min: AppConstants.timerMinMinutes,
               max: AppConstants.timerMaxMinutes,
               step: 5,
+              zeroLabel: '무제한',
               onChanged: notifier.setDuration,
             ),
 
@@ -233,6 +234,7 @@ class _StepperRow extends StatelessWidget {
     required this.max,
     required this.step,
     required this.onChanged,
+    this.zeroLabel,
   });
 
   final int value;
@@ -242,8 +244,13 @@ class _StepperRow extends StatelessWidget {
   final int step;
   final ValueChanged<int> onChanged;
 
+  /// value가 0일 때 표시할 텍스트 (null이면 '0 $unit')
+  final String? zeroLabel;
+
   @override
   Widget build(BuildContext context) {
+    final displayText = value == 0 && zeroLabel != null ? zeroLabel! : '$value $unit';
+
     return Row(
       children: [
         IconButton.outlined(
@@ -252,9 +259,9 @@ class _StepperRow extends StatelessWidget {
         ),
         const SizedBox(width: AppSpacing.gap),
         SizedBox(
-          width: 72,
+          width: 80,
           child: Text(
-            '$value $unit',
+            displayText,
             textAlign: TextAlign.center,
             style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
           ),
