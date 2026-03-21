@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 import 'package:taptime/core/providers/app_providers.dart';
+import 'package:taptime/core/providers/auth_providers.dart';
+import 'package:taptime/core/router/app_router.dart';
 import 'package:taptime/core/theme/app_spacing.dart';
 import 'package:taptime/shared/models/user_settings.dart';
 
@@ -21,6 +24,10 @@ class SettingsScreen extends ConsumerWidget {
         data: (settings) => ListView(
           children: [
             const SizedBox(height: AppSpacing.grid),
+
+            // ── 계정 ──────────────────────────────────────────
+            const _AccountSection(),
+            const Divider(height: AppSpacing.sectionGap * 2),
 
             // ── 테마 ──────────────────────────────────────────
             Padding(
@@ -131,6 +138,82 @@ class SettingsScreen extends ConsumerWidget {
     if (context.mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('모든 데이터가 초기화되었습니다.')),
+      );
+    }
+  }
+}
+
+/// 계정 섹션 — 로그인 상태에 따라 프로필 또는 로그인 버튼을 표시한다.
+class _AccountSection extends ConsumerWidget {
+  const _AccountSection();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final authAsync = ref.watch(authStateProvider);
+
+    return authAsync.when(
+      loading: () => const ListTile(
+        leading: Icon(Icons.account_circle_outlined),
+        title: Text('계정'),
+        trailing: SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2)),
+      ),
+      error: (_, __) => ListTile(
+        leading: const Icon(Icons.account_circle_outlined),
+        title: const Text('계정'),
+        subtitle: const Text('연결 실패'),
+        onTap: () => context.push(AppRoutes.login),
+      ),
+      data: (user) {
+        if (user == null) {
+          return ListTile(
+            leading: const Icon(Icons.account_circle_outlined),
+            title: const Text('로그인'),
+            subtitle: const Text('클라우드 동기화를 사용하려면 로그인하세요'),
+            trailing: const Icon(Icons.chevron_right),
+            onTap: () => context.push(AppRoutes.login),
+          );
+        }
+
+        return ListTile(
+          leading: const Icon(Icons.account_circle),
+          title: Text(user.displayLabel),
+          subtitle: Text(user.email),
+          trailing: TextButton(
+            onPressed: () => _confirmSignOut(context, ref),
+            child: const Text('로그아웃'),
+          ),
+        );
+      },
+    );
+  }
+
+  Future<void> _confirmSignOut(BuildContext context, WidgetRef ref) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('로그아웃'),
+        content: const Text('로그아웃하면 클라우드 동기화가 중단됩니다.\n로컬 데이터는 유지됩니다.'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text('취소'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            child: const Text('로그아웃'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed != true) return;
+
+    final authService = ref.read(authServiceProvider);
+    await authService?.signOut();
+
+    if (context.mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('로그아웃되었습니다.')),
       );
     }
   }

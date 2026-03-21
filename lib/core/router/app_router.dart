@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:taptime/core/router/shell_screen.dart';
+import 'package:taptime/features/auth/ui/login_screen.dart';
 import 'package:taptime/features/history/ui/history_screen.dart';
 import 'package:taptime/features/home/ui/home_screen.dart';
 import 'package:taptime/features/preset/ui/preset_form_screen.dart';
@@ -27,6 +28,7 @@ abstract final class AppRoutes {
   static const presetNew = '/preset/new';
   static const presetEdit = '/preset/edit/:presetId';
   static const breakTimer = '/break/:durationSeconds';
+  static const login = '/login';
 
   /// 타이머 라우트에 presetId를 삽입한다.
   /// 사용 예: `context.push(AppRoutes.timerPath('abc-123'))`
@@ -148,6 +150,11 @@ final GoRouter appRouter = GoRouter(
       path: AppRoutes.history,
       parentNavigatorKey: _rootNavigatorKey,
       builder: (context, state) => const HistoryScreen(),
+    ),
+    GoRoute(
+      path: AppRoutes.login,
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) => const LoginScreen(),
     ),
     GoRoute(
       path: AppRoutes.breakTimer,
