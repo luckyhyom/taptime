@@ -47,6 +47,18 @@
 - **Context:** Wrote tips file with Korean descriptions despite CLAUDE.md rule requiring all .md documents in English
 - **Rule:** All `.md` documents must be written in English. The only exception is user's original input recorded under "Original" sections in conversation logs and planning changelog.
 
+## DON'T: Commit secrets or credentials to git
+
+- **Found:** 2026-03-22
+- **Context:** Supabase anon key was hardcoded in `supabase_config.dart` and nearly committed
+- **Rule:** Never hardcode API keys, tokens, or credentials in source files. Use `.env` + `--dart-define-from-file` for secrets. Always verify `.gitignore` covers `.env`, `*.jks`, `*.keystore`, `google-services.json`, `GoogleService-Info.plist`. Before committing, check `git diff` for any credential-like strings.
+
+## DON'T: Display secrets in tool output or conversation
+
+- **Found:** 2026-03-22
+- **Context:** Supabase API keys were printed in full via CLI command output
+- **Rule:** When running commands that output secrets (API keys, tokens, passwords), warn the user. Avoid printing full key values. If keys are accidentally exposed, recommend rotation.
+
 ## DO: Record progress before ending a session
 
 - **Found:** 2026-03-15

@@ -6,6 +6,16 @@
 # macOS
 .DS_Store
 
+# Secrets
+.env
+*.jks
+*.keystore
+google-services.json
+GoogleService-Info.plist
+
+# Supabase CLI
+supabase/.temp/
+
 # Flutter (for when project is initialized)
 build/
 .dart_tool/
