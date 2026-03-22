@@ -8,6 +8,7 @@ import 'package:taptime/core/providers/auth_providers.dart';
 import 'package:taptime/features/history/data/session_repository_impl.dart';
 import 'package:taptime/features/preset/data/preset_repository_impl.dart';
 import 'package:taptime/features/settings/data/user_settings_repository_impl.dart';
+import 'package:taptime/features/sync/data/supabase_remote_data_source.dart';
 import 'package:taptime/features/sync/data/supabase_sync_service.dart';
 import 'package:taptime/features/sync/data/sync_aware_preset_repository.dart';
 import 'package:taptime/features/sync/data/sync_aware_session_repository.dart';
@@ -50,9 +51,10 @@ final syncServiceProvider = Provider<SyncService?>((ref) {
   if (!isLoggedIn) return null;
 
   final db = ref.watch(databaseProvider);
+  final remote = SupabaseRemoteDataSource(Supabase.instance.client);
   final service = SupabaseSyncService(
     db: db,
-    client: Supabase.instance.client,
+    remoteDataSource: remote,
   )..start();
 
   ref.onDispose(service.stop);

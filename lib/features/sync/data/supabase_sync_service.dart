@@ -2,14 +2,13 @@ import 'dart:async';
 
 import 'package:drift/drift.dart';
 import 'package:flutter/foundation.dart';
-// Supabase도 Session을 export하므로 hide로 충돌을 방지한다.
-import 'package:supabase_flutter/supabase_flutter.dart' hide Session;
 
 import 'package:taptime/core/database/app_database.dart';
 import 'package:taptime/core/database/sync_constants.dart';
 import 'package:taptime/features/sync/data/connectivity_monitor.dart';
 import 'package:taptime/features/sync/data/supabase_mappers.dart';
 import 'package:taptime/features/sync/data/sync_metadata.dart';
+import 'package:taptime/features/sync/data/sync_remote_data_source.dart';
 import 'package:taptime/shared/services/sync_service.dart';
 
 /// Supabase 기반 양방향 자동 동기화 서비스.
@@ -23,14 +22,14 @@ import 'package:taptime/shared/services/sync_service.dart';
 class SupabaseSyncService implements SyncService {
   SupabaseSyncService({
     required AppDatabase db,
-    required SupabaseClient client,
+    required SyncRemoteDataSource remoteDataSource,
     ConnectivityMonitor? connectivityMonitor,
   })  : _db = db,
-        _client = client,
+        _remote = remoteDataSource,
         _connectivity = connectivityMonitor ?? ConnectivityMonitor();
 
   final AppDatabase _db;
-  final SupabaseClient _client;
+  final SyncRemoteDataSource _remote;
   final ConnectivityMonitor _connectivity;
 
   Timer? _periodicTimer;
@@ -75,7 +74,7 @@ class SupabaseSyncService implements SyncService {
     _setStatus(SyncStatus.syncing);
 
     try {
-      final userId = _client.auth.currentUser?.id;
+      final userId = _remote.currentUserId;
       if (userId == null) {
         _setStatus(SyncStatus.idle);
         return;
@@ -120,7 +119,7 @@ class SupabaseSyncService implements SyncService {
         json['deleted_at'] = row.deletedAt!.toUtc().toIso8601String();
       }
 
-      await _client.from('presets').upsert(json);
+      await _remote.upsert('presets', json);
 
       await (_db.update(_db.presets)..where((t) => t.id.equals(row.id))).write(
         PresetsCompanion(
@@ -145,7 +144,7 @@ class SupabaseSyncService implements SyncService {
         json['deleted_at'] = row.deletedAt!.toUtc().toIso8601String();
       }
 
-      await _client.from('sessions').upsert(json);
+      await _remote.upsert('sessions', json);
 
       await (_db.update(_db.sessions)..where((t) => t.id.equals(row.id))).write(
         SessionsCompanion(
@@ -166,13 +165,7 @@ class SupabaseSyncService implements SyncService {
     DateTime? lastPull,
     Future<void> Function(Map<String, dynamic>) merge,
   ) async {
-    var query = _client.from(tableName).select().eq('user_id', userId);
-
-    if (lastPull != null) {
-      query = query.gt('updated_at', lastPull.toIso8601String());
-    }
-
-    final rows = await query;
+    final rows = await _remote.fetchRows(tableName, userId, since: lastPull);
 
     for (final json in rows) {
       await merge(json);
