@@ -44,6 +44,7 @@ class UserSettingsRepositoryImpl implements UserSettingsRepository {
             themeMode: Value(settings.themeMode.name),
             soundEnabled: Value(settings.soundEnabled),
             vibrationEnabled: Value(settings.vibrationEnabled),
+            locationTrackingEnabled: Value(settings.locationTrackingEnabled),
           ),
         );
   }
@@ -57,6 +58,7 @@ class UserSettingsRepositoryImpl implements UserSettingsRepository {
       themeMode: safeEnumByName(ThemeMode.values, row.themeMode) ?? ThemeMode.system,
       soundEnabled: row.soundEnabled,
       vibrationEnabled: row.vibrationEnabled,
+      locationTrackingEnabled: row.locationTrackingEnabled,
     );
   }
 }

@@ -56,6 +56,11 @@ class Presets extends Table {
   /// 마지막으로 클라우드와 동기화된 시각
   DateTimeColumn get lastSyncedAt => dateTime().nullable()();
 
+  /// 연결된 위치 트리거의 id.
+  /// 위치 트리거가 삭제되면 null로 설정된다.
+  TextColumn get locationTriggerId =>
+      text().nullable().references(LocationTriggers, #id, onDelete: KeyAction.setNull)();
+
   @override
   Set<Column<Object>> get primaryKey => {id};
 }
@@ -124,6 +129,9 @@ class UserSettingsTable extends Table {
   BoolColumn get soundEnabled => boolean().withDefault(const Constant(true))();
   BoolColumn get vibrationEnabled => boolean().withDefault(const Constant(true))();
 
+  /// 위치 기반 자동 트래킹 활성화 여부
+  BoolColumn get locationTrackingEnabled => boolean().withDefault(const Constant(false))();
+
   @override
   Set<Column<Object>> get primaryKey => {id};
 
@@ -132,6 +140,42 @@ class UserSettingsTable extends Table {
   // 명시적으로 테이블 이름을 지정한다.
   @override
   String get tableName => 'user_settings';
+}
+
+/// 위치 트리거 테이블 — 지오펜스 기반 자동 트래킹 장소를 저장한다.
+///
+/// 프리셋에 장소를 연결하면, 해당 장소 진입 시 타이머 시작을 제안하거나
+/// 자동으로 시작할 수 있다. 하나의 장소에 여러 프리셋을 연결할 수 있다.
+@DataClassName('LocationTriggerRow')
+class LocationTriggers extends Table {
+  TextColumn get id => text()();
+
+  /// 장소 이름 (예: '도서관', '헬스장')
+  TextColumn get placeName => text().withLength(min: 1, max: 40)();
+
+  RealColumn get latitude => real()();
+  RealColumn get longitude => real()();
+
+  /// 지오펜스 반경 (미터 단위, 기본 200m)
+  IntColumn get radiusMeters => integer().withDefault(const Constant(200))();
+
+  /// 장소 진입 시 알림 표시 여부
+  BoolColumn get notifyOnEntry => boolean().withDefault(const Constant(true))();
+
+  /// 장소 퇴장 시 알림 표시 여부
+  BoolColumn get notifyOnExit => boolean().withDefault(const Constant(false))();
+
+  /// 확인 없이 타이머 자동 시작 여부
+  BoolColumn get autoStart => boolean().withDefault(const Constant(false))();
+
+  DateTimeColumn get createdAt => dateTime().clientDefault(DateTime.now)();
+  DateTimeColumn get updatedAt => dateTime().clientDefault(DateTime.now)();
+  DateTimeColumn get deletedAt => dateTime().nullable()();
+  TextColumn get syncStatus => text().withDefault(const Constant('pending'))();
+  DateTimeColumn get lastSyncedAt => dateTime().nullable()();
+
+  @override
+  Set<Column<Object>> get primaryKey => {id};
 }
 
 /// 활성 타이머 테이블 — 현재 실행 중인 타이머 상태를 저장한다.

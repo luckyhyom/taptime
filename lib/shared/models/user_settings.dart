@@ -8,7 +8,12 @@ import 'package:taptime/core/utils/enum_utils.dart';
 /// DB에도 단일 행(id=1)으로 저장된다.
 @immutable
 class UserSettings {
-  const UserSettings({required this.themeMode, required this.soundEnabled, required this.vibrationEnabled});
+  const UserSettings({
+    required this.themeMode,
+    required this.soundEnabled,
+    required this.vibrationEnabled,
+    this.locationTrackingEnabled = false,
+  });
 
   /// Map에서 UserSettings 인스턴스를 생성한다.
   factory UserSettings.fromMap(Map<String, dynamic> map) {
@@ -16,6 +21,7 @@ class UserSettings {
       themeMode: safeEnumByName(ThemeMode.values, map['themeMode'] as String?) ?? ThemeMode.system,
       soundEnabled: map['soundEnabled'] as bool,
       vibrationEnabled: map['vibrationEnabled'] as bool,
+      locationTrackingEnabled: map['locationTrackingEnabled'] as bool? ?? false,
     );
   }
 
@@ -34,11 +40,20 @@ class UserSettings {
   /// 타이머 완료 시 진동 여부
   final bool vibrationEnabled;
 
-  UserSettings copyWith({ThemeMode? themeMode, bool? soundEnabled, bool? vibrationEnabled}) {
+  /// 위치 기반 자동 트래킹 활성화 여부
+  final bool locationTrackingEnabled;
+
+  UserSettings copyWith({
+    ThemeMode? themeMode,
+    bool? soundEnabled,
+    bool? vibrationEnabled,
+    bool? locationTrackingEnabled,
+  }) {
     return UserSettings(
       themeMode: themeMode ?? this.themeMode,
       soundEnabled: soundEnabled ?? this.soundEnabled,
       vibrationEnabled: vibrationEnabled ?? this.vibrationEnabled,
+      locationTrackingEnabled: locationTrackingEnabled ?? this.locationTrackingEnabled,
     );
   }
 
@@ -48,6 +63,7 @@ class UserSettings {
       'themeMode': themeMode.name,
       'soundEnabled': soundEnabled,
       'vibrationEnabled': vibrationEnabled,
+      'locationTrackingEnabled': locationTrackingEnabled,
     };
   }
 
@@ -56,11 +72,13 @@ class UserSettings {
       other is UserSettings &&
       other.themeMode == themeMode &&
       other.soundEnabled == soundEnabled &&
-      other.vibrationEnabled == vibrationEnabled;
+      other.vibrationEnabled == vibrationEnabled &&
+      other.locationTrackingEnabled == locationTrackingEnabled;
 
   @override
-  int get hashCode => Object.hash(themeMode, soundEnabled, vibrationEnabled);
+  int get hashCode => Object.hash(themeMode, soundEnabled, vibrationEnabled, locationTrackingEnabled);
 
   @override
-  String toString() => 'UserSettings(theme: $themeMode, sound: $soundEnabled, vibration: $vibrationEnabled)';
+  String toString() =>
+      'UserSettings(theme: $themeMode, sound: $soundEnabled, vibration: $vibrationEnabled, location: $locationTrackingEnabled)';
 }

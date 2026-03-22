@@ -16,7 +16,7 @@ part 'app_database.g.dart';
 /// 생성자에 QueryExecutor를 받을 수 있도록 설계하여,
 /// 테스트 시 인메모리 DB를 주입할 수 있다.
 /// 예: AppDatabase(NativeDatabase.memory())
-@DriftDatabase(tables: [Presets, Sessions, UserSettingsTable, ActiveTimers])
+@DriftDatabase(tables: [Presets, Sessions, UserSettingsTable, ActiveTimers, LocationTriggers])
 class AppDatabase extends _$AppDatabase {
   /// [executor]를 지정하지 않으면 기본 SQLite 파일 연결을 사용한다.
   /// 테스트에서는 NativeDatabase.memory()를 전달하여
@@ -26,7 +26,7 @@ class AppDatabase extends _$AppDatabase {
   /// 스키마 버전 — 테이블 구조를 변경할 때마다 이 값을 올린다.
   /// Drift가 이전 버전과 비교하여 마이그레이션을 실행한다.
   @override
-  int get schemaVersion => 2;
+  int get schemaVersion => 3;
 
   /// SQLite 파일 연결을 생성한다.
   ///
@@ -73,6 +73,12 @@ class AppDatabase extends _$AppDatabase {
         await m.addColumn(presets, presets.lastSyncedAt);
         // 기존 세션의 updatedAt을 createdAt 값으로 채운다.
         await customStatement('UPDATE sessions SET updated_at = created_at WHERE updated_at IS NULL');
+      }
+      if (from < 3) {
+        // v2.1: 위치 기반 자동 트래킹
+        await m.createTable(locationTriggers);
+        await m.addColumn(presets, presets.locationTriggerId);
+        await m.addColumn(userSettingsTable, userSettingsTable.locationTrackingEnabled);
       }
     },
     beforeOpen: (details) async {

@@ -20,6 +20,7 @@ class Preset {
     required this.sortOrder,
     required this.createdAt,
     required this.updatedAt,
+    this.locationTriggerId,
   })  : assert(durationMin >= 0 && durationMin <= 180, 'durationMin must be 0~180 (0 = unlimited)'),
         assert(name.isNotEmpty && name.length <= 20, 'name must be 1~20 chars'),
         assert(dailyGoalMin >= 0, 'dailyGoalMin must be >= 0');
@@ -39,6 +40,7 @@ class Preset {
       sortOrder: map['sortOrder'] as int,
       createdAt: _parseDateTime(map['createdAt']),
       updatedAt: _parseDateTime(map['updatedAt']),
+      locationTriggerId: map['locationTriggerId'] as String?,
     );
   }
 
@@ -71,6 +73,9 @@ class Preset {
   final DateTime createdAt;
   final DateTime updatedAt;
 
+  /// 연결된 위치 트리거의 id. null이면 위치 트리거 없음.
+  final String? locationTriggerId;
+
   /// 일부 필드만 변경한 새 인스턴스를 반환.
   ///
   /// 불변 객체이므로 직접 수정할 수 없고,
@@ -85,6 +90,7 @@ class Preset {
     int? dailyGoalMin,
     int? sortOrder,
     DateTime? updatedAt,
+    String? locationTriggerId,
   }) {
     return Preset(
       id: id,
@@ -96,6 +102,25 @@ class Preset {
       sortOrder: sortOrder ?? this.sortOrder,
       createdAt: createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
+      locationTriggerId: locationTriggerId ?? this.locationTriggerId,
+    );
+  }
+
+  /// 위치 트리거 연결을 해제한 새 인스턴스를 반환한다.
+  ///
+  /// copyWith(locationTriggerId: null)은 "변경 없음"으로 처리되므로
+  /// 연결 해제 시 이 메서드를 사용해야 한다.
+  Preset clearLocationTrigger() {
+    return Preset(
+      id: id,
+      name: name,
+      durationMin: durationMin,
+      icon: icon,
+      color: color,
+      dailyGoalMin: dailyGoalMin,
+      sortOrder: sortOrder,
+      createdAt: createdAt,
+      updatedAt: DateTime.now(),
     );
   }
 
@@ -120,6 +145,7 @@ class Preset {
       'sortOrder': sortOrder,
       'createdAt': createdAt.toIso8601String(),
       'updatedAt': updatedAt.toIso8601String(),
+      'locationTriggerId': locationTriggerId,
     };
   }
 

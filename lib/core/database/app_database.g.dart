@@ -3,6 +3,792 @@
 part of 'app_database.dart';
 
 // ignore_for_file: type=lint
+class $LocationTriggersTable extends LocationTriggers
+    with TableInfo<$LocationTriggersTable, LocationTriggerRow> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $LocationTriggersTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _placeNameMeta = const VerificationMeta(
+    'placeName',
+  );
+  @override
+  late final GeneratedColumn<String> placeName = GeneratedColumn<String>(
+    'place_name',
+    aliasedName,
+    false,
+    additionalChecks: GeneratedColumn.checkTextLength(
+      minTextLength: 1,
+      maxTextLength: 40,
+    ),
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _latitudeMeta = const VerificationMeta(
+    'latitude',
+  );
+  @override
+  late final GeneratedColumn<double> latitude = GeneratedColumn<double>(
+    'latitude',
+    aliasedName,
+    false,
+    type: DriftSqlType.double,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _longitudeMeta = const VerificationMeta(
+    'longitude',
+  );
+  @override
+  late final GeneratedColumn<double> longitude = GeneratedColumn<double>(
+    'longitude',
+    aliasedName,
+    false,
+    type: DriftSqlType.double,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _radiusMetersMeta = const VerificationMeta(
+    'radiusMeters',
+  );
+  @override
+  late final GeneratedColumn<int> radiusMeters = GeneratedColumn<int>(
+    'radius_meters',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(200),
+  );
+  static const VerificationMeta _notifyOnEntryMeta = const VerificationMeta(
+    'notifyOnEntry',
+  );
+  @override
+  late final GeneratedColumn<bool> notifyOnEntry = GeneratedColumn<bool>(
+    'notify_on_entry',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("notify_on_entry" IN (0, 1))',
+    ),
+    defaultValue: const Constant(true),
+  );
+  static const VerificationMeta _notifyOnExitMeta = const VerificationMeta(
+    'notifyOnExit',
+  );
+  @override
+  late final GeneratedColumn<bool> notifyOnExit = GeneratedColumn<bool>(
+    'notify_on_exit',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("notify_on_exit" IN (0, 1))',
+    ),
+    defaultValue: const Constant(false),
+  );
+  static const VerificationMeta _autoStartMeta = const VerificationMeta(
+    'autoStart',
+  );
+  @override
+  late final GeneratedColumn<bool> autoStart = GeneratedColumn<bool>(
+    'auto_start',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("auto_start" IN (0, 1))',
+    ),
+    defaultValue: const Constant(false),
+  );
+  static const VerificationMeta _createdAtMeta = const VerificationMeta(
+    'createdAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
+    'created_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+    clientDefault: DateTime.now,
+  );
+  static const VerificationMeta _updatedAtMeta = const VerificationMeta(
+    'updatedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> updatedAt = GeneratedColumn<DateTime>(
+    'updated_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+    clientDefault: DateTime.now,
+  );
+  static const VerificationMeta _deletedAtMeta = const VerificationMeta(
+    'deletedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> deletedAt = GeneratedColumn<DateTime>(
+    'deleted_at',
+    aliasedName,
+    true,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _syncStatusMeta = const VerificationMeta(
+    'syncStatus',
+  );
+  @override
+  late final GeneratedColumn<String> syncStatus = GeneratedColumn<String>(
+    'sync_status',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultValue: const Constant('pending'),
+  );
+  static const VerificationMeta _lastSyncedAtMeta = const VerificationMeta(
+    'lastSyncedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> lastSyncedAt = GeneratedColumn<DateTime>(
+    'last_synced_at',
+    aliasedName,
+    true,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    placeName,
+    latitude,
+    longitude,
+    radiusMeters,
+    notifyOnEntry,
+    notifyOnExit,
+    autoStart,
+    createdAt,
+    updatedAt,
+    deletedAt,
+    syncStatus,
+    lastSyncedAt,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'location_triggers';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<LocationTriggerRow> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('place_name')) {
+      context.handle(
+        _placeNameMeta,
+        placeName.isAcceptableOrUnknown(data['place_name']!, _placeNameMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_placeNameMeta);
+    }
+    if (data.containsKey('latitude')) {
+      context.handle(
+        _latitudeMeta,
+        latitude.isAcceptableOrUnknown(data['latitude']!, _latitudeMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_latitudeMeta);
+    }
+    if (data.containsKey('longitude')) {
+      context.handle(
+        _longitudeMeta,
+        longitude.isAcceptableOrUnknown(data['longitude']!, _longitudeMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_longitudeMeta);
+    }
+    if (data.containsKey('radius_meters')) {
+      context.handle(
+        _radiusMetersMeta,
+        radiusMeters.isAcceptableOrUnknown(
+          data['radius_meters']!,
+          _radiusMetersMeta,
+        ),
+      );
+    }
+    if (data.containsKey('notify_on_entry')) {
+      context.handle(
+        _notifyOnEntryMeta,
+        notifyOnEntry.isAcceptableOrUnknown(
+          data['notify_on_entry']!,
+          _notifyOnEntryMeta,
+        ),
+      );
+    }
+    if (data.containsKey('notify_on_exit')) {
+      context.handle(
+        _notifyOnExitMeta,
+        notifyOnExit.isAcceptableOrUnknown(
+          data['notify_on_exit']!,
+          _notifyOnExitMeta,
+        ),
+      );
+    }
+    if (data.containsKey('auto_start')) {
+      context.handle(
+        _autoStartMeta,
+        autoStart.isAcceptableOrUnknown(data['auto_start']!, _autoStartMeta),
+      );
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(
+        _createdAtMeta,
+        createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta),
+      );
+    }
+    if (data.containsKey('updated_at')) {
+      context.handle(
+        _updatedAtMeta,
+        updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta),
+      );
+    }
+    if (data.containsKey('deleted_at')) {
+      context.handle(
+        _deletedAtMeta,
+        deletedAt.isAcceptableOrUnknown(data['deleted_at']!, _deletedAtMeta),
+      );
+    }
+    if (data.containsKey('sync_status')) {
+      context.handle(
+        _syncStatusMeta,
+        syncStatus.isAcceptableOrUnknown(data['sync_status']!, _syncStatusMeta),
+      );
+    }
+    if (data.containsKey('last_synced_at')) {
+      context.handle(
+        _lastSyncedAtMeta,
+        lastSyncedAt.isAcceptableOrUnknown(
+          data['last_synced_at']!,
+          _lastSyncedAtMeta,
+        ),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  LocationTriggerRow map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return LocationTriggerRow(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}id'],
+      )!,
+      placeName: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}place_name'],
+      )!,
+      latitude: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}latitude'],
+      )!,
+      longitude: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}longitude'],
+      )!,
+      radiusMeters: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}radius_meters'],
+      )!,
+      notifyOnEntry: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}notify_on_entry'],
+      )!,
+      notifyOnExit: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}notify_on_exit'],
+      )!,
+      autoStart: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}auto_start'],
+      )!,
+      createdAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}created_at'],
+      )!,
+      updatedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}updated_at'],
+      )!,
+      deletedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}deleted_at'],
+      ),
+      syncStatus: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}sync_status'],
+      )!,
+      lastSyncedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}last_synced_at'],
+      ),
+    );
+  }
+
+  @override
+  $LocationTriggersTable createAlias(String alias) {
+    return $LocationTriggersTable(attachedDatabase, alias);
+  }
+}
+
+class LocationTriggerRow extends DataClass
+    implements Insertable<LocationTriggerRow> {
+  final String id;
+
+  /// 장소 이름 (예: '도서관', '헬스장')
+  final String placeName;
+  final double latitude;
+  final double longitude;
+
+  /// 지오펜스 반경 (미터 단위, 기본 200m)
+  final int radiusMeters;
+
+  /// 장소 진입 시 알림 표시 여부
+  final bool notifyOnEntry;
+
+  /// 장소 퇴장 시 알림 표시 여부
+  final bool notifyOnExit;
+
+  /// 확인 없이 타이머 자동 시작 여부
+  final bool autoStart;
+  final DateTime createdAt;
+  final DateTime updatedAt;
+  final DateTime? deletedAt;
+  final String syncStatus;
+  final DateTime? lastSyncedAt;
+  const LocationTriggerRow({
+    required this.id,
+    required this.placeName,
+    required this.latitude,
+    required this.longitude,
+    required this.radiusMeters,
+    required this.notifyOnEntry,
+    required this.notifyOnExit,
+    required this.autoStart,
+    required this.createdAt,
+    required this.updatedAt,
+    this.deletedAt,
+    required this.syncStatus,
+    this.lastSyncedAt,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['place_name'] = Variable<String>(placeName);
+    map['latitude'] = Variable<double>(latitude);
+    map['longitude'] = Variable<double>(longitude);
+    map['radius_meters'] = Variable<int>(radiusMeters);
+    map['notify_on_entry'] = Variable<bool>(notifyOnEntry);
+    map['notify_on_exit'] = Variable<bool>(notifyOnExit);
+    map['auto_start'] = Variable<bool>(autoStart);
+    map['created_at'] = Variable<DateTime>(createdAt);
+    map['updated_at'] = Variable<DateTime>(updatedAt);
+    if (!nullToAbsent || deletedAt != null) {
+      map['deleted_at'] = Variable<DateTime>(deletedAt);
+    }
+    map['sync_status'] = Variable<String>(syncStatus);
+    if (!nullToAbsent || lastSyncedAt != null) {
+      map['last_synced_at'] = Variable<DateTime>(lastSyncedAt);
+    }
+    return map;
+  }
+
+  LocationTriggersCompanion toCompanion(bool nullToAbsent) {
+    return LocationTriggersCompanion(
+      id: Value(id),
+      placeName: Value(placeName),
+      latitude: Value(latitude),
+      longitude: Value(longitude),
+      radiusMeters: Value(radiusMeters),
+      notifyOnEntry: Value(notifyOnEntry),
+      notifyOnExit: Value(notifyOnExit),
+      autoStart: Value(autoStart),
+      createdAt: Value(createdAt),
+      updatedAt: Value(updatedAt),
+      deletedAt: deletedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(deletedAt),
+      syncStatus: Value(syncStatus),
+      lastSyncedAt: lastSyncedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(lastSyncedAt),
+    );
+  }
+
+  factory LocationTriggerRow.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return LocationTriggerRow(
+      id: serializer.fromJson<String>(json['id']),
+      placeName: serializer.fromJson<String>(json['placeName']),
+      latitude: serializer.fromJson<double>(json['latitude']),
+      longitude: serializer.fromJson<double>(json['longitude']),
+      radiusMeters: serializer.fromJson<int>(json['radiusMeters']),
+      notifyOnEntry: serializer.fromJson<bool>(json['notifyOnEntry']),
+      notifyOnExit: serializer.fromJson<bool>(json['notifyOnExit']),
+      autoStart: serializer.fromJson<bool>(json['autoStart']),
+      createdAt: serializer.fromJson<DateTime>(json['createdAt']),
+      updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
+      deletedAt: serializer.fromJson<DateTime?>(json['deletedAt']),
+      syncStatus: serializer.fromJson<String>(json['syncStatus']),
+      lastSyncedAt: serializer.fromJson<DateTime?>(json['lastSyncedAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'placeName': serializer.toJson<String>(placeName),
+      'latitude': serializer.toJson<double>(latitude),
+      'longitude': serializer.toJson<double>(longitude),
+      'radiusMeters': serializer.toJson<int>(radiusMeters),
+      'notifyOnEntry': serializer.toJson<bool>(notifyOnEntry),
+      'notifyOnExit': serializer.toJson<bool>(notifyOnExit),
+      'autoStart': serializer.toJson<bool>(autoStart),
+      'createdAt': serializer.toJson<DateTime>(createdAt),
+      'updatedAt': serializer.toJson<DateTime>(updatedAt),
+      'deletedAt': serializer.toJson<DateTime?>(deletedAt),
+      'syncStatus': serializer.toJson<String>(syncStatus),
+      'lastSyncedAt': serializer.toJson<DateTime?>(lastSyncedAt),
+    };
+  }
+
+  LocationTriggerRow copyWith({
+    String? id,
+    String? placeName,
+    double? latitude,
+    double? longitude,
+    int? radiusMeters,
+    bool? notifyOnEntry,
+    bool? notifyOnExit,
+    bool? autoStart,
+    DateTime? createdAt,
+    DateTime? updatedAt,
+    Value<DateTime?> deletedAt = const Value.absent(),
+    String? syncStatus,
+    Value<DateTime?> lastSyncedAt = const Value.absent(),
+  }) => LocationTriggerRow(
+    id: id ?? this.id,
+    placeName: placeName ?? this.placeName,
+    latitude: latitude ?? this.latitude,
+    longitude: longitude ?? this.longitude,
+    radiusMeters: radiusMeters ?? this.radiusMeters,
+    notifyOnEntry: notifyOnEntry ?? this.notifyOnEntry,
+    notifyOnExit: notifyOnExit ?? this.notifyOnExit,
+    autoStart: autoStart ?? this.autoStart,
+    createdAt: createdAt ?? this.createdAt,
+    updatedAt: updatedAt ?? this.updatedAt,
+    deletedAt: deletedAt.present ? deletedAt.value : this.deletedAt,
+    syncStatus: syncStatus ?? this.syncStatus,
+    lastSyncedAt: lastSyncedAt.present ? lastSyncedAt.value : this.lastSyncedAt,
+  );
+  LocationTriggerRow copyWithCompanion(LocationTriggersCompanion data) {
+    return LocationTriggerRow(
+      id: data.id.present ? data.id.value : this.id,
+      placeName: data.placeName.present ? data.placeName.value : this.placeName,
+      latitude: data.latitude.present ? data.latitude.value : this.latitude,
+      longitude: data.longitude.present ? data.longitude.value : this.longitude,
+      radiusMeters: data.radiusMeters.present
+          ? data.radiusMeters.value
+          : this.radiusMeters,
+      notifyOnEntry: data.notifyOnEntry.present
+          ? data.notifyOnEntry.value
+          : this.notifyOnEntry,
+      notifyOnExit: data.notifyOnExit.present
+          ? data.notifyOnExit.value
+          : this.notifyOnExit,
+      autoStart: data.autoStart.present ? data.autoStart.value : this.autoStart,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+      deletedAt: data.deletedAt.present ? data.deletedAt.value : this.deletedAt,
+      syncStatus: data.syncStatus.present
+          ? data.syncStatus.value
+          : this.syncStatus,
+      lastSyncedAt: data.lastSyncedAt.present
+          ? data.lastSyncedAt.value
+          : this.lastSyncedAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('LocationTriggerRow(')
+          ..write('id: $id, ')
+          ..write('placeName: $placeName, ')
+          ..write('latitude: $latitude, ')
+          ..write('longitude: $longitude, ')
+          ..write('radiusMeters: $radiusMeters, ')
+          ..write('notifyOnEntry: $notifyOnEntry, ')
+          ..write('notifyOnExit: $notifyOnExit, ')
+          ..write('autoStart: $autoStart, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('deletedAt: $deletedAt, ')
+          ..write('syncStatus: $syncStatus, ')
+          ..write('lastSyncedAt: $lastSyncedAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    placeName,
+    latitude,
+    longitude,
+    radiusMeters,
+    notifyOnEntry,
+    notifyOnExit,
+    autoStart,
+    createdAt,
+    updatedAt,
+    deletedAt,
+    syncStatus,
+    lastSyncedAt,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is LocationTriggerRow &&
+          other.id == this.id &&
+          other.placeName == this.placeName &&
+          other.latitude == this.latitude &&
+          other.longitude == this.longitude &&
+          other.radiusMeters == this.radiusMeters &&
+          other.notifyOnEntry == this.notifyOnEntry &&
+          other.notifyOnExit == this.notifyOnExit &&
+          other.autoStart == this.autoStart &&
+          other.createdAt == this.createdAt &&
+          other.updatedAt == this.updatedAt &&
+          other.deletedAt == this.deletedAt &&
+          other.syncStatus == this.syncStatus &&
+          other.lastSyncedAt == this.lastSyncedAt);
+}
+
+class LocationTriggersCompanion extends UpdateCompanion<LocationTriggerRow> {
+  final Value<String> id;
+  final Value<String> placeName;
+  final Value<double> latitude;
+  final Value<double> longitude;
+  final Value<int> radiusMeters;
+  final Value<bool> notifyOnEntry;
+  final Value<bool> notifyOnExit;
+  final Value<bool> autoStart;
+  final Value<DateTime> createdAt;
+  final Value<DateTime> updatedAt;
+  final Value<DateTime?> deletedAt;
+  final Value<String> syncStatus;
+  final Value<DateTime?> lastSyncedAt;
+  final Value<int> rowid;
+  const LocationTriggersCompanion({
+    this.id = const Value.absent(),
+    this.placeName = const Value.absent(),
+    this.latitude = const Value.absent(),
+    this.longitude = const Value.absent(),
+    this.radiusMeters = const Value.absent(),
+    this.notifyOnEntry = const Value.absent(),
+    this.notifyOnExit = const Value.absent(),
+    this.autoStart = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    this.deletedAt = const Value.absent(),
+    this.syncStatus = const Value.absent(),
+    this.lastSyncedAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  LocationTriggersCompanion.insert({
+    required String id,
+    required String placeName,
+    required double latitude,
+    required double longitude,
+    this.radiusMeters = const Value.absent(),
+    this.notifyOnEntry = const Value.absent(),
+    this.notifyOnExit = const Value.absent(),
+    this.autoStart = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    this.deletedAt = const Value.absent(),
+    this.syncStatus = const Value.absent(),
+    this.lastSyncedAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  }) : id = Value(id),
+       placeName = Value(placeName),
+       latitude = Value(latitude),
+       longitude = Value(longitude);
+  static Insertable<LocationTriggerRow> custom({
+    Expression<String>? id,
+    Expression<String>? placeName,
+    Expression<double>? latitude,
+    Expression<double>? longitude,
+    Expression<int>? radiusMeters,
+    Expression<bool>? notifyOnEntry,
+    Expression<bool>? notifyOnExit,
+    Expression<bool>? autoStart,
+    Expression<DateTime>? createdAt,
+    Expression<DateTime>? updatedAt,
+    Expression<DateTime>? deletedAt,
+    Expression<String>? syncStatus,
+    Expression<DateTime>? lastSyncedAt,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (placeName != null) 'place_name': placeName,
+      if (latitude != null) 'latitude': latitude,
+      if (longitude != null) 'longitude': longitude,
+      if (radiusMeters != null) 'radius_meters': radiusMeters,
+      if (notifyOnEntry != null) 'notify_on_entry': notifyOnEntry,
+      if (notifyOnExit != null) 'notify_on_exit': notifyOnExit,
+      if (autoStart != null) 'auto_start': autoStart,
+      if (createdAt != null) 'created_at': createdAt,
+      if (updatedAt != null) 'updated_at': updatedAt,
+      if (deletedAt != null) 'deleted_at': deletedAt,
+      if (syncStatus != null) 'sync_status': syncStatus,
+      if (lastSyncedAt != null) 'last_synced_at': lastSyncedAt,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  LocationTriggersCompanion copyWith({
+    Value<String>? id,
+    Value<String>? placeName,
+    Value<double>? latitude,
+    Value<double>? longitude,
+    Value<int>? radiusMeters,
+    Value<bool>? notifyOnEntry,
+    Value<bool>? notifyOnExit,
+    Value<bool>? autoStart,
+    Value<DateTime>? createdAt,
+    Value<DateTime>? updatedAt,
+    Value<DateTime?>? deletedAt,
+    Value<String>? syncStatus,
+    Value<DateTime?>? lastSyncedAt,
+    Value<int>? rowid,
+  }) {
+    return LocationTriggersCompanion(
+      id: id ?? this.id,
+      placeName: placeName ?? this.placeName,
+      latitude: latitude ?? this.latitude,
+      longitude: longitude ?? this.longitude,
+      radiusMeters: radiusMeters ?? this.radiusMeters,
+      notifyOnEntry: notifyOnEntry ?? this.notifyOnEntry,
+      notifyOnExit: notifyOnExit ?? this.notifyOnExit,
+      autoStart: autoStart ?? this.autoStart,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+      deletedAt: deletedAt ?? this.deletedAt,
+      syncStatus: syncStatus ?? this.syncStatus,
+      lastSyncedAt: lastSyncedAt ?? this.lastSyncedAt,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (placeName.present) {
+      map['place_name'] = Variable<String>(placeName.value);
+    }
+    if (latitude.present) {
+      map['latitude'] = Variable<double>(latitude.value);
+    }
+    if (longitude.present) {
+      map['longitude'] = Variable<double>(longitude.value);
+    }
+    if (radiusMeters.present) {
+      map['radius_meters'] = Variable<int>(radiusMeters.value);
+    }
+    if (notifyOnEntry.present) {
+      map['notify_on_entry'] = Variable<bool>(notifyOnEntry.value);
+    }
+    if (notifyOnExit.present) {
+      map['notify_on_exit'] = Variable<bool>(notifyOnExit.value);
+    }
+    if (autoStart.present) {
+      map['auto_start'] = Variable<bool>(autoStart.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<DateTime>(createdAt.value);
+    }
+    if (updatedAt.present) {
+      map['updated_at'] = Variable<DateTime>(updatedAt.value);
+    }
+    if (deletedAt.present) {
+      map['deleted_at'] = Variable<DateTime>(deletedAt.value);
+    }
+    if (syncStatus.present) {
+      map['sync_status'] = Variable<String>(syncStatus.value);
+    }
+    if (lastSyncedAt.present) {
+      map['last_synced_at'] = Variable<DateTime>(lastSyncedAt.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('LocationTriggersCompanion(')
+          ..write('id: $id, ')
+          ..write('placeName: $placeName, ')
+          ..write('latitude: $latitude, ')
+          ..write('longitude: $longitude, ')
+          ..write('radiusMeters: $radiusMeters, ')
+          ..write('notifyOnEntry: $notifyOnEntry, ')
+          ..write('notifyOnExit: $notifyOnExit, ')
+          ..write('autoStart: $autoStart, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('deletedAt: $deletedAt, ')
+          ..write('syncStatus: $syncStatus, ')
+          ..write('lastSyncedAt: $lastSyncedAt, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 class $PresetsTable extends Presets with TableInfo<$PresetsTable, PresetRow> {
   @override
   final GeneratedDatabase attachedDatabase;
@@ -141,6 +927,21 @@ class $PresetsTable extends Presets with TableInfo<$PresetsTable, PresetRow> {
     type: DriftSqlType.dateTime,
     requiredDuringInsert: false,
   );
+  static const VerificationMeta _locationTriggerIdMeta = const VerificationMeta(
+    'locationTriggerId',
+  );
+  @override
+  late final GeneratedColumn<String> locationTriggerId =
+      GeneratedColumn<String>(
+        'location_trigger_id',
+        aliasedName,
+        true,
+        type: DriftSqlType.string,
+        requiredDuringInsert: false,
+        defaultConstraints: GeneratedColumn.constraintIsAlways(
+          'REFERENCES location_triggers (id) ON DELETE SET NULL',
+        ),
+      );
   @override
   List<GeneratedColumn> get $columns => [
     id,
@@ -155,6 +956,7 @@ class $PresetsTable extends Presets with TableInfo<$PresetsTable, PresetRow> {
     deletedAt,
     syncStatus,
     lastSyncedAt,
+    locationTriggerId,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -256,6 +1058,15 @@ class $PresetsTable extends Presets with TableInfo<$PresetsTable, PresetRow> {
         ),
       );
     }
+    if (data.containsKey('location_trigger_id')) {
+      context.handle(
+        _locationTriggerIdMeta,
+        locationTriggerId.isAcceptableOrUnknown(
+          data['location_trigger_id']!,
+          _locationTriggerIdMeta,
+        ),
+      );
+    }
     return context;
   }
 
@@ -313,6 +1124,10 @@ class $PresetsTable extends Presets with TableInfo<$PresetsTable, PresetRow> {
         DriftSqlType.dateTime,
         data['${effectivePrefix}last_synced_at'],
       ),
+      locationTriggerId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}location_trigger_id'],
+      ),
     );
   }
 
@@ -355,6 +1170,10 @@ class PresetRow extends DataClass implements Insertable<PresetRow> {
 
   /// 마지막으로 클라우드와 동기화된 시각
   final DateTime? lastSyncedAt;
+
+  /// 연결된 위치 트리거의 id.
+  /// 위치 트리거가 삭제되면 null로 설정된다.
+  final String? locationTriggerId;
   const PresetRow({
     required this.id,
     required this.name,
@@ -368,6 +1187,7 @@ class PresetRow extends DataClass implements Insertable<PresetRow> {
     this.deletedAt,
     required this.syncStatus,
     this.lastSyncedAt,
+    this.locationTriggerId,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -387,6 +1207,9 @@ class PresetRow extends DataClass implements Insertable<PresetRow> {
     map['sync_status'] = Variable<String>(syncStatus);
     if (!nullToAbsent || lastSyncedAt != null) {
       map['last_synced_at'] = Variable<DateTime>(lastSyncedAt);
+    }
+    if (!nullToAbsent || locationTriggerId != null) {
+      map['location_trigger_id'] = Variable<String>(locationTriggerId);
     }
     return map;
   }
@@ -409,6 +1232,9 @@ class PresetRow extends DataClass implements Insertable<PresetRow> {
       lastSyncedAt: lastSyncedAt == null && nullToAbsent
           ? const Value.absent()
           : Value(lastSyncedAt),
+      locationTriggerId: locationTriggerId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(locationTriggerId),
     );
   }
 
@@ -430,6 +1256,9 @@ class PresetRow extends DataClass implements Insertable<PresetRow> {
       deletedAt: serializer.fromJson<DateTime?>(json['deletedAt']),
       syncStatus: serializer.fromJson<String>(json['syncStatus']),
       lastSyncedAt: serializer.fromJson<DateTime?>(json['lastSyncedAt']),
+      locationTriggerId: serializer.fromJson<String?>(
+        json['locationTriggerId'],
+      ),
     );
   }
   @override
@@ -448,6 +1277,7 @@ class PresetRow extends DataClass implements Insertable<PresetRow> {
       'deletedAt': serializer.toJson<DateTime?>(deletedAt),
       'syncStatus': serializer.toJson<String>(syncStatus),
       'lastSyncedAt': serializer.toJson<DateTime?>(lastSyncedAt),
+      'locationTriggerId': serializer.toJson<String?>(locationTriggerId),
     };
   }
 
@@ -464,6 +1294,7 @@ class PresetRow extends DataClass implements Insertable<PresetRow> {
     Value<DateTime?> deletedAt = const Value.absent(),
     String? syncStatus,
     Value<DateTime?> lastSyncedAt = const Value.absent(),
+    Value<String?> locationTriggerId = const Value.absent(),
   }) => PresetRow(
     id: id ?? this.id,
     name: name ?? this.name,
@@ -477,6 +1308,9 @@ class PresetRow extends DataClass implements Insertable<PresetRow> {
     deletedAt: deletedAt.present ? deletedAt.value : this.deletedAt,
     syncStatus: syncStatus ?? this.syncStatus,
     lastSyncedAt: lastSyncedAt.present ? lastSyncedAt.value : this.lastSyncedAt,
+    locationTriggerId: locationTriggerId.present
+        ? locationTriggerId.value
+        : this.locationTriggerId,
   );
   PresetRow copyWithCompanion(PresetsCompanion data) {
     return PresetRow(
@@ -500,6 +1334,9 @@ class PresetRow extends DataClass implements Insertable<PresetRow> {
       lastSyncedAt: data.lastSyncedAt.present
           ? data.lastSyncedAt.value
           : this.lastSyncedAt,
+      locationTriggerId: data.locationTriggerId.present
+          ? data.locationTriggerId.value
+          : this.locationTriggerId,
     );
   }
 
@@ -517,7 +1354,8 @@ class PresetRow extends DataClass implements Insertable<PresetRow> {
           ..write('updatedAt: $updatedAt, ')
           ..write('deletedAt: $deletedAt, ')
           ..write('syncStatus: $syncStatus, ')
-          ..write('lastSyncedAt: $lastSyncedAt')
+          ..write('lastSyncedAt: $lastSyncedAt, ')
+          ..write('locationTriggerId: $locationTriggerId')
           ..write(')'))
         .toString();
   }
@@ -536,6 +1374,7 @@ class PresetRow extends DataClass implements Insertable<PresetRow> {
     deletedAt,
     syncStatus,
     lastSyncedAt,
+    locationTriggerId,
   );
   @override
   bool operator ==(Object other) =>
@@ -552,7 +1391,8 @@ class PresetRow extends DataClass implements Insertable<PresetRow> {
           other.updatedAt == this.updatedAt &&
           other.deletedAt == this.deletedAt &&
           other.syncStatus == this.syncStatus &&
-          other.lastSyncedAt == this.lastSyncedAt);
+          other.lastSyncedAt == this.lastSyncedAt &&
+          other.locationTriggerId == this.locationTriggerId);
 }
 
 class PresetsCompanion extends UpdateCompanion<PresetRow> {
@@ -568,6 +1408,7 @@ class PresetsCompanion extends UpdateCompanion<PresetRow> {
   final Value<DateTime?> deletedAt;
   final Value<String> syncStatus;
   final Value<DateTime?> lastSyncedAt;
+  final Value<String?> locationTriggerId;
   final Value<int> rowid;
   const PresetsCompanion({
     this.id = const Value.absent(),
@@ -582,6 +1423,7 @@ class PresetsCompanion extends UpdateCompanion<PresetRow> {
     this.deletedAt = const Value.absent(),
     this.syncStatus = const Value.absent(),
     this.lastSyncedAt = const Value.absent(),
+    this.locationTriggerId = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   PresetsCompanion.insert({
@@ -597,6 +1439,7 @@ class PresetsCompanion extends UpdateCompanion<PresetRow> {
     this.deletedAt = const Value.absent(),
     this.syncStatus = const Value.absent(),
     this.lastSyncedAt = const Value.absent(),
+    this.locationTriggerId = const Value.absent(),
     this.rowid = const Value.absent(),
   }) : id = Value(id),
        name = Value(name),
@@ -616,6 +1459,7 @@ class PresetsCompanion extends UpdateCompanion<PresetRow> {
     Expression<DateTime>? deletedAt,
     Expression<String>? syncStatus,
     Expression<DateTime>? lastSyncedAt,
+    Expression<String>? locationTriggerId,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
@@ -631,6 +1475,7 @@ class PresetsCompanion extends UpdateCompanion<PresetRow> {
       if (deletedAt != null) 'deleted_at': deletedAt,
       if (syncStatus != null) 'sync_status': syncStatus,
       if (lastSyncedAt != null) 'last_synced_at': lastSyncedAt,
+      if (locationTriggerId != null) 'location_trigger_id': locationTriggerId,
       if (rowid != null) 'rowid': rowid,
     });
   }
@@ -648,6 +1493,7 @@ class PresetsCompanion extends UpdateCompanion<PresetRow> {
     Value<DateTime?>? deletedAt,
     Value<String>? syncStatus,
     Value<DateTime?>? lastSyncedAt,
+    Value<String?>? locationTriggerId,
     Value<int>? rowid,
   }) {
     return PresetsCompanion(
@@ -663,6 +1509,7 @@ class PresetsCompanion extends UpdateCompanion<PresetRow> {
       deletedAt: deletedAt ?? this.deletedAt,
       syncStatus: syncStatus ?? this.syncStatus,
       lastSyncedAt: lastSyncedAt ?? this.lastSyncedAt,
+      locationTriggerId: locationTriggerId ?? this.locationTriggerId,
       rowid: rowid ?? this.rowid,
     );
   }
@@ -706,6 +1553,9 @@ class PresetsCompanion extends UpdateCompanion<PresetRow> {
     if (lastSyncedAt.present) {
       map['last_synced_at'] = Variable<DateTime>(lastSyncedAt.value);
     }
+    if (locationTriggerId.present) {
+      map['location_trigger_id'] = Variable<String>(locationTriggerId.value);
+    }
     if (rowid.present) {
       map['rowid'] = Variable<int>(rowid.value);
     }
@@ -727,6 +1577,7 @@ class PresetsCompanion extends UpdateCompanion<PresetRow> {
           ..write('deletedAt: $deletedAt, ')
           ..write('syncStatus: $syncStatus, ')
           ..write('lastSyncedAt: $lastSyncedAt, ')
+          ..write('locationTriggerId: $locationTriggerId, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
@@ -1519,12 +2370,28 @@ class $UserSettingsTableTable extends UserSettingsTable
     ),
     defaultValue: const Constant(true),
   );
+  static const VerificationMeta _locationTrackingEnabledMeta =
+      const VerificationMeta('locationTrackingEnabled');
+  @override
+  late final GeneratedColumn<bool> locationTrackingEnabled =
+      GeneratedColumn<bool>(
+        'location_tracking_enabled',
+        aliasedName,
+        false,
+        type: DriftSqlType.bool,
+        requiredDuringInsert: false,
+        defaultConstraints: GeneratedColumn.constraintIsAlways(
+          'CHECK ("location_tracking_enabled" IN (0, 1))',
+        ),
+        defaultValue: const Constant(false),
+      );
   @override
   List<GeneratedColumn> get $columns => [
     id,
     themeMode,
     soundEnabled,
     vibrationEnabled,
+    locationTrackingEnabled,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -1565,6 +2432,15 @@ class $UserSettingsTableTable extends UserSettingsTable
         ),
       );
     }
+    if (data.containsKey('location_tracking_enabled')) {
+      context.handle(
+        _locationTrackingEnabledMeta,
+        locationTrackingEnabled.isAcceptableOrUnknown(
+          data['location_tracking_enabled']!,
+          _locationTrackingEnabledMeta,
+        ),
+      );
+    }
     return context;
   }
 
@@ -1590,6 +2466,10 @@ class $UserSettingsTableTable extends UserSettingsTable
         DriftSqlType.bool,
         data['${effectivePrefix}vibration_enabled'],
       )!,
+      locationTrackingEnabled: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}location_tracking_enabled'],
+      )!,
     );
   }
 
@@ -1606,11 +2486,15 @@ class UserSettingsRow extends DataClass implements Insertable<UserSettingsRow> {
   final String themeMode;
   final bool soundEnabled;
   final bool vibrationEnabled;
+
+  /// 위치 기반 자동 트래킹 활성화 여부
+  final bool locationTrackingEnabled;
   const UserSettingsRow({
     required this.id,
     required this.themeMode,
     required this.soundEnabled,
     required this.vibrationEnabled,
+    required this.locationTrackingEnabled,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -1619,6 +2503,7 @@ class UserSettingsRow extends DataClass implements Insertable<UserSettingsRow> {
     map['theme_mode'] = Variable<String>(themeMode);
     map['sound_enabled'] = Variable<bool>(soundEnabled);
     map['vibration_enabled'] = Variable<bool>(vibrationEnabled);
+    map['location_tracking_enabled'] = Variable<bool>(locationTrackingEnabled);
     return map;
   }
 
@@ -1628,6 +2513,7 @@ class UserSettingsRow extends DataClass implements Insertable<UserSettingsRow> {
       themeMode: Value(themeMode),
       soundEnabled: Value(soundEnabled),
       vibrationEnabled: Value(vibrationEnabled),
+      locationTrackingEnabled: Value(locationTrackingEnabled),
     );
   }
 
@@ -1641,6 +2527,9 @@ class UserSettingsRow extends DataClass implements Insertable<UserSettingsRow> {
       themeMode: serializer.fromJson<String>(json['themeMode']),
       soundEnabled: serializer.fromJson<bool>(json['soundEnabled']),
       vibrationEnabled: serializer.fromJson<bool>(json['vibrationEnabled']),
+      locationTrackingEnabled: serializer.fromJson<bool>(
+        json['locationTrackingEnabled'],
+      ),
     );
   }
   @override
@@ -1651,6 +2540,9 @@ class UserSettingsRow extends DataClass implements Insertable<UserSettingsRow> {
       'themeMode': serializer.toJson<String>(themeMode),
       'soundEnabled': serializer.toJson<bool>(soundEnabled),
       'vibrationEnabled': serializer.toJson<bool>(vibrationEnabled),
+      'locationTrackingEnabled': serializer.toJson<bool>(
+        locationTrackingEnabled,
+      ),
     };
   }
 
@@ -1659,11 +2551,14 @@ class UserSettingsRow extends DataClass implements Insertable<UserSettingsRow> {
     String? themeMode,
     bool? soundEnabled,
     bool? vibrationEnabled,
+    bool? locationTrackingEnabled,
   }) => UserSettingsRow(
     id: id ?? this.id,
     themeMode: themeMode ?? this.themeMode,
     soundEnabled: soundEnabled ?? this.soundEnabled,
     vibrationEnabled: vibrationEnabled ?? this.vibrationEnabled,
+    locationTrackingEnabled:
+        locationTrackingEnabled ?? this.locationTrackingEnabled,
   );
   UserSettingsRow copyWithCompanion(UserSettingsTableCompanion data) {
     return UserSettingsRow(
@@ -1675,6 +2570,9 @@ class UserSettingsRow extends DataClass implements Insertable<UserSettingsRow> {
       vibrationEnabled: data.vibrationEnabled.present
           ? data.vibrationEnabled.value
           : this.vibrationEnabled,
+      locationTrackingEnabled: data.locationTrackingEnabled.present
+          ? data.locationTrackingEnabled.value
+          : this.locationTrackingEnabled,
     );
   }
 
@@ -1684,14 +2582,20 @@ class UserSettingsRow extends DataClass implements Insertable<UserSettingsRow> {
           ..write('id: $id, ')
           ..write('themeMode: $themeMode, ')
           ..write('soundEnabled: $soundEnabled, ')
-          ..write('vibrationEnabled: $vibrationEnabled')
+          ..write('vibrationEnabled: $vibrationEnabled, ')
+          ..write('locationTrackingEnabled: $locationTrackingEnabled')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode =>
-      Object.hash(id, themeMode, soundEnabled, vibrationEnabled);
+  int get hashCode => Object.hash(
+    id,
+    themeMode,
+    soundEnabled,
+    vibrationEnabled,
+    locationTrackingEnabled,
+  );
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -1699,7 +2603,8 @@ class UserSettingsRow extends DataClass implements Insertable<UserSettingsRow> {
           other.id == this.id &&
           other.themeMode == this.themeMode &&
           other.soundEnabled == this.soundEnabled &&
-          other.vibrationEnabled == this.vibrationEnabled);
+          other.vibrationEnabled == this.vibrationEnabled &&
+          other.locationTrackingEnabled == this.locationTrackingEnabled);
 }
 
 class UserSettingsTableCompanion extends UpdateCompanion<UserSettingsRow> {
@@ -1707,29 +2612,35 @@ class UserSettingsTableCompanion extends UpdateCompanion<UserSettingsRow> {
   final Value<String> themeMode;
   final Value<bool> soundEnabled;
   final Value<bool> vibrationEnabled;
+  final Value<bool> locationTrackingEnabled;
   const UserSettingsTableCompanion({
     this.id = const Value.absent(),
     this.themeMode = const Value.absent(),
     this.soundEnabled = const Value.absent(),
     this.vibrationEnabled = const Value.absent(),
+    this.locationTrackingEnabled = const Value.absent(),
   });
   UserSettingsTableCompanion.insert({
     this.id = const Value.absent(),
     this.themeMode = const Value.absent(),
     this.soundEnabled = const Value.absent(),
     this.vibrationEnabled = const Value.absent(),
+    this.locationTrackingEnabled = const Value.absent(),
   });
   static Insertable<UserSettingsRow> custom({
     Expression<int>? id,
     Expression<String>? themeMode,
     Expression<bool>? soundEnabled,
     Expression<bool>? vibrationEnabled,
+    Expression<bool>? locationTrackingEnabled,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
       if (themeMode != null) 'theme_mode': themeMode,
       if (soundEnabled != null) 'sound_enabled': soundEnabled,
       if (vibrationEnabled != null) 'vibration_enabled': vibrationEnabled,
+      if (locationTrackingEnabled != null)
+        'location_tracking_enabled': locationTrackingEnabled,
     });
   }
 
@@ -1738,12 +2649,15 @@ class UserSettingsTableCompanion extends UpdateCompanion<UserSettingsRow> {
     Value<String>? themeMode,
     Value<bool>? soundEnabled,
     Value<bool>? vibrationEnabled,
+    Value<bool>? locationTrackingEnabled,
   }) {
     return UserSettingsTableCompanion(
       id: id ?? this.id,
       themeMode: themeMode ?? this.themeMode,
       soundEnabled: soundEnabled ?? this.soundEnabled,
       vibrationEnabled: vibrationEnabled ?? this.vibrationEnabled,
+      locationTrackingEnabled:
+          locationTrackingEnabled ?? this.locationTrackingEnabled,
     );
   }
 
@@ -1762,6 +2676,11 @@ class UserSettingsTableCompanion extends UpdateCompanion<UserSettingsRow> {
     if (vibrationEnabled.present) {
       map['vibration_enabled'] = Variable<bool>(vibrationEnabled.value);
     }
+    if (locationTrackingEnabled.present) {
+      map['location_tracking_enabled'] = Variable<bool>(
+        locationTrackingEnabled.value,
+      );
+    }
     return map;
   }
 
@@ -1771,7 +2690,8 @@ class UserSettingsTableCompanion extends UpdateCompanion<UserSettingsRow> {
           ..write('id: $id, ')
           ..write('themeMode: $themeMode, ')
           ..write('soundEnabled: $soundEnabled, ')
-          ..write('vibrationEnabled: $vibrationEnabled')
+          ..write('vibrationEnabled: $vibrationEnabled, ')
+          ..write('locationTrackingEnabled: $locationTrackingEnabled')
           ..write(')'))
         .toString();
   }
@@ -2322,6 +3242,9 @@ class ActiveTimersCompanion extends UpdateCompanion<ActiveTimerRow> {
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
+  late final $LocationTriggersTable locationTriggers = $LocationTriggersTable(
+    this,
+  );
   late final $PresetsTable presets = $PresetsTable(this);
   late final $SessionsTable sessions = $SessionsTable(this);
   late final $UserSettingsTableTable userSettingsTable =
@@ -2344,6 +3267,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
   @override
   List<DatabaseSchemaEntity> get allSchemaEntities => [
+    locationTriggers,
     presets,
     sessions,
     userSettingsTable,
@@ -2354,6 +3278,13 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   ];
   @override
   StreamQueryUpdateRules get streamUpdateRules => const StreamQueryUpdateRules([
+    WritePropagation(
+      on: TableUpdateQuery.onTableName(
+        'location_triggers',
+        limitUpdateKind: UpdateKind.delete,
+      ),
+      result: [TableUpdate('presets', kind: UpdateKind.update)],
+    ),
     WritePropagation(
       on: TableUpdateQuery.onTableName(
         'presets',
@@ -2371,6 +3302,485 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   ]);
 }
 
+typedef $$LocationTriggersTableCreateCompanionBuilder =
+    LocationTriggersCompanion Function({
+      required String id,
+      required String placeName,
+      required double latitude,
+      required double longitude,
+      Value<int> radiusMeters,
+      Value<bool> notifyOnEntry,
+      Value<bool> notifyOnExit,
+      Value<bool> autoStart,
+      Value<DateTime> createdAt,
+      Value<DateTime> updatedAt,
+      Value<DateTime?> deletedAt,
+      Value<String> syncStatus,
+      Value<DateTime?> lastSyncedAt,
+      Value<int> rowid,
+    });
+typedef $$LocationTriggersTableUpdateCompanionBuilder =
+    LocationTriggersCompanion Function({
+      Value<String> id,
+      Value<String> placeName,
+      Value<double> latitude,
+      Value<double> longitude,
+      Value<int> radiusMeters,
+      Value<bool> notifyOnEntry,
+      Value<bool> notifyOnExit,
+      Value<bool> autoStart,
+      Value<DateTime> createdAt,
+      Value<DateTime> updatedAt,
+      Value<DateTime?> deletedAt,
+      Value<String> syncStatus,
+      Value<DateTime?> lastSyncedAt,
+      Value<int> rowid,
+    });
+
+final class $$LocationTriggersTableReferences
+    extends
+        BaseReferences<
+          _$AppDatabase,
+          $LocationTriggersTable,
+          LocationTriggerRow
+        > {
+  $$LocationTriggersTableReferences(
+    super.$_db,
+    super.$_table,
+    super.$_typedResult,
+  );
+
+  static MultiTypedResultKey<$PresetsTable, List<PresetRow>> _presetsRefsTable(
+    _$AppDatabase db,
+  ) => MultiTypedResultKey.fromTable(
+    db.presets,
+    aliasName: $_aliasNameGenerator(
+      db.locationTriggers.id,
+      db.presets.locationTriggerId,
+    ),
+  );
+
+  $$PresetsTableProcessedTableManager get presetsRefs {
+    final manager = $$PresetsTableTableManager($_db, $_db.presets).filter(
+      (f) => f.locationTriggerId.id.sqlEquals($_itemColumn<String>('id')!),
+    );
+
+    final cache = $_typedResult.readTableOrNull(_presetsRefsTable($_db));
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
+}
+
+class $$LocationTriggersTableFilterComposer
+    extends Composer<_$AppDatabase, $LocationTriggersTable> {
+  $$LocationTriggersTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get placeName => $composableBuilder(
+    column: $table.placeName,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get latitude => $composableBuilder(
+    column: $table.latitude,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get longitude => $composableBuilder(
+    column: $table.longitude,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get radiusMeters => $composableBuilder(
+    column: $table.radiusMeters,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get notifyOnEntry => $composableBuilder(
+    column: $table.notifyOnEntry,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get notifyOnExit => $composableBuilder(
+    column: $table.notifyOnExit,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get autoStart => $composableBuilder(
+    column: $table.autoStart,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get deletedAt => $composableBuilder(
+    column: $table.deletedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get syncStatus => $composableBuilder(
+    column: $table.syncStatus,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get lastSyncedAt => $composableBuilder(
+    column: $table.lastSyncedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  Expression<bool> presetsRefs(
+    Expression<bool> Function($$PresetsTableFilterComposer f) f,
+  ) {
+    final $$PresetsTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.presets,
+      getReferencedColumn: (t) => t.locationTriggerId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$PresetsTableFilterComposer(
+            $db: $db,
+            $table: $db.presets,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+}
+
+class $$LocationTriggersTableOrderingComposer
+    extends Composer<_$AppDatabase, $LocationTriggersTable> {
+  $$LocationTriggersTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get placeName => $composableBuilder(
+    column: $table.placeName,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get latitude => $composableBuilder(
+    column: $table.latitude,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get longitude => $composableBuilder(
+    column: $table.longitude,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get radiusMeters => $composableBuilder(
+    column: $table.radiusMeters,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get notifyOnEntry => $composableBuilder(
+    column: $table.notifyOnEntry,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get notifyOnExit => $composableBuilder(
+    column: $table.notifyOnExit,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get autoStart => $composableBuilder(
+    column: $table.autoStart,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get deletedAt => $composableBuilder(
+    column: $table.deletedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get syncStatus => $composableBuilder(
+    column: $table.syncStatus,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get lastSyncedAt => $composableBuilder(
+    column: $table.lastSyncedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$LocationTriggersTableAnnotationComposer
+    extends Composer<_$AppDatabase, $LocationTriggersTable> {
+  $$LocationTriggersTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get placeName =>
+      $composableBuilder(column: $table.placeName, builder: (column) => column);
+
+  GeneratedColumn<double> get latitude =>
+      $composableBuilder(column: $table.latitude, builder: (column) => column);
+
+  GeneratedColumn<double> get longitude =>
+      $composableBuilder(column: $table.longitude, builder: (column) => column);
+
+  GeneratedColumn<int> get radiusMeters => $composableBuilder(
+    column: $table.radiusMeters,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<bool> get notifyOnEntry => $composableBuilder(
+    column: $table.notifyOnEntry,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<bool> get notifyOnExit => $composableBuilder(
+    column: $table.notifyOnExit,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<bool> get autoStart =>
+      $composableBuilder(column: $table.autoStart, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get updatedAt =>
+      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get deletedAt =>
+      $composableBuilder(column: $table.deletedAt, builder: (column) => column);
+
+  GeneratedColumn<String> get syncStatus => $composableBuilder(
+    column: $table.syncStatus,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<DateTime> get lastSyncedAt => $composableBuilder(
+    column: $table.lastSyncedAt,
+    builder: (column) => column,
+  );
+
+  Expression<T> presetsRefs<T extends Object>(
+    Expression<T> Function($$PresetsTableAnnotationComposer a) f,
+  ) {
+    final $$PresetsTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.presets,
+      getReferencedColumn: (t) => t.locationTriggerId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$PresetsTableAnnotationComposer(
+            $db: $db,
+            $table: $db.presets,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+}
+
+class $$LocationTriggersTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $LocationTriggersTable,
+          LocationTriggerRow,
+          $$LocationTriggersTableFilterComposer,
+          $$LocationTriggersTableOrderingComposer,
+          $$LocationTriggersTableAnnotationComposer,
+          $$LocationTriggersTableCreateCompanionBuilder,
+          $$LocationTriggersTableUpdateCompanionBuilder,
+          (LocationTriggerRow, $$LocationTriggersTableReferences),
+          LocationTriggerRow,
+          PrefetchHooks Function({bool presetsRefs})
+        > {
+  $$LocationTriggersTableTableManager(
+    _$AppDatabase db,
+    $LocationTriggersTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$LocationTriggersTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$LocationTriggersTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$LocationTriggersTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<String> id = const Value.absent(),
+                Value<String> placeName = const Value.absent(),
+                Value<double> latitude = const Value.absent(),
+                Value<double> longitude = const Value.absent(),
+                Value<int> radiusMeters = const Value.absent(),
+                Value<bool> notifyOnEntry = const Value.absent(),
+                Value<bool> notifyOnExit = const Value.absent(),
+                Value<bool> autoStart = const Value.absent(),
+                Value<DateTime> createdAt = const Value.absent(),
+                Value<DateTime> updatedAt = const Value.absent(),
+                Value<DateTime?> deletedAt = const Value.absent(),
+                Value<String> syncStatus = const Value.absent(),
+                Value<DateTime?> lastSyncedAt = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => LocationTriggersCompanion(
+                id: id,
+                placeName: placeName,
+                latitude: latitude,
+                longitude: longitude,
+                radiusMeters: radiusMeters,
+                notifyOnEntry: notifyOnEntry,
+                notifyOnExit: notifyOnExit,
+                autoStart: autoStart,
+                createdAt: createdAt,
+                updatedAt: updatedAt,
+                deletedAt: deletedAt,
+                syncStatus: syncStatus,
+                lastSyncedAt: lastSyncedAt,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String id,
+                required String placeName,
+                required double latitude,
+                required double longitude,
+                Value<int> radiusMeters = const Value.absent(),
+                Value<bool> notifyOnEntry = const Value.absent(),
+                Value<bool> notifyOnExit = const Value.absent(),
+                Value<bool> autoStart = const Value.absent(),
+                Value<DateTime> createdAt = const Value.absent(),
+                Value<DateTime> updatedAt = const Value.absent(),
+                Value<DateTime?> deletedAt = const Value.absent(),
+                Value<String> syncStatus = const Value.absent(),
+                Value<DateTime?> lastSyncedAt = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => LocationTriggersCompanion.insert(
+                id: id,
+                placeName: placeName,
+                latitude: latitude,
+                longitude: longitude,
+                radiusMeters: radiusMeters,
+                notifyOnEntry: notifyOnEntry,
+                notifyOnExit: notifyOnExit,
+                autoStart: autoStart,
+                createdAt: createdAt,
+                updatedAt: updatedAt,
+                deletedAt: deletedAt,
+                syncStatus: syncStatus,
+                lastSyncedAt: lastSyncedAt,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable(table),
+                  $$LocationTriggersTableReferences(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback: ({presetsRefs = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [if (presetsRefs) db.presets],
+              addJoins: null,
+              getPrefetchedDataCallback: (items) async {
+                return [
+                  if (presetsRefs)
+                    await $_getPrefetchedData<
+                      LocationTriggerRow,
+                      $LocationTriggersTable,
+                      PresetRow
+                    >(
+                      currentTable: table,
+                      referencedTable: $$LocationTriggersTableReferences
+                          ._presetsRefsTable(db),
+                      managerFromTypedResult: (p0) =>
+                          $$LocationTriggersTableReferences(
+                            db,
+                            table,
+                            p0,
+                          ).presetsRefs,
+                      referencedItemsForCurrentItem: (item, referencedItems) =>
+                          referencedItems.where(
+                            (e) => e.locationTriggerId == item.id,
+                          ),
+                      typedResults: items,
+                    ),
+                ];
+              },
+            );
+          },
+        ),
+      );
+}
+
+typedef $$LocationTriggersTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $LocationTriggersTable,
+      LocationTriggerRow,
+      $$LocationTriggersTableFilterComposer,
+      $$LocationTriggersTableOrderingComposer,
+      $$LocationTriggersTableAnnotationComposer,
+      $$LocationTriggersTableCreateCompanionBuilder,
+      $$LocationTriggersTableUpdateCompanionBuilder,
+      (LocationTriggerRow, $$LocationTriggersTableReferences),
+      LocationTriggerRow,
+      PrefetchHooks Function({bool presetsRefs})
+    >;
 typedef $$PresetsTableCreateCompanionBuilder =
     PresetsCompanion Function({
       required String id,
@@ -2385,6 +3795,7 @@ typedef $$PresetsTableCreateCompanionBuilder =
       Value<DateTime?> deletedAt,
       Value<String> syncStatus,
       Value<DateTime?> lastSyncedAt,
+      Value<String?> locationTriggerId,
       Value<int> rowid,
     });
 typedef $$PresetsTableUpdateCompanionBuilder =
@@ -2401,12 +3812,35 @@ typedef $$PresetsTableUpdateCompanionBuilder =
       Value<DateTime?> deletedAt,
       Value<String> syncStatus,
       Value<DateTime?> lastSyncedAt,
+      Value<String?> locationTriggerId,
       Value<int> rowid,
     });
 
 final class $$PresetsTableReferences
     extends BaseReferences<_$AppDatabase, $PresetsTable, PresetRow> {
   $$PresetsTableReferences(super.$_db, super.$_table, super.$_typedResult);
+
+  static $LocationTriggersTable _locationTriggerIdTable(_$AppDatabase db) =>
+      db.locationTriggers.createAlias(
+        $_aliasNameGenerator(
+          db.presets.locationTriggerId,
+          db.locationTriggers.id,
+        ),
+      );
+
+  $$LocationTriggersTableProcessedTableManager? get locationTriggerId {
+    final $_column = $_itemColumn<String>('location_trigger_id');
+    if ($_column == null) return null;
+    final manager = $$LocationTriggersTableTableManager(
+      $_db,
+      $_db.locationTriggers,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_locationTriggerIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
 
   static MultiTypedResultKey<$SessionsTable, List<SessionRow>>
   _sessionsRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
@@ -2513,6 +3947,29 @@ class $$PresetsTableFilterComposer
     column: $table.lastSyncedAt,
     builder: (column) => ColumnFilters(column),
   );
+
+  $$LocationTriggersTableFilterComposer get locationTriggerId {
+    final $$LocationTriggersTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.locationTriggerId,
+      referencedTable: $db.locationTriggers,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$LocationTriggersTableFilterComposer(
+            $db: $db,
+            $table: $db.locationTriggers,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
 
   Expression<bool> sessionsRefs(
     Expression<bool> Function($$SessionsTableFilterComposer f) f,
@@ -2633,6 +4090,29 @@ class $$PresetsTableOrderingComposer
     column: $table.lastSyncedAt,
     builder: (column) => ColumnOrderings(column),
   );
+
+  $$LocationTriggersTableOrderingComposer get locationTriggerId {
+    final $$LocationTriggersTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.locationTriggerId,
+      referencedTable: $db.locationTriggers,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$LocationTriggersTableOrderingComposer(
+            $db: $db,
+            $table: $db.locationTriggers,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
 }
 
 class $$PresetsTableAnnotationComposer
@@ -2687,6 +4167,29 @@ class $$PresetsTableAnnotationComposer
     column: $table.lastSyncedAt,
     builder: (column) => column,
   );
+
+  $$LocationTriggersTableAnnotationComposer get locationTriggerId {
+    final $$LocationTriggersTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.locationTriggerId,
+      referencedTable: $db.locationTriggers,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$LocationTriggersTableAnnotationComposer(
+            $db: $db,
+            $table: $db.locationTriggers,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
 
   Expression<T> sessionsRefs<T extends Object>(
     Expression<T> Function($$SessionsTableAnnotationComposer a) f,
@@ -2752,7 +4255,11 @@ class $$PresetsTableTableManager
           $$PresetsTableUpdateCompanionBuilder,
           (PresetRow, $$PresetsTableReferences),
           PresetRow,
-          PrefetchHooks Function({bool sessionsRefs, bool activeTimersRefs})
+          PrefetchHooks Function({
+            bool locationTriggerId,
+            bool sessionsRefs,
+            bool activeTimersRefs,
+          })
         > {
   $$PresetsTableTableManager(_$AppDatabase db, $PresetsTable table)
     : super(
@@ -2779,6 +4286,7 @@ class $$PresetsTableTableManager
                 Value<DateTime?> deletedAt = const Value.absent(),
                 Value<String> syncStatus = const Value.absent(),
                 Value<DateTime?> lastSyncedAt = const Value.absent(),
+                Value<String?> locationTriggerId = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => PresetsCompanion(
                 id: id,
@@ -2793,6 +4301,7 @@ class $$PresetsTableTableManager
                 deletedAt: deletedAt,
                 syncStatus: syncStatus,
                 lastSyncedAt: lastSyncedAt,
+                locationTriggerId: locationTriggerId,
                 rowid: rowid,
               ),
           createCompanionCallback:
@@ -2809,6 +4318,7 @@ class $$PresetsTableTableManager
                 Value<DateTime?> deletedAt = const Value.absent(),
                 Value<String> syncStatus = const Value.absent(),
                 Value<DateTime?> lastSyncedAt = const Value.absent(),
+                Value<String?> locationTriggerId = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => PresetsCompanion.insert(
                 id: id,
@@ -2823,6 +4333,7 @@ class $$PresetsTableTableManager
                 deletedAt: deletedAt,
                 syncStatus: syncStatus,
                 lastSyncedAt: lastSyncedAt,
+                locationTriggerId: locationTriggerId,
                 rowid: rowid,
               ),
           withReferenceMapper: (p0) => p0
@@ -2834,14 +4345,49 @@ class $$PresetsTableTableManager
               )
               .toList(),
           prefetchHooksCallback:
-              ({sessionsRefs = false, activeTimersRefs = false}) {
+              ({
+                locationTriggerId = false,
+                sessionsRefs = false,
+                activeTimersRefs = false,
+              }) {
                 return PrefetchHooks(
                   db: db,
                   explicitlyWatchedTables: [
                     if (sessionsRefs) db.sessions,
                     if (activeTimersRefs) db.activeTimers,
                   ],
-                  addJoins: null,
+                  addJoins:
+                      <
+                        T extends TableManagerState<
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic
+                        >
+                      >(state) {
+                        if (locationTriggerId) {
+                          state =
+                              state.withJoin(
+                                    currentTable: table,
+                                    currentColumn: table.locationTriggerId,
+                                    referencedTable: $$PresetsTableReferences
+                                        ._locationTriggerIdTable(db),
+                                    referencedColumn: $$PresetsTableReferences
+                                        ._locationTriggerIdTable(db)
+                                        .id,
+                                  )
+                                  as T;
+                        }
+
+                        return state;
+                      },
                   getPrefetchedDataCallback: (items) async {
                     return [
                       if (sessionsRefs)
@@ -2906,7 +4452,11 @@ typedef $$PresetsTableProcessedTableManager =
       $$PresetsTableUpdateCompanionBuilder,
       (PresetRow, $$PresetsTableReferences),
       PresetRow,
-      PrefetchHooks Function({bool sessionsRefs, bool activeTimersRefs})
+      PrefetchHooks Function({
+        bool locationTriggerId,
+        bool sessionsRefs,
+        bool activeTimersRefs,
+      })
     >;
 typedef $$SessionsTableCreateCompanionBuilder =
     SessionsCompanion Function({
@@ -3370,6 +4920,7 @@ typedef $$UserSettingsTableTableCreateCompanionBuilder =
       Value<String> themeMode,
       Value<bool> soundEnabled,
       Value<bool> vibrationEnabled,
+      Value<bool> locationTrackingEnabled,
     });
 typedef $$UserSettingsTableTableUpdateCompanionBuilder =
     UserSettingsTableCompanion Function({
@@ -3377,6 +4928,7 @@ typedef $$UserSettingsTableTableUpdateCompanionBuilder =
       Value<String> themeMode,
       Value<bool> soundEnabled,
       Value<bool> vibrationEnabled,
+      Value<bool> locationTrackingEnabled,
     });
 
 class $$UserSettingsTableTableFilterComposer
@@ -3405,6 +4957,11 @@ class $$UserSettingsTableTableFilterComposer
 
   ColumnFilters<bool> get vibrationEnabled => $composableBuilder(
     column: $table.vibrationEnabled,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get locationTrackingEnabled => $composableBuilder(
+    column: $table.locationTrackingEnabled,
     builder: (column) => ColumnFilters(column),
   );
 }
@@ -3437,6 +4994,11 @@ class $$UserSettingsTableTableOrderingComposer
     column: $table.vibrationEnabled,
     builder: (column) => ColumnOrderings(column),
   );
+
+  ColumnOrderings<bool> get locationTrackingEnabled => $composableBuilder(
+    column: $table.locationTrackingEnabled,
+    builder: (column) => ColumnOrderings(column),
+  );
 }
 
 class $$UserSettingsTableTableAnnotationComposer
@@ -3461,6 +5023,11 @@ class $$UserSettingsTableTableAnnotationComposer
 
   GeneratedColumn<bool> get vibrationEnabled => $composableBuilder(
     column: $table.vibrationEnabled,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<bool> get locationTrackingEnabled => $composableBuilder(
+    column: $table.locationTrackingEnabled,
     builder: (column) => column,
   );
 }
@@ -3509,11 +5076,13 @@ class $$UserSettingsTableTableTableManager
                 Value<String> themeMode = const Value.absent(),
                 Value<bool> soundEnabled = const Value.absent(),
                 Value<bool> vibrationEnabled = const Value.absent(),
+                Value<bool> locationTrackingEnabled = const Value.absent(),
               }) => UserSettingsTableCompanion(
                 id: id,
                 themeMode: themeMode,
                 soundEnabled: soundEnabled,
                 vibrationEnabled: vibrationEnabled,
+                locationTrackingEnabled: locationTrackingEnabled,
               ),
           createCompanionCallback:
               ({
@@ -3521,11 +5090,13 @@ class $$UserSettingsTableTableTableManager
                 Value<String> themeMode = const Value.absent(),
                 Value<bool> soundEnabled = const Value.absent(),
                 Value<bool> vibrationEnabled = const Value.absent(),
+                Value<bool> locationTrackingEnabled = const Value.absent(),
               }) => UserSettingsTableCompanion.insert(
                 id: id,
                 themeMode: themeMode,
                 soundEnabled: soundEnabled,
                 vibrationEnabled: vibrationEnabled,
+                locationTrackingEnabled: locationTrackingEnabled,
               ),
           withReferenceMapper: (p0) => p0
               .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
@@ -3936,6 +5507,8 @@ typedef $$ActiveTimersTableProcessedTableManager =
 class $AppDatabaseManager {
   final _$AppDatabase _db;
   $AppDatabaseManager(this._db);
+  $$LocationTriggersTableTableManager get locationTriggers =>
+      $$LocationTriggersTableTableManager(_db, _db.locationTriggers);
   $$PresetsTableTableManager get presets =>
       $$PresetsTableTableManager(_db, _db.presets);
   $$SessionsTableTableManager get sessions =>

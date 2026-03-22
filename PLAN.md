@@ -106,18 +106,16 @@
 - [x] Supabase project creation (CLI setup, migration, Google OAuth, credentials via .env)
 - [x] End-to-end testing (auth flow, sync flow, conflict resolution)
 
-### v2.1 — Location-Based Auto Tracking (iOS)
+### v2.1 — Location-Based Auto Tracking (iOS) (`FEAT-002`)
 
 > Auto-detect arrival at registered places and prompt to start a timer.
 > Depends on: v2.0 (Supabase).
 
-- [ ] Add `LocationTrigger` model (placeName, lat/lng, radius)
-- [ ] Add optional location field to Preset
-- [ ] Location registration UI (map or current location)
-- [ ] Geofence monitoring service (Platform Channel or package)
-- [ ] Entry/exit notification handling
-- [ ] Auto-start option (skip confirmation)
-- [ ] Settings: enable/disable location tracking globally
+- [ ] Phase A: Foundation — LocationTrigger model/table/repo, Preset FK, DB migration v3, sync integration
+- [ ] Phase B: iOS Platform Channel — GeofenceService interface, CLLocationManager native, notifications
+- [ ] Phase C: Location Registration UI — flutter_map picker, preset form integration
+- [ ] Phase D: Orchestration — GeofenceManager, auto-start, settings toggle
+- [ ] Phase E: Polish — permission flow, edge cases (20 region limit), data reset integration
 
 ### v2.2 — macOS Activity Monitor (Companion App)
 

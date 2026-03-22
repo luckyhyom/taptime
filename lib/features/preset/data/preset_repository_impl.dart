@@ -113,6 +113,7 @@ class PresetRepositoryImpl implements PresetRepository {
       sortOrder: row.sortOrder,
       createdAt: row.createdAt,
       updatedAt: row.updatedAt,
+      locationTriggerId: row.locationTriggerId,
     );
   }
 
@@ -130,6 +131,7 @@ class PresetRepositoryImpl implements PresetRepository {
       sortOrder: Value(preset.sortOrder),
       createdAt: Value(preset.createdAt),
       updatedAt: Value(preset.updatedAt),
+      locationTriggerId: Value(preset.locationTriggerId),
       syncStatus: const Value(SyncStatusDb.pending),
     );
   }
