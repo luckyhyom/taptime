@@ -10,6 +10,7 @@ import 'package:taptime/core/theme/app_spacing.dart';
 import 'package:taptime/core/utils/color_utils.dart';
 import 'package:taptime/features/home/ui/preset_providers.dart';
 import 'package:taptime/features/home/ui/widgets/preset_card.dart';
+import 'package:taptime/features/sync/ui/sync_status_widget.dart';
 import 'package:taptime/shared/models/active_timer.dart';
 import 'package:taptime/shared/models/preset.dart';
 
@@ -38,6 +39,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       appBar: AppBar(
         title: const Text('Taptime'),
         actions: [
+          const SyncStatusWidget(),
           // 히스토리 화면 진입 버튼
           IconButton(
             icon: const Icon(Icons.history),

@@ -41,6 +41,16 @@ abstract final class TimeFormatter {
     return '${minutes.toString().padLeft(2, '0')}:${seconds.toString().padLeft(2, '0')}';
   }
 
+  /// 과거 시각을 상대적 표현으로 변환한다.
+  /// 예: 30초 전 → "방금", 5분 전 → "5분 전", 3시간 전 → "3시간 전"
+  static String relativeTime(DateTime time) {
+    final diff = DateTime.now().difference(time);
+    if (diff.inMinutes < 1) return '방금';
+    if (diff.inMinutes < 60) return '${diff.inMinutes}분 전';
+    if (diff.inHours < 24) return '${diff.inHours}시간 전';
+    return '${diff.inDays}일 전';
+  }
+
   /// 분을 시:분 형식의 읽기 쉬운 문자열로 변환.
   /// 통계 화면에서 총 시간을 표시할 때 사용한다.
   /// 예: 125분 → "2h 5m", 45분 → "45m", 0분 → "0m"

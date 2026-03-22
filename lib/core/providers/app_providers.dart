@@ -11,6 +11,7 @@ import 'package:taptime/features/settings/data/user_settings_repository_impl.dar
 import 'package:taptime/features/sync/data/supabase_sync_service.dart';
 import 'package:taptime/features/sync/data/sync_aware_preset_repository.dart';
 import 'package:taptime/features/sync/data/sync_aware_session_repository.dart';
+import 'package:taptime/features/sync/data/sync_metadata.dart';
 import 'package:taptime/features/timer/data/active_timer_repository_impl.dart';
 import 'package:taptime/shared/models/preset.dart';
 import 'package:taptime/shared/models/user_settings.dart';
@@ -57,6 +58,21 @@ final syncServiceProvider = Provider<SyncService?>((ref) {
   ref.onDispose(service.stop);
 
   return service;
+});
+
+/// 동기화 상태 스트림 프로바이더.
+final syncStatusProvider = StreamProvider<SyncStatus>((ref) {
+  final syncService = ref.watch(syncServiceProvider);
+  if (syncService == null) return Stream.value(SyncStatus.idle);
+  return syncService.watchSyncStatus();
+});
+
+/// 마지막 동기화 완료 시각 프로바이더.
+///
+/// syncStatus가 변할 때마다 자동으로 다시 조회한다.
+final lastSyncTimeProvider = FutureProvider<DateTime?>((ref) async {
+  ref.watch(syncStatusProvider);
+  return SyncMetadata.getLastSyncTime();
 });
 
 // ── 리포지토리 ────────────────────────────────────────────────

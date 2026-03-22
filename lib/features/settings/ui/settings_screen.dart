@@ -6,7 +6,9 @@ import 'package:taptime/core/providers/app_providers.dart';
 import 'package:taptime/core/providers/auth_providers.dart';
 import 'package:taptime/core/router/app_router.dart';
 import 'package:taptime/core/theme/app_spacing.dart';
+import 'package:taptime/core/utils/date_utils.dart';
 import 'package:taptime/shared/models/user_settings.dart';
+import 'package:taptime/shared/services/sync_service.dart';
 
 /// 설정 화면 — 테마, 알림, 데이터 초기화 등을 관리한다.
 class SettingsScreen extends ConsumerWidget {
@@ -177,7 +179,8 @@ class _AccountSection extends ConsumerWidget {
         return ListTile(
           leading: const Icon(Icons.account_circle),
           title: Text(user.displayLabel),
-          subtitle: Text(user.email),
+          subtitle: _SyncSubtitle(email: user.email),
+          isThreeLine: true,
           trailing: TextButton(
             onPressed: () => _confirmSignOut(context, ref),
             child: const Text('로그아웃'),
@@ -216,5 +219,30 @@ class _AccountSection extends ConsumerWidget {
         const SnackBar(content: Text('로그아웃되었습니다.')),
       );
     }
+  }
+}
+
+/// 이메일 + 동기화 상태를 표시하는 서브타이틀.
+class _SyncSubtitle extends ConsumerWidget {
+  const _SyncSubtitle({required this.email});
+
+  final String email;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final statusAsync = ref.watch(syncStatusProvider);
+    final lastSync = ref.watch(lastSyncTimeProvider).valueOrNull;
+
+    final syncLabel = statusAsync.whenOrNull(
+      data: (status) => switch (status) {
+        SyncStatus.syncing => '동기화 중...',
+        SyncStatus.synced when lastSync != null => '마지막 동기화: ${TimeFormatter.relativeTime(lastSync)}',
+        SyncStatus.error => '동기화 실패',
+        _ => null,
+      },
+    );
+
+    if (syncLabel == null) return Text(email);
+    return Text('$email\n$syncLabel');
   }
 }
