@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 
 import 'package:taptime/core/config/supabase_config.dart';
 import 'package:taptime/features/auth/data/supabase_auth_service.dart';
@@ -11,7 +12,12 @@ import 'package:taptime/shared/services/auth_service.dart';
 /// 앱은 인증 없이도 완전히 동작하며, 로그인은 Settings에서 선택적으로 한다.
 final authServiceProvider = Provider<AuthService?>((ref) {
   if (!SupabaseConfig.isConfigured) return null;
-  return SupabaseAuthService();
+  return SupabaseAuthService(
+    googleSignIn: GoogleSignIn(
+      clientId: SupabaseConfig.googleIosClientId,
+      serverClientId: SupabaseConfig.googleWebClientId,
+    ),
+  );
 });
 
 /// 현재 인증 상태를 실시간으로 관찰하는 스트림 프로바이더.

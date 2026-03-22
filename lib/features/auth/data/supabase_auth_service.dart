@@ -7,7 +7,6 @@ import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 // Supabase도 AuthUser를 export하므로 hide로 충돌을 방지한다.
 import 'package:supabase_flutter/supabase_flutter.dart' hide AuthUser;
 
-import 'package:taptime/core/config/supabase_config.dart';
 import 'package:taptime/shared/models/auth_user.dart';
 import 'package:taptime/shared/services/auth_service.dart';
 
@@ -16,15 +15,9 @@ import 'package:taptime/shared/services/auth_service.dart';
 /// Google/Apple 소셜 로그인을 지원하며,
 /// 네이티브 토큰을 받아 Supabase `signInWithIdToken`으로 인증한다.
 class SupabaseAuthService implements AuthService {
-  SupabaseAuthService({SupabaseClient? client, GoogleSignIn? googleSignIn})
+  SupabaseAuthService({required GoogleSignIn googleSignIn, SupabaseClient? client})
       : _client = client ?? Supabase.instance.client,
-        _googleSignIn = googleSignIn ??
-            GoogleSignIn(
-              // iOS: 네이티브 로그인에 사용되는 iOS 클라이언트 ID
-              clientId: SupabaseConfig.googleIosClientId.isNotEmpty ? SupabaseConfig.googleIosClientId : null,
-              // idToken 발급에 사용되는 웹 클라이언트 ID (Supabase Auth에 등록한 것과 동일)
-              serverClientId: SupabaseConfig.googleWebClientId.isNotEmpty ? SupabaseConfig.googleWebClientId : null,
-            );
+        _googleSignIn = googleSignIn;
 
   final SupabaseClient _client;
   final GoogleSignIn _googleSignIn;
