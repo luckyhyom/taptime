@@ -74,6 +74,7 @@ Universal skills (`/init-project`) are also available across all projects.
 - [Onboarding](guides/ONBOARDING.md): Reading order for newcomers
 - [Setup](guides/SETUP.md): Development environment setup (Flutter, Xcode, Android)
 - [Design Workflow](guides/DESIGN_WORKFLOW.md): How to save token presets, screenshots, and reference metadata for future UI work
+- [Supabase Setup](guides/SUPABASE_SETUP.md): Supabase project creation, Google/Apple OAuth, platform configuration
 
 ## Tips
 

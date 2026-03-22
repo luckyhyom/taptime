@@ -6,28 +6,29 @@
 
 ## Current Status
 
-- **Active Phase:** v2.0 Cloud Backup — Phases A-E complete, Supabase project setup + end-to-end testing next
+- **Active Phase:** v2.0 Cloud Backup — Supabase project live, E2E testing next
 - **Last Updated:** 2026-03-22
-- **Blocker:** Supabase project not yet created (needed before testing auth/sync)
+- **Blocker:** None
 
 ## Notes for Next Agent
 
 ### Where We Are
 
-v2.0 Cloud Backup in progress:
-- **Phase A (Foundation):** done
-- **Phase B (Auth):** done
-- **Phase C (Sync Engine):** done — sync service interface, mappers, metadata, connectivity monitor, push/pull with conflict resolution
-- **Phase D (Provider Rewiring):** done — soft delete, deletedAt IS NULL filters, sync-aware decorator repos, conditional provider wrapping, SyncStatusDb constants extracted
-- **Phase E (UI):** done — sync status widget in AppBar, last sync time in settings
-- 61 tests passing, 0 analyzer issues
-- Supabase project creation is a prerequisite for end-to-end auth/sync testing
+v2.0 Cloud Backup — Supabase project created and configured:
+- **Phases A-E:** done (Foundation, Auth, Sync Engine, Provider Rewiring, UI)
+- **Supabase project:** live at `stsltytrnxosxhmziogp` (Tokyo region), migration applied
+- **Google OAuth:** iOS + Web client IDs created, Supabase Google provider enabled
+- **Credentials:** managed via `.env` + `--dart-define-from-file` (not hardcoded)
+- **Next:** E2E testing (Google auth flow, sync push/pull, conflict resolution)
+- Apple Sign-In deferred until app store deployment
+- Android setup deferred until app store deployment
 
 ### Environment
 
 - Flutter 3.41.4, Xcode 26.3, CocoaPods 1.16.2
 - Android SDK: deferred (SDK 36 + BuildTools 28.0.3 needed later)
-- iOS simulator: `flutter run` (physical device needs Xcode code signing)
+- iOS simulator: `flutter run --dart-define-from-file=.env`
+- Supabase CLI: v2.75.0 (linked to project)
 
 ### Key Architecture Context
 
@@ -46,6 +47,20 @@ v2.0 Cloud Backup in progress:
 - Manual Session Entry in PRD but not in PLAN/BACKLOG
 
 ## Recent Work
+
+### 2026-03-22 — v2.0 Supabase Project Setup + Security
+
+- **Supabase project:** created `taptime` (ref: stsltytrnxosxhmziogp, Tokyo region)
+- **Migration:** `001_initial_schema.sql` applied via `supabase db push`
+- **Security refactor:** credentials moved from hardcoded → `.env` + `--dart-define-from-file`
+  - `SupabaseConfig` now uses `String.fromEnvironment` for all values
+  - `.gitignore` updated: `.env`, `google-services.json`, `GoogleService-Info.plist`, keystores
+  - pitfalls.md: 2 security rules added (no credentials in git, no secrets in output)
+- **Google OAuth:** iOS + Web client IDs created in Google Cloud Console
+  - `SupabaseAuthService` updated to accept clientId/serverClientId from config
+  - Supabase Dashboard Google provider configured with Web client ID/secret
+- **iOS:** `Runner.entitlements` created with Sign in with Apple capability
+- **Guide:** `docs/guides/SUPABASE_SETUP.md` — full setup instructions
 
 ### 2026-03-22 — v2.0 Phase E: Sync Status UI
 
