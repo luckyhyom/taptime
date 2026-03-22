@@ -1,5 +1,6 @@
 import 'package:taptime/core/database/app_database.dart';
 import 'package:taptime/core/utils/enum_utils.dart';
+import 'package:taptime/shared/models/location_trigger.dart';
 import 'package:taptime/shared/models/preset.dart';
 import 'package:taptime/shared/models/session.dart';
 
@@ -26,6 +27,7 @@ class SupabaseMappers {
       'sort_order': row.sortOrder,
       'created_at': row.createdAt.toUtc().toIso8601String(),
       'updated_at': row.updatedAt.toUtc().toIso8601String(),
+      'location_trigger_id': row.locationTriggerId,
     };
   }
 
@@ -41,6 +43,7 @@ class SupabaseMappers {
       sortOrder: json['sort_order'] as int,
       createdAt: DateTime.parse(json['created_at'] as String),
       updatedAt: DateTime.parse(json['updated_at'] as String),
+      locationTriggerId: json['location_trigger_id'] as String?,
     );
   }
 
@@ -72,6 +75,41 @@ class SupabaseMappers {
       durationSeconds: json['duration_seconds'] as int,
       status: safeEnumByName(SessionStatus.values, json['status'] as String?) ?? SessionStatus.completed,
       memo: json['memo'] as String?,
+      createdAt: DateTime.parse(json['created_at'] as String),
+      updatedAt: DateTime.parse(json['updated_at'] as String),
+    );
+  }
+
+  // ── LocationTrigger ───────────────────────────────────────────
+
+  /// Drift LocationTriggerRow → Supabase UPSERT용 snake_case JSON.
+  static Map<String, dynamic> locationTriggerRowToSupabase(LocationTriggerRow row, String userId) {
+    return {
+      'id': row.id,
+      'user_id': userId,
+      'place_name': row.placeName,
+      'latitude': row.latitude,
+      'longitude': row.longitude,
+      'radius_meters': row.radiusMeters,
+      'notify_on_entry': row.notifyOnEntry,
+      'notify_on_exit': row.notifyOnExit,
+      'auto_start': row.autoStart,
+      'created_at': row.createdAt.toUtc().toIso8601String(),
+      'updated_at': row.updatedAt.toUtc().toIso8601String(),
+    };
+  }
+
+  /// Supabase snake_case JSON → LocationTrigger.
+  static LocationTrigger locationTriggerFromSupabase(Map<String, dynamic> json) {
+    return LocationTrigger(
+      id: json['id'] as String,
+      placeName: json['place_name'] as String,
+      latitude: (json['latitude'] as num).toDouble(),
+      longitude: (json['longitude'] as num).toDouble(),
+      radiusMeters: json['radius_meters'] as int,
+      notifyOnEntry: json['notify_on_entry'] as bool? ?? true,
+      notifyOnExit: json['notify_on_exit'] as bool? ?? false,
+      autoStart: json['auto_start'] as bool? ?? false,
       createdAt: DateTime.parse(json['created_at'] as String),
       updatedAt: DateTime.parse(json['updated_at'] as String),
     );

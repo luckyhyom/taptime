@@ -9,6 +9,7 @@ class FakeSyncRemoteDataSource implements SyncRemoteDataSource {
   final Map<String, List<Map<String, dynamic>>> _tables = {
     'presets': [],
     'sessions': [],
+    'location_triggers': [],
   };
 
   String? currentUserIdOverride;

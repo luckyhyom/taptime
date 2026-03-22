@@ -11,12 +11,15 @@ import 'package:taptime/features/settings/data/user_settings_repository_impl.dar
 import 'package:taptime/features/sync/data/supabase_remote_data_source.dart';
 import 'package:taptime/features/sync/data/supabase_sync_service.dart';
 import 'package:taptime/features/sync/data/sync_aware_preset_repository.dart';
+import 'package:taptime/features/sync/data/sync_aware_location_trigger_repository.dart';
 import 'package:taptime/features/sync/data/sync_aware_session_repository.dart';
 import 'package:taptime/features/sync/data/sync_metadata.dart';
+import 'package:taptime/features/location/data/location_trigger_repository_impl.dart';
 import 'package:taptime/features/timer/data/active_timer_repository_impl.dart';
 import 'package:taptime/shared/models/preset.dart';
 import 'package:taptime/shared/models/user_settings.dart';
 import 'package:taptime/shared/repositories/active_timer_repository.dart';
+import 'package:taptime/shared/repositories/location_trigger_repository.dart';
 import 'package:taptime/shared/repositories/preset_repository.dart';
 import 'package:taptime/shared/repositories/session_repository.dart';
 import 'package:taptime/shared/repositories/user_settings_repository.dart';
@@ -101,6 +104,19 @@ final sessionRepositoryProvider = Provider<SessionRepository>((ref) {
   final syncService = ref.watch(syncServiceProvider);
   if (syncService != null) {
     return SyncAwareSessionRepository(base, syncService);
+  }
+  return base;
+});
+
+/// 위치 트리거 리포지토리 프로바이더.
+///
+/// 로그인 상태에서는 SyncAwareLocationTriggerRepository로 감싸서
+/// 로컬 쓰기 후 자동으로 동기화를 트리거한다.
+final locationTriggerRepositoryProvider = Provider<LocationTriggerRepository>((ref) {
+  final base = LocationTriggerRepositoryImpl(ref.watch(databaseProvider));
+  final syncService = ref.watch(syncServiceProvider);
+  if (syncService != null) {
+    return SyncAwareLocationTriggerRepository(base, syncService);
   }
   return base;
 });
