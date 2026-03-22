@@ -104,7 +104,7 @@
 - [x] Phase D: Provider Rewiring — soft delete, deletedAt IS NULL filters, sync-aware decorators, conditional provider wrapping
 - [x] Phase E: UI — sync status widget in AppBar, home sync icon, settings last sync time
 - [x] Supabase project creation (CLI setup, migration, Google OAuth, credentials via .env)
-- [ ] End-to-end testing (auth flow, sync flow, conflict resolution)
+- [x] End-to-end testing (auth flow, sync flow, conflict resolution)
 
 ### v2.1 — Location-Based Auto Tracking (iOS)
 

@@ -6,7 +6,7 @@
 
 ## Current Status
 
-- **Active Phase:** v2.0 Cloud Backup — Supabase project live, E2E testing next
+- **Active Phase:** v2.0 Cloud Backup — E2E testing complete, v2.0 done
 - **Last Updated:** 2026-03-22
 - **Blocker:** None
 
@@ -14,12 +14,12 @@
 
 ### Where We Are
 
-v2.0 Cloud Backup — Supabase project created and configured:
+v2.0 Cloud Backup — complete (all phases + E2E testing done):
 - **Phases A-E:** done (Foundation, Auth, Sync Engine, Provider Rewiring, UI)
-- **Supabase project:** live at `stsltytrnxosxhmziogp` (Tokyo region), migration applied
-- **Google OAuth:** iOS + Web client IDs created, Supabase Google provider enabled
-- **Credentials:** managed via `.env` + `--dart-define-from-file` (not hardcoded)
-- **Next:** E2E testing (Google auth flow, sync push/pull, conflict resolution)
+- **E2E testing:** 76 new tests (137 total), all passing
+- **Refactoring:** SyncRemoteDataSource 인터페이스 추출 (테스트 가능성 확보)
+- **Supabase project:** live at `stsltytrnxosxhmziogp` (Tokyo region)
+- **Next:** Phase 7 iOS+Android emulator testing, or v2.1 location tracking
 - Apple Sign-In deferred until app store deployment
 - Android setup deferred until app store deployment
 
@@ -47,6 +47,22 @@ v2.0 Cloud Backup — Supabase project created and configured:
 - Manual Session Entry in PRD but not in PLAN/BACKLOG
 
 ## Recent Work
+
+### 2026-03-22 — v2.0 E2E Testing + SyncRemoteDataSource 리팩토링
+
+- **Testability refactoring:** `SyncRemoteDataSource` 인터페이스 추출
+  - `SupabaseSyncService`의 `SupabaseClient` 직접 의존 → `SyncRemoteDataSource` 인터페이스로 교체
+  - `SupabaseRemoteDataSource` — production 구현체 (SupabaseClient 래핑)
+  - `FakeSyncRemoteDataSource` — 테스트용 인메모리 구현체
+- **76개 테스트 추가** (기존 61 → 총 137개, 전체 통과):
+  - `supabase_mappers_test` (10): Row↔JSON 변환, safe enum fallback
+  - `connectivity_monitor_test` (7): 온/오프라인 감지, 스트림 변환
+  - `sync_aware_preset_repository_test` (8): 위임 + syncNow 트리거
+  - `sync_aware_session_repository_test` (9): 위임 + syncNow 트리거
+  - `supabase_auth_service_test` (11): Google 로그인, signOut, auth 상태
+  - `supabase_sync_service_test` (25): push/pull, 충돌 해결, 소프트 삭제, 가드, 상태
+  - `sync_metadata_test` (6): SharedPreferences round-trip
+- **Mock 인프라:** MockSyncService, MockConnectivityMonitor 등 8개 mock 추가
 
 ### 2026-03-22 — v2.0 Supabase Project Setup + Security
 
