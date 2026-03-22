@@ -111,7 +111,7 @@
 > Auto-detect arrival at registered places and prompt to start a timer.
 > Depends on: v2.0 (Supabase).
 
-- [ ] Phase A: Foundation — LocationTrigger model/table/repo, Preset FK, DB migration v3, sync integration
+- [ ] Phase A: Foundation — ~~model/table/repo/migration~~ done, sync integration remaining
 - [ ] Phase B: iOS Platform Channel — GeofenceService interface, CLLocationManager native, notifications
 - [ ] Phase C: Location Registration UI — flutter_map picker, preset form integration
 - [ ] Phase D: Orchestration — GeofenceManager, auto-start, settings toggle

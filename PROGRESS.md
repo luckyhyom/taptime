@@ -6,21 +6,24 @@
 
 ## Current Status
 
-- **Active Phase:** MVP + v1.1 + v2.0 모두 완료, v2.1 대기
-- **Last Updated:** 2026-03-22
+- **Active Phase:** v2.1 Location-Based Auto Tracking — Phase A 진행 중
+- **Last Updated:** 2026-03-23
 - **Blocker:** None
 
 ## Notes for Next Agent
 
 ### Where We Are
 
-MVP (Phase 0-7) + v1.1 + v2.0 모두 완료:
-- **iOS 시뮬레이터:** 빌드 + 핵심 플로우 검증 완료 (iPhone 17 Pro)
-- **테스트:** 137개 전체 통과 (v2.0 E2E 76개 포함)
-- **오프라인 실행:** `.env` 없이 `flutter run`만으로 로컬 전용 모드 동작 (인증/동기화 제외)
-- **소셜 로그인:** 코드 완료 + 유닛 테스트 통과, 실기기 배포 후 OAuth 플로우 검증 필요
-- **Android:** SDK 미설치로 보류 (SDK 36 + BuildTools 필요)
-- **Next:** v2.1 위치 기반 자동 트래킹, 또는 앱스토어 배포 준비
+v2.1 Location-Based Auto Tracking 진행 중:
+- **Phase A 데이터 레이어 (부분 완료):**
+  - LocationTriggers 테이블 + Presets FK + DB migration v3 완료
+  - LocationTrigger 모델, 리포지토리 인터페이스 + Drift 구현 완료
+  - Preset 모델에 locationTriggerId 추가 완료
+  - UserSettings에 locationTrackingEnabled 추가 완료
+  - **남은 작업:** Supabase 매퍼, sync service 업데이트, SyncAware 데코레이터, 프로바이더 와이어링
+- **Phase B~E:** 미시작 (iOS Platform Channel, Map UI, Orchestration, Polish)
+- **테스트:** 137개 전체 통과
+- **계획:** `.claude/plans/resilient-kindling-coral.md`에 Phase A~E 상세 설계
 
 ### Environment
 
@@ -46,6 +49,16 @@ MVP (Phase 0-7) + v1.1 + v2.0 모두 완료:
 - Manual Session Entry in PRD but not in PLAN/BACKLOG
 
 ## Recent Work
+
+### 2026-03-23 — v2.1 Phase A: 데이터 레이어 기반
+
+- LocationTriggers Drift 테이블 (placeName, lat/lng, radius, notify, autoStart)
+- Presets에 locationTriggerId FK 추가 (onDelete: setNull)
+- UserSettings에 locationTrackingEnabled 추가
+- DB schemaVersion 2→3 마이그레이션
+- LocationTrigger 모델 + LocationTriggerRepository 인터페이스/구현
+- Preset 모델에 locationTriggerId + clearLocationTrigger()
+- FEAT-002 이슈 파일 생성
 
 ### 2026-03-22 — Phase 7: iOS 시뮬레이터 테스팅
 
