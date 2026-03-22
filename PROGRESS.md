@@ -6,7 +6,7 @@
 
 ## Current Status
 
-- **Active Phase:** v2.0 Cloud Backup — E2E testing complete, v2.0 done
+- **Active Phase:** MVP + v1.1 + v2.0 모두 완료, v2.1 대기
 - **Last Updated:** 2026-03-22
 - **Blocker:** None
 
@@ -47,6 +47,12 @@ v2.0 Cloud Backup — complete (all phases + E2E testing done):
 - Manual Session Entry in PRD but not in PLAN/BACKLOG
 
 ## Recent Work
+
+### 2026-03-22 — Phase 7: iOS 시뮬레이터 테스팅
+
+- iPhone 17 Pro 시뮬레이터에서 빌드 + 실행 성공
+- 핵심 플로우 확인: 홈 → 프리셋 생성 → 타이머 실행 → 히스토리 → 설정
+- Android는 SDK 미설치로 보류 (SDK 36 + BuildTools 필요)
 
 ### 2026-03-22 — v2.0 E2E Testing + SyncRemoteDataSource 리팩토링
 
