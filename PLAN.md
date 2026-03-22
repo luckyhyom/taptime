@@ -102,7 +102,7 @@
 - [x] Phase B: Auth — SupabaseAuthService (Google + Apple), auth providers, LoginScreen, Settings account
 - [x] Phase C: Sync Engine — sync service interface, mappers, metadata, connectivity monitor, push/pull
 - [x] Phase D: Provider Rewiring — soft delete, deletedAt IS NULL filters, sync-aware decorators, conditional provider wrapping
-- [ ] Phase E: UI — sync status widget in AppBar, home sync icon, settings last sync time
+- [x] Phase E: UI — sync status widget in AppBar, home sync icon, settings last sync time
 - [ ] Supabase project creation + end-to-end testing
 
 ### v2.1 — Location-Based Auto Tracking (iOS)

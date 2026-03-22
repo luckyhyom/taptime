@@ -6,7 +6,7 @@
 
 ## Current Status
 
-- **Active Phase:** v2.0 Cloud Backup — Phases A-D complete, Phase E (UI) next
+- **Active Phase:** v2.0 Cloud Backup — Phases A-E complete, Supabase project setup + end-to-end testing next
 - **Last Updated:** 2026-03-22
 - **Blocker:** Supabase project not yet created (needed before testing auth/sync)
 
@@ -19,7 +19,7 @@ v2.0 Cloud Backup in progress:
 - **Phase B (Auth):** done
 - **Phase C (Sync Engine):** done — sync service interface, mappers, metadata, connectivity monitor, push/pull with conflict resolution
 - **Phase D (Provider Rewiring):** done — soft delete, deletedAt IS NULL filters, sync-aware decorator repos, conditional provider wrapping, SyncStatusDb constants extracted
-- **Phase E (UI):** next — sync status widget, home sync icon, settings last sync time
+- **Phase E (UI):** done — sync status widget in AppBar, last sync time in settings
 - 61 tests passing, 0 analyzer issues
 - Supabase project creation is a prerequisite for end-to-end auth/sync testing
 
@@ -46,6 +46,14 @@ v2.0 Cloud Backup in progress:
 - Manual Session Entry in PRD but not in PLAN/BACKLOG
 
 ## Recent Work
+
+### 2026-03-22 — v2.0 Phase E: Sync Status UI
+
+- Created `SyncStatusWidget` — cloud icon in AppBar (idle/syncing/synced/error states)
+- Syncing state uses rotating animation (`_SyncingIcon` with `RotationTransition`)
+- Added `syncStatusProvider` (StreamProvider) and `lastSyncTimeProvider` (FutureProvider)
+- Settings account section shows last sync time with relative formatting ("5분 전")
+- Extracted `TimeFormatter.relativeTime()` to `core/utils/date_utils.dart`
 
 ### 2026-03-22 — v2.0 Phase C+D: Sync Engine + Provider Rewiring
 
