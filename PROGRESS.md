@@ -14,14 +14,13 @@
 
 ### Where We Are
 
-v2.0 Cloud Backup — complete (all phases + E2E testing done):
-- **Phases A-E:** done (Foundation, Auth, Sync Engine, Provider Rewiring, UI)
-- **E2E testing:** 76 new tests (137 total), all passing
-- **Refactoring:** SyncRemoteDataSource 인터페이스 추출 (테스트 가능성 확보)
-- **Supabase project:** live at `stsltytrnxosxhmziogp` (Tokyo region)
-- **Next:** Phase 7 iOS+Android emulator testing, or v2.1 location tracking
-- Apple Sign-In deferred until app store deployment
-- Android setup deferred until app store deployment
+MVP (Phase 0-7) + v1.1 + v2.0 모두 완료:
+- **iOS 시뮬레이터:** 빌드 + 핵심 플로우 검증 완료 (iPhone 17 Pro)
+- **테스트:** 137개 전체 통과 (v2.0 E2E 76개 포함)
+- **오프라인 실행:** `.env` 없이 `flutter run`만으로 로컬 전용 모드 동작 (인증/동기화 제외)
+- **소셜 로그인:** 코드 완료 + 유닛 테스트 통과, 실기기 배포 후 OAuth 플로우 검증 필요
+- **Android:** SDK 미설치로 보류 (SDK 36 + BuildTools 필요)
+- **Next:** v2.1 위치 기반 자동 트래킹, 또는 앱스토어 배포 준비
 
 ### Environment
 
