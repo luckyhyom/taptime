@@ -6,7 +6,7 @@
 
 ## Current Status
 
-- **Active Phase:** v2.1 Location-Based Auto Tracking — Phase A 진행 중
+- **Active Phase:** v2.1 Location-Based Auto Tracking — Phase A 완료, Phase B 대기
 - **Last Updated:** 2026-03-23
 - **Blocker:** None
 
@@ -14,14 +14,17 @@
 
 ### Where We Are
 
-v2.1 Location-Based Auto Tracking 진행 중:
-- **Phase A 데이터 레이어 (부분 완료):**
-  - LocationTriggers 테이블 + Presets FK + DB migration v3 완료
-  - LocationTrigger 모델, 리포지토리 인터페이스 + Drift 구현 완료
-  - Preset 모델에 locationTriggerId 추가 완료
-  - UserSettings에 locationTrackingEnabled 추가 완료
-  - **남은 작업:** Supabase 매퍼, sync service 업데이트, SyncAware 데코레이터, 프로바이더 와이어링
-- **Phase B~E:** 미시작 (iOS Platform Channel, Map UI, Orchestration, Polish)
+v2.1 Location-Based Auto Tracking — Phase A 완료:
+- **Phase A (완료):** LocationTrigger 모델/테이블/리포/마이그레이션 + Supabase 동기화 통합
+  - LocationTriggers Drift 테이블 + Presets FK (onDelete: setNull) + schemaVersion 3
+  - LocationTrigger 모델, LocationTriggerRepository 인터페이스 + Drift 구현
+  - SupabaseMappers에 LocationTrigger 매퍼 추가, sync service에 push/pull/merge 추가
+  - SyncAwareLocationTriggerRepository 데코레이터 + locationTriggerRepositoryProvider
+  - Supabase SQL 마이그레이션 (`002_location_triggers.sql`)
+  - Preset 모델에 locationTriggerId + clearLocationTrigger()
+  - UserSettings에 locationTrackingEnabled 추가
+- **Phase B (다음):** iOS Platform Channel — GeofenceService 인터페이스, CLLocationManager Swift 코드, 알림
+- **Phase C~E:** 미시작 (Map UI, Orchestration, Polish)
 - **테스트:** 137개 전체 통과
 - **계획:** `.claude/plans/resilient-kindling-coral.md`에 Phase A~E 상세 설계
 
@@ -50,14 +53,21 @@ v2.1 Location-Based Auto Tracking 진행 중:
 
 ## Recent Work
 
-### 2026-03-23 — v2.1 Phase A: 데이터 레이어 기반
+### 2026-03-23 — v2.1 Phase A: Foundation (Data Layer) 완료
 
-- LocationTriggers Drift 테이블 (placeName, lat/lng, radius, notify, autoStart)
-- Presets에 locationTriggerId FK 추가 (onDelete: setNull)
-- UserSettings에 locationTrackingEnabled 추가
-- DB schemaVersion 2→3 마이그레이션
-- LocationTrigger 모델 + LocationTriggerRepository 인터페이스/구현
-- Preset 모델에 locationTriggerId + clearLocationTrigger()
+- **데이터 레이어:**
+  - LocationTriggers Drift 테이블 (placeName, lat/lng, radius, notify, autoStart)
+  - Presets에 locationTriggerId FK 추가 (onDelete: setNull)
+  - UserSettings에 locationTrackingEnabled 추가
+  - DB schemaVersion 2→3 마이그레이션
+  - LocationTrigger 모델 + LocationTriggerRepository 인터페이스/Drift 구현
+  - Preset 모델에 locationTriggerId + clearLocationTrigger()
+- **동기화 통합:**
+  - SupabaseMappers: locationTrigger Row↔JSON 매퍼, preset에 location_trigger_id 포함
+  - SupabaseSyncService: location_triggers push/pull/merge (FK 순서: triggers→presets→sessions)
+  - SyncAwareLocationTriggerRepository 데코레이터
+  - locationTriggerRepositoryProvider (조건부 SyncAware 래핑)
+  - Supabase SQL 마이그레이션 (`002_location_triggers.sql` + RLS)
 - FEAT-002 이슈 파일 생성
 
 ### 2026-03-22 — Phase 7: iOS 시뮬레이터 테스팅
