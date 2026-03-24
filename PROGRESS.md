@@ -56,16 +56,20 @@ v2.1 Location-Based Auto Tracking — Phase A-D 완료:
 
 ## Recent Work
 
-### 2026-03-24 — 지도 피커 UX 개선
+### 2026-03-24 — 지도 피커 UX 개선 + 실기기 배포
 
 - **현재 위치:** geolocator 추가, 권한 요청 후 GPS 위치로 지도 초기화 (fallback: 서울시청)
 - **장소 검색:** Nominatim → Kakao Local API 교체 (한국 POI 품질 대폭 향상)
   - 카테고리 그룹명 + 도로명 주소 표시, 현재 위치 기준 거리순 정렬
-  - REST API 키는 .env → String.fromEnvironment 주입
+  - REST API 키는 .env → String.fromEnvironment 주입 (KAKAO_REST_API_KEY)
 - **지도 컨트롤:** +/- 줌 버튼, 현재 위치 이동 버튼, 검색 버튼
 - **마커 개선:** 현재 위치 파란 점, 선택 핀 그림자 점 추가
 - **의존성:** geolocator ^14.0.2, http ^1.6.0
-- **실기기 테스트:** iPhone에서 빌드 + 실행 확인 (코드 서명, DEVELOPMENT_TEAM 설정)
+- **Google Sign-In 수정:** Info.plist에 reversed client ID URL 스킴 추가 (인증 후 앱 복귀용)
+- **Supabase 마이그레이션:** 002_location_triggers.sql 적용 → 동기화 정상 동작 확인
+- **실기기 배포:** iPhone에서 Release 모드 빌드 + 독립 실행 확인
+  - Xcode 코드 서명 (DEVELOPMENT_TEAM), Release 스킴 설정
+  - `flutter run --release`가 간헐 실패 시 Xcode ▶로 대체
 
 ### 2026-03-24 — v2.1 Phase E: Polish 완료
 
