@@ -6,28 +6,27 @@
 
 ## Current Status
 
-- **Active Phase:** v2.1 Location-Based Auto Tracking — Phase A+B 완료, Phase C 대기
-- **Last Updated:** 2026-03-23
+- **Active Phase:** v2.1 Location-Based Auto Tracking — Phase A+B+C 완료, Phase D 대기
+- **Last Updated:** 2026-03-24
 - **Blocker:** None
 
 ## Notes for Next Agent
 
 ### Where We Are
 
-v2.1 Location-Based Auto Tracking — Phase A+B 완료:
+v2.1 Location-Based Auto Tracking — Phase A+B+C 완료:
 - **Phase A (완료):** LocationTrigger 데이터 레이어 + Supabase 동기화 통합
 - **Phase B (완료):** iOS Platform Channel — GeofenceService + CLLocationManager + 로컬 알림
-  - `GeofenceService` 인터페이스 (`shared/services/`) — 영역 등록/제거, 이벤트 스트림, 권한 관리
-  - `GeofenceServiceImpl` — MethodChannel(`com.taptime.taptime/geofence`) 기반 구현
-  - `NoopGeofenceService` — 비iOS 플랫폼용 무동작 구현
-  - `GeofencePlugin.swift` — CLLocationManager 지오펜스 모니터링 + UNUserNotificationCenter 알림
-  - Info.plist — NSLocationAlwaysAndWhenInUseUsageDescription + UIBackgroundModes(location)
-  - AppDelegate — GeofencePlugin 등록
-  - `geofenceServiceProvider` — Platform.isIOS 조건부 프로바이더
-  - ADR-0009: 플랫폼 채널 방식 선택 근거 기록
-- **Phase C (다음):** Location Registration UI — flutter_map 피커, 프리셋 폼 연동
-- **Phase D~E:** 미시작 (Orchestration, Polish)
-- **테스트:** 155개 전체 통과 (Phase B에서 18개 추가)
+- **Phase C (완료):** Location Registration UI — flutter_map 피커 + 프리셋 폼 연동
+  - `LocationPickerScreen` — FlutterMap 기반 장소 선택 + LocationTrigger 생성/수정
+  - 프리셋 폼에 `_LocationTriggerSection` 추가 (등록/변경/해제)
+  - `PresetFormState`에 locationTriggerId/locationTriggerName 추가
+  - GoRouter 경로: `/location-picker`, `/location-picker/:triggerId`
+  - push/pop 패턴으로 지도 피커 ↔ 프리셋 폼 간 결과 교환
+  - AppConstants에 위치 관련 상수 추가 (locationNameMaxLength, locationRadiusMin/Max/Default)
+- **Phase D (다음):** Orchestration — GeofenceManager, 자동 시작, 설정 토글
+- **Phase E:** 미시작 (Permission flow, edge cases, data reset)
+- **테스트:** 155개 전체 통과
 
 ### Environment
 
@@ -53,6 +52,20 @@ v2.1 Location-Based Auto Tracking — Phase A+B 완료:
 - Manual Session Entry in PRD but not in PLAN/BACKLOG
 
 ## Recent Work
+
+### 2026-03-24 — v2.1 Phase C: Location Registration UI 완료
+
+- **지도 피커:** `LocationPickerScreen` — FlutterMap + OSM 타일, 탭으로 핀 찍기, 반경 원 표시
+  - 하단 패널: 장소 이름, 반경 슬라이더(50~1000m), 알림/자동시작 토글
+  - 생성/수정 모드 지원, MapController race condition 방어 (addPostFrameCallback)
+  - ValueListenableBuilder로 저장 버튼만 선택적 리빌드 (지도 불필요 리빌드 방지)
+- **프리셋 폼 연동:** PresetFormState + _LocationTriggerSection
+  - locationTriggerId/locationTriggerName 폼 상태 추가
+  - 지도 피커와 push<String>/pop(triggerId) 패턴으로 결과 교환
+  - 등록/변경/해제 UI
+- **라우터:** /location-picker, /location-picker/:triggerId 경로 추가
+- **상수:** AppConstants에 locationNameMaxLength, locationRadiusMin/Max/Default 추가
+- **의존성:** flutter_map ^8.2.2, latlong2 ^0.9.1
 
 ### 2026-03-23 — v2.1 Phase B: iOS Platform Channel 완료
 
