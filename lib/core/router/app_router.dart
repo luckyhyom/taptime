@@ -8,6 +8,7 @@ import 'package:taptime/features/home/ui/home_screen.dart';
 import 'package:taptime/features/preset/ui/preset_form_screen.dart';
 import 'package:taptime/features/settings/ui/settings_screen.dart';
 import 'package:taptime/features/stats/ui/stats_screen.dart';
+import 'package:taptime/features/location/ui/location_picker_screen.dart';
 import 'package:taptime/features/timer/ui/break_timer_screen.dart';
 import 'package:taptime/features/timer/ui/timer_screen.dart';
 
@@ -29,6 +30,8 @@ abstract final class AppRoutes {
   static const presetEdit = '/preset/edit/:presetId';
   static const breakTimer = '/break/:durationSeconds';
   static const login = '/login';
+  static const locationPicker = '/location-picker';
+  static const locationEdit = '/location-picker/:triggerId';
 
   /// 타이머 라우트에 presetId를 삽입한다.
   /// 사용 예: `context.push(AppRoutes.timerPath('abc-123'))`
@@ -39,6 +42,9 @@ abstract final class AppRoutes {
 
   /// 브레이크 타이머 라우트에 시간(초)을 삽입한다.
   static String breakTimerPath(int seconds) => '/break/$seconds';
+
+  /// 위치 트리거 수정 라우트에 triggerId를 삽입한다.
+  static String locationEditPath(String triggerId) => '/location-picker/$triggerId';
 }
 
 // ── Navigator 키 ──────────────────────────────────────────────
@@ -162,6 +168,19 @@ final GoRouter appRouter = GoRouter(
       builder: (context, state) {
         final seconds = int.parse(state.pathParameters['durationSeconds']!);
         return BreakTimerScreen(durationSeconds: seconds);
+      },
+    ),
+    GoRoute(
+      path: AppRoutes.locationPicker,
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) => const LocationPickerScreen(),
+    ),
+    GoRoute(
+      path: AppRoutes.locationEdit,
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) {
+        final triggerId = state.pathParameters['triggerId']!;
+        return LocationPickerScreen(existingTriggerId: triggerId);
       },
     ),
   ],
