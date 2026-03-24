@@ -442,10 +442,15 @@ class _LocationPickerScreenState extends ConsumerState<LocationPickerScreen> {
     setState(() => _isSearching = true);
 
     try {
+      // 현재 위치가 있으면 가까운 순으로 정렬
+      final pos = _currentPosition;
+      final locationParams = pos != null ? '&x=${pos.longitude}&y=${pos.latitude}&sort=distance' : '';
+
       final uri = Uri.parse(
         'https://dapi.kakao.com/v2/local/search/keyword.json'
         '?query=${Uri.encodeComponent(query)}'
-        '&size=7',
+        '&size=7'
+        '$locationParams',
       );
 
       final response = await http.get(uri, headers: {'Authorization': 'KakaoAK $apiKey'});
