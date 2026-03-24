@@ -18,6 +18,8 @@ class PresetFormState {
     this.icon = 'menu_book',
     this.color = '#4A90D9',
     this.dailyGoalMin = 0,
+    this.locationTriggerId,
+    this.locationTriggerName,
     this.isLoading = false,
     this.isSubmitting = false,
     this.error,
@@ -30,6 +32,12 @@ class PresetFormState {
 
   /// 일일 목표 시간 (분). 0이면 목표 없음.
   final int dailyGoalMin;
+
+  /// 연결된 위치 트리거 ID. null이면 위치 연결 없음.
+  final String? locationTriggerId;
+
+  /// 연결된 위치 트리거의 장소 이름 (UI 표시용).
+  final String? locationTriggerName;
 
   /// 수정 모드에서 기존 프리셋을 불러오는 중인지 여부.
   final bool isLoading;
@@ -48,6 +56,9 @@ class PresetFormState {
     String? icon,
     String? color,
     int? dailyGoalMin,
+    String? locationTriggerId,
+    String? locationTriggerName,
+    bool clearLocation = false,
     bool? isLoading,
     bool? isSubmitting,
     String? error,
@@ -59,6 +70,8 @@ class PresetFormState {
       icon: icon ?? this.icon,
       color: color ?? this.color,
       dailyGoalMin: dailyGoalMin ?? this.dailyGoalMin,
+      locationTriggerId: clearLocation ? null : (locationTriggerId ?? this.locationTriggerId),
+      locationTriggerName: clearLocation ? null : (locationTriggerName ?? this.locationTriggerName),
       isLoading: isLoading ?? this.isLoading,
       isSubmitting: isSubmitting ?? this.isSubmitting,
       error: clearError ? null : (error ?? this.error),
@@ -102,12 +115,22 @@ class PresetFormNotifier extends AutoDisposeFamilyNotifier<PresetFormState, Stri
       return;
     }
 
+    // 연결된 위치 트리거가 있으면 장소 이름도 불러온다.
+    String? triggerName;
+    if (preset.locationTriggerId != null) {
+      final triggerRepo = ref.read(locationTriggerRepositoryProvider);
+      final trigger = await triggerRepo.getTriggerById(preset.locationTriggerId!);
+      triggerName = trigger?.placeName;
+    }
+
     state = PresetFormState(
       name: preset.name,
       durationMin: preset.durationMin,
       icon: preset.icon,
       color: preset.color,
       dailyGoalMin: preset.dailyGoalMin,
+      locationTriggerId: preset.locationTriggerId,
+      locationTriggerName: triggerName,
     );
   }
 
@@ -123,6 +146,19 @@ class PresetFormNotifier extends AutoDisposeFamilyNotifier<PresetFormState, Stri
   void setColor(String value) => state = state.copyWith(color: value);
 
   void setDailyGoal(int value) => state = state.copyWith(dailyGoalMin: value.clamp(0, 480));
+
+  /// 위치 트리거를 연결한다.
+  /// 지도 피커에서 반환된 triggerId로 트리거 정보를 조회하여 상태에 반영한다.
+  Future<void> setLocationTrigger(String triggerId) async {
+    final triggerRepo = ref.read(locationTriggerRepositoryProvider);
+    final trigger = await triggerRepo.getTriggerById(triggerId);
+    if (trigger != null) {
+      state = state.copyWith(locationTriggerId: triggerId, locationTriggerName: trigger.placeName);
+    }
+  }
+
+  /// 위치 트리거 연결을 해제한다.
+  void clearLocationTrigger() => state = state.copyWith(clearLocation: true);
 
   // ── 저장 / 삭제 ───────────────────────────────────────────
 
@@ -141,16 +177,20 @@ class PresetFormNotifier extends AutoDisposeFamilyNotifier<PresetFormState, Stri
         final existing = await repo.getPresetById(_presetId!);
         if (existing == null) throw Exception('프리셋을 찾을 수 없습니다.');
 
-        await repo.updatePreset(
-          existing.copyWith(
-            name: state.name.trim(),
-            durationMin: state.durationMin,
-            icon: state.icon,
-            color: state.color,
-            dailyGoalMin: state.dailyGoalMin,
-            updatedAt: now,
-          ),
+        // 위치 트리거가 해제된 경우 clearLocationTrigger()로 FK를 null로 설정한다.
+        var updated = existing.copyWith(
+          name: state.name.trim(),
+          durationMin: state.durationMin,
+          icon: state.icon,
+          color: state.color,
+          dailyGoalMin: state.dailyGoalMin,
+          locationTriggerId: state.locationTriggerId,
+          updatedAt: now,
         );
+        if (state.locationTriggerId == null && existing.locationTriggerId != null) {
+          updated = updated.clearLocationTrigger();
+        }
+        await repo.updatePreset(updated);
       } else {
         // 생성 모드: sortOrder를 기존 최댓값 + 1로 설정하여 목록 마지막에 추가.
         final allPresets = await repo.getAllPresets();
@@ -165,6 +205,7 @@ class PresetFormNotifier extends AutoDisposeFamilyNotifier<PresetFormState, Stri
             icon: state.icon,
             color: state.color,
             dailyGoalMin: state.dailyGoalMin,
+            locationTriggerId: state.locationTriggerId,
             sortOrder: maxOrder + 1,
             createdAt: now,
             updatedAt: now,

@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:taptime/core/constants/app_constants.dart';
+import 'package:taptime/core/router/app_router.dart';
 import 'package:taptime/core/theme/app_colors.dart';
 import 'package:taptime/core/theme/app_spacing.dart';
 import 'package:taptime/core/utils/color_utils.dart';
@@ -160,6 +161,26 @@ class _PresetFormScreenState extends ConsumerState<PresetFormScreen> {
               onChanged: notifier.setDailyGoal,
             ),
 
+            const SizedBox(height: AppSpacing.sectionGap),
+
+            // ── 위치 연결 ───────────────────────────────────
+            const _SectionLabel('장소 연결'),
+            const SizedBox(height: 4),
+            Text(
+              '장소를 등록하면 도착 시 알림을 받거나 타이머를 자동 시작할 수 있습니다.',
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  ),
+            ),
+            const SizedBox(height: AppSpacing.gap),
+            _LocationTriggerSection(
+              triggerId: state.locationTriggerId,
+              triggerName: state.locationTriggerName,
+              onLink: () => _openLocationPicker(notifier),
+              onEdit: () => _openLocationPicker(notifier, existingTriggerId: state.locationTriggerId),
+              onUnlink: notifier.clearLocationTrigger,
+            ),
+
             // ── 삭제 버튼 (수정 모드) ─────────────────────────
             if (widget.isEditing) ...[
               const SizedBox(height: AppSpacing.sectionGap * 2),
@@ -174,6 +195,18 @@ class _PresetFormScreenState extends ConsumerState<PresetFormScreen> {
         ),
       ),
     );
+  }
+
+  /// 지도 피커를 열고, 저장된 LocationTrigger ID를 받아 폼에 연결한다.
+  /// [existingTriggerId]가 있으면 수정 모드로 연다.
+  Future<void> _openLocationPicker(PresetFormNotifier notifier, {String? existingTriggerId}) async {
+    final route =
+        existingTriggerId != null ? AppRoutes.locationEditPath(existingTriggerId) : AppRoutes.locationPicker;
+    // push<String>: 지도 피커가 pop(triggerId)하면 여기서 결과를 받는다.
+    final resultId = await context.push<String>(route);
+    if (resultId != null) {
+      await notifier.setLocationTrigger(resultId);
+    }
   }
 
   Future<void> _save(PresetFormNotifier notifier) async {
@@ -412,6 +445,70 @@ class _DailyGoalStepper extends StatelessWidget {
           ),
         ],
       ],
+    );
+  }
+}
+
+/// 위치 트리거 연결/해제 섹션.
+///
+/// 위치 미연결 시 "장소 등록" 버튼, 연결 시 장소 이름 + 변경/해제 버튼을 표시한다.
+class _LocationTriggerSection extends StatelessWidget {
+  const _LocationTriggerSection({
+    required this.triggerId,
+    required this.triggerName,
+    required this.onLink,
+    required this.onEdit,
+    required this.onUnlink,
+  });
+
+  final String? triggerId;
+  final String? triggerName;
+  final VoidCallback onLink;
+  final VoidCallback onEdit;
+  final VoidCallback onUnlink;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
+    // 위치 미연결 상태
+    if (triggerId == null) {
+      return OutlinedButton.icon(
+        onPressed: onLink,
+        icon: const Icon(Icons.add_location_alt_outlined),
+        label: const Text('장소 등록'),
+        style: OutlinedButton.styleFrom(
+          padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+        ),
+      );
+    }
+
+    // 위치 연결 상태 — 장소 이름 + 변경/해제 버튼
+    return Container(
+      padding: const EdgeInsets.all(AppSpacing.gap),
+      decoration: BoxDecoration(
+        border: Border.all(color: theme.colorScheme.outlineVariant),
+        borderRadius: BorderRadius.circular(AppSpacing.cardRadius),
+      ),
+      child: Row(
+        children: [
+          const Icon(Icons.location_on, color: AppColors.coral, size: 24),
+          const SizedBox(width: AppSpacing.gap),
+          Expanded(
+            child: Text(
+              triggerName ?? '알 수 없는 장소',
+              style: theme.textTheme.bodyLarge,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+          TextButton(onPressed: onEdit, child: const Text('변경')),
+          TextButton(
+            onPressed: onUnlink,
+            style: TextButton.styleFrom(foregroundColor: theme.colorScheme.error),
+            child: const Text('해제'),
+          ),
+        ],
+      ),
     );
   }
 }
