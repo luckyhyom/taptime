@@ -49,6 +49,14 @@
 	</dict>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>Taptime uses your location to detect when you arrive at registered places and suggest starting a timer.</string>
+	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+	<string>Taptime uses your location in the background to detect when you arrive at registered places and suggest starting a timer, even when the app is closed.</string>
+	<key>UIBackgroundModes</key>
+	<array>
+		<string>location</string>
+	</array>
 	<key>UILaunchStoryboardName</key>
 	<string>LaunchScreen</string>
 	<key>UIMainStoryboardFile</key>
