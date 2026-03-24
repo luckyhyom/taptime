@@ -6,7 +6,7 @@
 
 ## Current Status
 
-- **Active Phase:** v2.1 Location-Based Auto Tracking — Phase A-D 완료, Phase E 대기
+- **Active Phase:** v2.1 Location-Based Auto Tracking — Phase A-E 전체 완료
 - **Last Updated:** 2026-03-24
 - **Blocker:** None
 
@@ -25,7 +25,10 @@ v2.1 Location-Based Auto Tracking — Phase A-D 완료:
   - `_GeofenceEventHandler` — app.dart builder에서 액션 스트림 수신
   - Settings: iOS 전용 "위치 기반 자동 트래킹" SwitchListTile (Always 권한 요청 포함)
   - GeofencePlugin iOS 13 호환 수정 (authorizationStatus #available 분기)
-- **Phase E (다음):** Permission flow, edge cases (20 region limit), data reset integration
+- **Phase E (완료):** Permission flow, 20개 영역 제한, data reset 통합
+  - Settings: 권한 상태 표시 (denied/restricted/whenInUse일 때 안내 메시지)
+  - PresetForm: 새 장소 등록 시 getMonitoredRegionIds()로 20개 제한 확인
+  - Data Reset: deleteAllTriggers() + removeAllRegions() 추가
 - **테스트:** 155개 전체 통과
 
 ### Environment
@@ -52,6 +55,15 @@ v2.1 Location-Based Auto Tracking — Phase A-D 완료:
 - Manual Session Entry in PRD but not in PLAN/BACKLOG
 
 ## Recent Work
+
+### 2026-03-24 — v2.1 Phase E: Polish 완료
+
+- **권한 상태 표시:** `_PermissionStatusTile` — FutureBuilder로 checkPermission() 결과를 표시
+  - authorizedAlways 아닌 경우 경고 아이콘 + 안내 메시지
+- **20개 영역 제한:** PresetForm의 _openLocationPicker에서 getMonitoredRegionIds() 확인
+  - 20개 이상이면 SnackBar로 등록 차단 (수정은 기존 영역 교체이므로 허용)
+- **데이터 초기화 통합:** _confirmReset에 deleteAllTriggers() + removeAllRegions() 추가
+  - FK 순서: triggers → presets → sessions (프리셋 FK가 setNull이므로 순서 무관하지만 명시적)
 
 ### 2026-03-24 — v2.1 Phase D: Orchestration 완료
 
