@@ -1,8 +1,14 @@
+import 'dart:async';
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
+
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:go_router/go_router.dart';
+import 'package:http/http.dart' as http;
 import 'package:latlong2/latlong.dart';
 import 'package:uuid/uuid.dart';
 
@@ -33,6 +39,7 @@ class LocationPickerScreen extends ConsumerStatefulWidget {
 class _LocationPickerScreenState extends ConsumerState<LocationPickerScreen> {
   final _mapController = MapController();
   final _nameController = TextEditingController();
+  final _searchController = TextEditingController();
 
   // ── 폼 상태 ──────────────────────────────────────────────────
   // 이 화면에서만 사용하고 버려지는 일시적 상태이므로
@@ -59,8 +66,23 @@ class _LocationPickerScreenState extends ConsumerState<LocationPickerScreen> {
   /// 기존 트리거 로딩 중 여부
   bool _isLoading = false;
 
-  // 향후 기기의 현재 위치를 사용하도록 개선 예정
-  static const _defaultCenter = LatLng(37.5665, 126.978);
+  /// 현재 위치
+  LatLng? _currentPosition;
+
+  /// 검색 결과 목록
+  List<_SearchResult> _searchResults = [];
+
+  /// 검색 중 여부
+  bool _isSearching = false;
+
+  /// 검색 패널 표시 여부
+  bool _showSearchPanel = false;
+
+  /// 검색 디바운스 타이머
+  Timer? _searchDebounce;
+
+  // 현재 위치를 가져오지 못하면 서울시청으로 fallback
+  static const _fallbackCenter = LatLng(37.5665, 126.978);
   static const _defaultZoom = 15.0;
 
   @override
@@ -68,6 +90,36 @@ class _LocationPickerScreenState extends ConsumerState<LocationPickerScreen> {
     super.initState();
     if (widget.existingTriggerId != null) {
       _loadExistingTrigger();
+    } else {
+      _loadCurrentLocation();
+    }
+  }
+
+  /// 현재 위치를 가져와서 지도 초기 중심으로 사용한다.
+  /// 권한 거부 또는 오류 시 서울시청 fallback.
+  Future<void> _loadCurrentLocation() async {
+    try {
+      // GeofencePlugin이 이미 위치 권한을 관리하므로 별도 권한 요청 불필요
+      // geolocator는 기존 권한 상태를 그대로 사용한다
+      final permission = await Geolocator.checkPermission();
+      if (permission == LocationPermission.denied || permission == LocationPermission.deniedForever) {
+        return;
+      }
+
+      final position = await Geolocator.getCurrentPosition(
+        locationSettings: const LocationSettings(accuracy: LocationAccuracy.medium, timeLimit: Duration(seconds: 5)),
+      );
+
+      if (mounted) {
+        final latLng = LatLng(position.latitude, position.longitude);
+        setState(() => _currentPosition = latLng);
+
+        SchedulerBinding.instance.addPostFrameCallback((_) {
+          if (mounted) _mapController.move(latLng, _defaultZoom);
+        });
+      }
+    } on Exception {
+      // 위치 가져오기 실패 — fallback 사용
     }
   }
 
@@ -104,6 +156,8 @@ class _LocationPickerScreenState extends ConsumerState<LocationPickerScreen> {
   void dispose() {
     _mapController.dispose();
     _nameController.dispose();
+    _searchController.dispose();
+    _searchDebounce?.cancel();
     super.dispose();
   }
 
@@ -136,7 +190,15 @@ class _LocationPickerScreenState extends ConsumerState<LocationPickerScreen> {
           ? const Center(child: CircularProgressIndicator())
           : Column(
               children: [
-                Expanded(child: _buildMap(theme)),
+                Expanded(
+                  child: Stack(
+                    children: [
+                      _buildMap(theme),
+                      _buildMapControls(theme),
+                      if (_showSearchPanel) _buildSearchPanel(theme),
+                    ],
+                  ),
+                ),
                 if (_selectedPosition != null) _buildInputPanel(theme) else _buildHintPanel(theme),
               ],
             ),
@@ -149,10 +211,13 @@ class _LocationPickerScreenState extends ConsumerState<LocationPickerScreen> {
     return FlutterMap(
       mapController: _mapController,
       options: MapOptions(
-        initialCenter: _selectedPosition ?? _defaultCenter,
+        initialCenter: _selectedPosition ?? _currentPosition ?? _fallbackCenter,
         initialZoom: _defaultZoom,
         onTap: (tapPosition, latLng) {
-          setState(() => _selectedPosition = latLng);
+          setState(() {
+            _selectedPosition = latLng;
+            _showSearchPanel = false;
+          });
         },
       ),
       children: [
@@ -181,14 +246,231 @@ class _LocationPickerScreenState extends ConsumerState<LocationPickerScreen> {
             markers: [
               Marker(
                 point: _selectedPosition!,
-                width: 40,
-                height: 40,
-                child: const Icon(Icons.location_on, color: AppColors.coral, size: 40),
+                width: 48,
+                height: 48,
+                alignment: Alignment.topCenter,
+                child: const _MapPin(),
+              ),
+            ],
+          ),
+
+        // 현재 위치 마커 (선택 위치와 별도)
+        if (_currentPosition != null)
+          MarkerLayer(
+            markers: [
+              Marker(
+                point: _currentPosition!,
+                width: 20,
+                height: 20,
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: Colors.blue,
+                    shape: BoxShape.circle,
+                    border: Border.all(color: Colors.white, width: 3),
+                    boxShadow: [BoxShadow(color: Colors.blue.withValues(alpha: 0.3), blurRadius: 8)],
+                  ),
+                ),
               ),
             ],
           ),
       ],
     );
+  }
+
+  // ── 지도 컨트롤 (줌, 검색, 현재 위치) ─────────────────────────
+
+  Widget _buildMapControls(ThemeData theme) {
+    return Positioned(
+      right: AppSpacing.gap,
+      top: AppSpacing.gap,
+      child: Column(
+        children: [
+          // 검색 버튼
+          _MapControlButton(
+            icon: Icons.search,
+            onTap: () => setState(() => _showSearchPanel = !_showSearchPanel),
+          ),
+          const SizedBox(height: AppSpacing.grid),
+          // 현재 위치 버튼
+          _MapControlButton(
+            icon: Icons.my_location,
+            onTap: _moveToCurrentLocation,
+          ),
+          const SizedBox(height: AppSpacing.grid),
+          // 줌 인
+          _MapControlButton(
+            icon: Icons.add,
+            onTap: () => _mapController.move(
+              _mapController.camera.center,
+              _mapController.camera.zoom + 1,
+            ),
+          ),
+          const SizedBox(height: 4),
+          // 줌 아웃
+          _MapControlButton(
+            icon: Icons.remove,
+            onTap: () => _mapController.move(
+              _mapController.camera.center,
+              _mapController.camera.zoom - 1,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _moveToCurrentLocation() {
+    final target = _currentPosition;
+    if (target != null) {
+      _mapController.move(target, _defaultZoom);
+    } else {
+      // 현재 위치 없으면 다시 시도
+      _loadCurrentLocation();
+    }
+  }
+
+  // ── 검색 패널 ──────────────────────────────────────────────
+
+  Widget _buildSearchPanel(ThemeData theme) {
+    return Positioned(
+      left: AppSpacing.gap,
+      right: 56, // 컨트롤 버튼과 겹치지 않게
+      top: AppSpacing.gap,
+      child: Material(
+        elevation: 4,
+        borderRadius: BorderRadius.circular(AppSpacing.cardRadius),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // 검색 입력
+            TextField(
+              controller: _searchController,
+              autofocus: true,
+              decoration: InputDecoration(
+                hintText: '주소 또는 장소명 검색',
+                prefixIcon: const Icon(Icons.search, size: 20),
+                suffixIcon: _isSearching
+                    ? const Padding(
+                        padding: EdgeInsets.all(12),
+                        child: SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2)),
+                      )
+                    : IconButton(
+                        icon: const Icon(Icons.close, size: 20),
+                        onPressed: () {
+                          _searchController.clear();
+                          setState(() {
+                            _searchResults = [];
+                            _showSearchPanel = false;
+                          });
+                        },
+                      ),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(AppSpacing.cardRadius),
+                  borderSide: BorderSide.none,
+                ),
+                filled: true,
+                fillColor: theme.colorScheme.surface,
+                contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              ),
+              onChanged: _onSearchChanged,
+            ),
+
+            // 검색 결과 목록
+            if (_searchResults.isNotEmpty)
+              ConstrainedBox(
+                constraints: const BoxConstraints(maxHeight: 200),
+                child: ListView.separated(
+                  shrinkWrap: true,
+                  padding: EdgeInsets.zero,
+                  itemCount: _searchResults.length,
+                  separatorBuilder: (_, __) => const Divider(height: 1),
+                  itemBuilder: (context, index) {
+                    final result = _searchResults[index];
+                    return ListTile(
+                      dense: true,
+                      leading: const Icon(Icons.location_on_outlined, size: 20),
+                      title: Text(result.name, maxLines: 1, overflow: TextOverflow.ellipsis),
+                      subtitle: result.address != null
+                          ? Text(result.address!, maxLines: 1, overflow: TextOverflow.ellipsis)
+                          : null,
+                      onTap: () => _selectSearchResult(result),
+                    );
+                  },
+                ),
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _onSearchChanged(String query) {
+    _searchDebounce?.cancel();
+    if (query.trim().length < 2) {
+      setState(() => _searchResults = []);
+      return;
+    }
+    _searchDebounce = Timer(const Duration(milliseconds: 500), () => _performSearch(query.trim()));
+  }
+
+  /// Nominatim (OSM 무료 지오코딩) API로 장소를 검색한다.
+  /// 사용 정책: 1초당 1회 제한, User-Agent 필수.
+  Future<void> _performSearch(String query) async {
+    if (!mounted) return;
+    setState(() => _isSearching = true);
+
+    try {
+      final uri = Uri.parse(
+        'https://nominatim.openstreetmap.org/search'
+        '?q=${Uri.encodeComponent(query)}'
+        '&format=json'
+        '&limit=5'
+        '&accept-language=ko',
+      );
+
+      final response = await http.get(uri, headers: {'User-Agent': 'Taptime/1.0 (com.taptime.taptime)'});
+
+      if (!mounted) return;
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body) as List<dynamic>;
+        setState(() {
+          _searchResults = data.cast<Map<String, dynamic>>().map((item) {
+            return _SearchResult(
+              name: item['display_name'] as String? ?? '',
+              address: item['display_name'] as String?,
+              lat: double.parse(item['lat'] as String),
+              lon: double.parse(item['lon'] as String),
+            );
+          }).toList();
+        });
+      }
+    } on Exception {
+      // 검색 실패 — 무시
+    } finally {
+      if (mounted) setState(() => _isSearching = false);
+    }
+  }
+
+  void _selectSearchResult(_SearchResult result) {
+    final latLng = LatLng(result.lat, result.lon);
+    setState(() {
+      _selectedPosition = latLng;
+      _showSearchPanel = false;
+      _searchResults = [];
+      _searchController.clear();
+    });
+
+    // 검색 결과의 이름을 장소 이름 필드에 자동 입력
+    // display_name은 너무 길므로 첫 번째 콤마 전까지만 사용
+    if (_nameController.text.isEmpty) {
+      final shortName = result.name.split(',').first.trim();
+      if (shortName.length <= AppConstants.locationNameMaxLength) {
+        _nameController.text = shortName;
+      }
+    }
+
+    _mapController.move(latLng, _defaultZoom);
   }
 
   // ── 안내 패널 (좌표 선택 전) ─────────────────────────────────
@@ -202,7 +484,7 @@ class _LocationPickerScreenState extends ConsumerState<LocationPickerScreen> {
         borderRadius: const BorderRadius.vertical(top: Radius.circular(AppSpacing.cardRadius)),
       ),
       child: Text(
-        '지도를 탭하여 장소를 선택하세요',
+        '지도를 탭하거나 검색하여 장소를 선택하세요',
         textAlign: TextAlign.center,
         style: theme.textTheme.bodyLarge?.copyWith(color: theme.colorScheme.onSurfaceVariant),
       ),
@@ -340,4 +622,73 @@ class _LocationPickerScreenState extends ConsumerState<LocationPickerScreen> {
       }
     }
   }
+}
+
+// ── 지도 핀 위젯 ──────────────────────────────────────────────
+
+/// 드롭 핀 형태의 커스텀 마커.
+/// 기본 Icons.location_on보다 시인성이 높다.
+class _MapPin extends StatelessWidget {
+  const _MapPin();
+
+  @override
+  Widget build(BuildContext context) {
+    return const Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Icon(Icons.location_on, color: AppColors.coral, size: 40),
+        // 핀 아래 그림자 점
+        DecoratedBox(
+          decoration: BoxDecoration(
+            color: Colors.black26,
+            shape: BoxShape.circle,
+          ),
+          child: SizedBox(width: 6, height: 3),
+        ),
+      ],
+    );
+  }
+}
+
+// ── 지도 컨트롤 버튼 ────────────────────────────────────────────
+
+class _MapControlButton extends StatelessWidget {
+  const _MapControlButton({required this.icon, required this.onTap});
+
+  final IconData icon;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      elevation: 2,
+      borderRadius: BorderRadius.circular(8),
+      color: Theme.of(context).colorScheme.surface,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(8),
+        child: SizedBox(
+          width: 40,
+          height: 40,
+          child: Icon(icon, size: 20),
+        ),
+      ),
+    );
+  }
+}
+
+// ── 검색 결과 모델 ──────────────────────────────────────────────
+
+class _SearchResult {
+  const _SearchResult({
+    required this.name,
+    required this.lat,
+    required this.lon,
+    this.address,
+  });
+
+  final String name;
+  final double lat;
+  final double lon;
+  final String? address;
 }
