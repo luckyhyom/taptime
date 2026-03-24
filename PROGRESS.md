@@ -6,7 +6,7 @@
 
 ## Current Status
 
-- **Active Phase:** v2.1 Location-Based Auto Tracking — Phase A 완료, Phase B 대기
+- **Active Phase:** v2.1 Location-Based Auto Tracking — Phase A+B 완료, Phase C 대기
 - **Last Updated:** 2026-03-23
 - **Blocker:** None
 
@@ -14,19 +14,20 @@
 
 ### Where We Are
 
-v2.1 Location-Based Auto Tracking — Phase A 완료:
-- **Phase A (완료):** LocationTrigger 모델/테이블/리포/마이그레이션 + Supabase 동기화 통합
-  - LocationTriggers Drift 테이블 + Presets FK (onDelete: setNull) + schemaVersion 3
-  - LocationTrigger 모델, LocationTriggerRepository 인터페이스 + Drift 구현
-  - SupabaseMappers에 LocationTrigger 매퍼 추가, sync service에 push/pull/merge 추가
-  - SyncAwareLocationTriggerRepository 데코레이터 + locationTriggerRepositoryProvider
-  - Supabase SQL 마이그레이션 (`002_location_triggers.sql`)
-  - Preset 모델에 locationTriggerId + clearLocationTrigger()
-  - UserSettings에 locationTrackingEnabled 추가
-- **Phase B (다음):** iOS Platform Channel — GeofenceService 인터페이스, CLLocationManager Swift 코드, 알림
-- **Phase C~E:** 미시작 (Map UI, Orchestration, Polish)
-- **테스트:** 137개 전체 통과
-- **계획:** `.claude/plans/resilient-kindling-coral.md`에 Phase A~E 상세 설계
+v2.1 Location-Based Auto Tracking — Phase A+B 완료:
+- **Phase A (완료):** LocationTrigger 데이터 레이어 + Supabase 동기화 통합
+- **Phase B (완료):** iOS Platform Channel — GeofenceService + CLLocationManager + 로컬 알림
+  - `GeofenceService` 인터페이스 (`shared/services/`) — 영역 등록/제거, 이벤트 스트림, 권한 관리
+  - `GeofenceServiceImpl` — MethodChannel(`com.taptime.taptime/geofence`) 기반 구현
+  - `NoopGeofenceService` — 비iOS 플랫폼용 무동작 구현
+  - `GeofencePlugin.swift` — CLLocationManager 지오펜스 모니터링 + UNUserNotificationCenter 알림
+  - Info.plist — NSLocationAlwaysAndWhenInUseUsageDescription + UIBackgroundModes(location)
+  - AppDelegate — GeofencePlugin 등록
+  - `geofenceServiceProvider` — Platform.isIOS 조건부 프로바이더
+  - ADR-0009: 플랫폼 채널 방식 선택 근거 기록
+- **Phase C (다음):** Location Registration UI — flutter_map 피커, 프리셋 폼 연동
+- **Phase D~E:** 미시작 (Orchestration, Polish)
+- **테스트:** 155개 전체 통과 (Phase B에서 18개 추가)
 
 ### Environment
 
@@ -52,6 +53,18 @@ v2.1 Location-Based Auto Tracking — Phase A 완료:
 - Manual Session Entry in PRD but not in PLAN/BACKLOG
 
 ## Recent Work
+
+### 2026-03-23 — v2.1 Phase B: iOS Platform Channel 완료
+
+- **GeofenceService 인터페이스:** GeofenceEvent, GeofencePermissionStatus 타입 + 추상 메서드 (shared/services/)
+- **Dart 구현:** GeofenceServiceImpl (MethodChannel) + NoopGeofenceService (비iOS)
+- **Swift 네이티브:** GeofencePlugin — CLLocationManager 지오펜스 + UNUserNotificationCenter 로컬 알림
+  - 영역 등록/제거/모니터링, 권한 요청, 20개 제한 검증
+  - 진입/퇴장 시 장소 이름 포함 알림 + Dart 이벤트 전달
+- **iOS 설정:** Info.plist (위치 권한 설명, 백그라운드 모드), AppDelegate 플러그인 등록, pbxproj 파일 참조
+- **프로바이더:** geofenceServiceProvider (Platform.isIOS 조건부)
+- **테스트:** 18개 추가 (MethodChannel 모킹, 이벤트 스트림, 권한 파싱) → 총 155개 통과
+- **문서:** ADR-0009, FEAT-002 Phase B 솔루션 기록
 
 ### 2026-03-23 — v2.1 Phase A: Foundation (Data Layer) 완료
 

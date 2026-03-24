@@ -28,14 +28,35 @@ Users want to automatically start timers when they arrive at specific locations 
 
 ## Solution
 
-(To be filled during implementation)
+### Phase A (Complete): Data Layer Foundation
+
+- LocationTrigger model + Drift table + repository interface/impl
+- Preset FK (locationTriggerId), DB migration v2→v3
+- Supabase sync: mappers, push/pull/merge, SyncAware decorator
+- SQL migration `002_location_triggers.sql` + RLS
+
+### Phase B (Complete): iOS Platform Channel
+
+- **Architecture:** MethodChannel (`com.taptime.taptime/geofence`) — see ADR-0009
+- **Dart interface:** `GeofenceService` in `shared/services/` with event types, permission enum
+- **Dart impl:** `GeofenceServiceImpl` (MethodChannel) + `NoopGeofenceService` (non-iOS)
+- **Swift native:** `GeofencePlugin` — CLLocationManager geofence monitoring + UNUserNotificationCenter local notifications
+- **iOS config:** Info.plist (location permissions + background mode), AppDelegate plugin registration
+- **Provider:** `geofenceServiceProvider` in app_providers.dart (platform-conditional)
+- **Key constraints:** Max 20 CLCircularRegion, Always authorization required for background monitoring
+
+### Phase C–E: Pending
 
 ## Test
 
-- **Test added:** (pending)
-- **Test type:** unit, widget, manual (iOS simulator)
-- **How to verify:** (pending)
+- **Test added:** 18 new tests (total 155, all passing)
+- **Test type:** unit (MethodChannel mock via TestDefaultBinaryMessengerBinding)
+- **How to verify:**
+  - Dart→Native: verify method names and argument maps forwarded to channel
+  - Native→Dart: simulate native callbacks, verify GeofenceEvent stream emission
+  - Permission parsing: all 5 CLAuthorizationStatus values correctly mapped
+  - Native Swift: manual testing on iOS device (simulator cannot trigger geofence events)
 
 ## Takeaway
 
-(To be filled after implementation)
+(To be filled after full feature implementation)
