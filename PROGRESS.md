@@ -6,7 +6,7 @@
 
 ## Current Status
 
-- **Active Phase:** v2.1 Location-Based Auto Tracking — Phase A+B+C 완료, Phase D 대기
+- **Active Phase:** v2.1 Location-Based Auto Tracking — Phase A-D 완료, Phase E 대기
 - **Last Updated:** 2026-03-24
 - **Blocker:** None
 
@@ -14,18 +14,18 @@
 
 ### Where We Are
 
-v2.1 Location-Based Auto Tracking — Phase A+B+C 완료:
+v2.1 Location-Based Auto Tracking — Phase A-D 완료:
 - **Phase A (완료):** LocationTrigger 데이터 레이어 + Supabase 동기화 통합
 - **Phase B (완료):** iOS Platform Channel — GeofenceService + CLLocationManager + 로컬 알림
 - **Phase C (완료):** Location Registration UI — flutter_map 피커 + 프리셋 폼 연동
-  - `LocationPickerScreen` — FlutterMap 기반 장소 선택 + LocationTrigger 생성/수정
-  - 프리셋 폼에 `_LocationTriggerSection` 추가 (등록/변경/해제)
-  - `PresetFormState`에 locationTriggerId/locationTriggerName 추가
-  - GoRouter 경로: `/location-picker`, `/location-picker/:triggerId`
-  - push/pop 패턴으로 지도 피커 ↔ 프리셋 폼 간 결과 교환
-  - AppConstants에 위치 관련 상수 추가 (locationNameMaxLength, locationRadiusMin/Max/Default)
-- **Phase D (다음):** Orchestration — GeofenceManager, 자동 시작, 설정 토글
-- **Phase E:** 미시작 (Permission flow, edge cases, data reset)
+- **Phase D (완료):** Orchestration — GeofenceManager, 자동 시작, 설정 토글
+  - `GeofenceManager` — watchAllTriggers 구독으로 DB↔네이티브 영역 자동 동기화
+  - 진입 이벤트 → 프리셋 매칭 → autoStart면 즉시 이동, 아니면 확인 다이얼로그
+  - `geofenceManagerProvider` — locationTrackingEnabled 반응형 (토글 시 자동 시작/중지)
+  - `_GeofenceEventHandler` — app.dart builder에서 액션 스트림 수신
+  - Settings: iOS 전용 "위치 기반 자동 트래킹" SwitchListTile (Always 권한 요청 포함)
+  - GeofencePlugin iOS 13 호환 수정 (authorizationStatus #available 분기)
+- **Phase E (다음):** Permission flow, edge cases (20 region limit), data reset integration
 - **테스트:** 155개 전체 통과
 
 ### Environment
@@ -52,6 +52,16 @@ v2.1 Location-Based Auto Tracking — Phase A+B+C 완료:
 - Manual Session Entry in PRD but not in PLAN/BACKLOG
 
 ## Recent Work
+
+### 2026-03-24 — v2.1 Phase D: Orchestration 완료
+
+- **GeofenceManager:** DB의 LocationTrigger ↔ 네이티브 영역 자동 동기화 (watchAllTriggers 스트림)
+  - 진입 이벤트 → 트리거+프리셋 매칭 → GeofenceAction emit
+  - autoStart=true → 타이머 화면 즉시 이동, false → 확인 다이얼로그
+- **geofenceManagerProvider:** userSettingsStreamProvider 반응형 — 토글 시 자동 시작/중지 (Riverpod dispose 활용)
+- **_GeofenceEventHandler:** MaterialApp.builder 내 위젯, 액션 스트림 수신 → 다이얼로그/네비게이션
+- **Settings:** iOS 전용 "위치 기반 자동 트래킹" SwitchListTile, Always 권한 미승인 시 SnackBar 안내
+- **iOS 13 호환:** GeofencePlugin.swift의 authorizationStatus 접근을 #available 분기로 수정
 
 ### 2026-03-24 — v2.1 Phase C: Location Registration UI 완료
 
