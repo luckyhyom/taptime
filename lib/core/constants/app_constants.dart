@@ -75,6 +75,20 @@ abstract final class AppConstants {
 
   static const presetNameMaxLength = 20;
 
+  // ── 위치 트리거 ──────────────────────────────────────────────
+
+  static const locationNameMaxLength = 40;
+
+  /// UI에서 허용하는 최소 지오펜스 반경 (미터)
+  static const locationRadiusMin = 50;
+
+  /// UI에서 허용하는 최대 지오펜스 반경 (미터).
+  /// 모델은 5000m까지 허용하지만, UX상 1000m로 제한한다.
+  static const locationRadiusMax = 1000;
+
+  /// 지오펜스 반경 기본값 (미터)
+  static const locationRadiusDefault = 200;
+
   // ── 브레이크 타이머 ────────────────────────────────────────────
 
   /// 짧은 휴식 시간 (5분)
