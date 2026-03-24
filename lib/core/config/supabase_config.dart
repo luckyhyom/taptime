@@ -29,4 +29,11 @@ class SupabaseConfig {
   /// 웹용 Google OAuth 클라이언트 ID. 미설정 시 null.
   /// Supabase Auth에 등록하는 ID와 동일해야 한다.
   static String? get googleWebClientId => _googleWebClientId.isNotEmpty ? _googleWebClientId : null;
+
+  // ── Kakao ──────────────────────────────────────────────────
+
+  static const String _kakaoRestApiKey = String.fromEnvironment('KAKAO_REST_API_KEY');
+
+  /// Kakao REST API 키. 미설정 시 null. Local API(장소 검색)에 사용.
+  static String? get kakaoRestApiKey => _kakaoRestApiKey.isNotEmpty ? _kakaoRestApiKey : null;
 }

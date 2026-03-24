@@ -12,6 +12,7 @@ import 'package:http/http.dart' as http;
 import 'package:latlong2/latlong.dart';
 import 'package:uuid/uuid.dart';
 
+import 'package:taptime/core/config/supabase_config.dart';
 import 'package:taptime/core/constants/app_constants.dart';
 import 'package:taptime/core/providers/app_providers.dart';
 import 'package:taptime/core/theme/app_colors.dart';
@@ -99,15 +100,24 @@ class _LocationPickerScreenState extends ConsumerState<LocationPickerScreen> {
   /// 권한 거부 또는 오류 시 서울시청 fallback.
   Future<void> _loadCurrentLocation() async {
     try {
-      // GeofencePlugin이 이미 위치 권한을 관리하므로 별도 권한 요청 불필요
-      // geolocator는 기존 권한 상태를 그대로 사용한다
-      final permission = await Geolocator.checkPermission();
+      // 위치 서비스가 꺼져 있으면 시도하지 않는다
+      if (!await Geolocator.isLocationServiceEnabled()) return;
+
+      var permission = await Geolocator.checkPermission();
+
+      // denied면 권한 요청 (deniedForever면 시스템 설정에서만 변경 가능)
+      if (permission == LocationPermission.denied) {
+        permission = await Geolocator.requestPermission();
+      }
       if (permission == LocationPermission.denied || permission == LocationPermission.deniedForever) {
         return;
       }
 
       final position = await Geolocator.getCurrentPosition(
-        locationSettings: const LocationSettings(accuracy: LocationAccuracy.medium, timeLimit: Duration(seconds: 5)),
+        locationSettings: const LocationSettings(
+          accuracy: LocationAccuracy.medium,
+          timeLimit: Duration(seconds: 10),
+        ),
       );
 
       if (mounted) {
@@ -390,9 +400,13 @@ class _LocationPickerScreenState extends ConsumerState<LocationPickerScreen> {
                       dense: true,
                       leading: const Icon(Icons.location_on_outlined, size: 20),
                       title: Text(result.name, maxLines: 1, overflow: TextOverflow.ellipsis),
-                      subtitle: result.address != null
-                          ? Text(result.address!, maxLines: 1, overflow: TextOverflow.ellipsis)
-                          : null,
+                      subtitle: Text(
+                        [if (result.category != null) result.category!, if (result.address != null) result.address!]
+                            .join(' · '),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: Theme.of(context).textTheme.bodySmall,
+                      ),
                       onTap: () => _selectSearchResult(result),
                     );
                   },
@@ -413,34 +427,42 @@ class _LocationPickerScreenState extends ConsumerState<LocationPickerScreen> {
     _searchDebounce = Timer(const Duration(milliseconds: 500), () => _performSearch(query.trim()));
   }
 
-  /// Nominatim (OSM 무료 지오코딩) API로 장소를 검색한다.
-  /// 사용 정책: 1초당 1회 제한, User-Agent 필수.
+  /// Kakao Local API (키워드 검색)로 장소를 검색한다.
+  /// REST API 키는 .env → String.fromEnvironment로 주입된다.
   Future<void> _performSearch(String query) async {
     if (!mounted) return;
+
+    final apiKey = SupabaseConfig.kakaoRestApiKey;
+    if (apiKey == null) {
+      // API 키 없으면 검색 불가
+      setState(() => _searchResults = []);
+      return;
+    }
+
     setState(() => _isSearching = true);
 
     try {
       final uri = Uri.parse(
-        'https://nominatim.openstreetmap.org/search'
-        '?q=${Uri.encodeComponent(query)}'
-        '&format=json'
-        '&limit=5'
-        '&accept-language=ko',
+        'https://dapi.kakao.com/v2/local/search/keyword.json'
+        '?query=${Uri.encodeComponent(query)}'
+        '&size=7',
       );
 
-      final response = await http.get(uri, headers: {'User-Agent': 'Taptime/1.0 (com.taptime.taptime)'});
+      final response = await http.get(uri, headers: {'Authorization': 'KakaoAK $apiKey'});
 
       if (!mounted) return;
 
       if (response.statusCode == 200) {
-        final data = json.decode(response.body) as List<dynamic>;
+        final body = json.decode(response.body) as Map<String, dynamic>;
+        final documents = (body['documents'] as List<dynamic>?) ?? [];
         setState(() {
-          _searchResults = data.cast<Map<String, dynamic>>().map((item) {
+          _searchResults = documents.cast<Map<String, dynamic>>().map((item) {
             return _SearchResult(
-              name: item['display_name'] as String? ?? '',
-              address: item['display_name'] as String?,
-              lat: double.parse(item['lat'] as String),
-              lon: double.parse(item['lon'] as String),
+              name: item['place_name'] as String? ?? '',
+              address: item['road_address_name'] as String? ?? item['address_name'] as String?,
+              lat: double.parse(item['y'] as String),
+              lon: double.parse(item['x'] as String),
+              category: item['category_group_name'] as String?,
             );
           }).toList();
         });
@@ -461,13 +483,12 @@ class _LocationPickerScreenState extends ConsumerState<LocationPickerScreen> {
       _searchController.clear();
     });
 
-    // 검색 결과의 이름을 장소 이름 필드에 자동 입력
-    // display_name은 너무 길므로 첫 번째 콤마 전까지만 사용
+    // 검색 결과의 장소명을 이름 필드에 자동 입력
     if (_nameController.text.isEmpty) {
-      final shortName = result.name.split(',').first.trim();
-      if (shortName.length <= AppConstants.locationNameMaxLength) {
-        _nameController.text = shortName;
-      }
+      final name = result.name.length <= AppConstants.locationNameMaxLength
+          ? result.name
+          : result.name.substring(0, AppConstants.locationNameMaxLength);
+      _nameController.text = name;
     }
 
     _mapController.move(latLng, _defaultZoom);
@@ -685,10 +706,14 @@ class _SearchResult {
     required this.lat,
     required this.lon,
     this.address,
+    this.category,
   });
 
   final String name;
   final double lat;
   final double lon;
   final String? address;
+
+  /// Kakao 카테고리 그룹명 (음식점, 카페, 편의점 등)
+  final String? category;
 }
