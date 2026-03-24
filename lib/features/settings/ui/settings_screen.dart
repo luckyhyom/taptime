@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -8,6 +10,7 @@ import 'package:taptime/core/router/app_router.dart';
 import 'package:taptime/core/theme/app_spacing.dart';
 import 'package:taptime/core/utils/date_utils.dart';
 import 'package:taptime/shared/models/user_settings.dart';
+import 'package:taptime/shared/services/geofence_service.dart';
 import 'package:taptime/shared/services/sync_service.dart';
 
 /// 설정 화면 — 테마, 알림, 데이터 초기화 등을 관리한다.
@@ -79,6 +82,21 @@ class SettingsScreen extends ConsumerWidget {
               ),
             ),
 
+            // ── 위치 (iOS 전용) ────────────────────────────────
+            if (Platform.isIOS) ...[
+              const Divider(height: AppSpacing.sectionGap * 2),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: AppSpacing.padding),
+                child: Text('위치', style: Theme.of(context).textTheme.titleMedium),
+              ),
+              SwitchListTile(
+                title: const Text('위치 기반 자동 트래킹'),
+                subtitle: const Text('등록된 장소에 도착 시 타이머 시작 알림'),
+                value: settings.locationTrackingEnabled,
+                onChanged: (value) => _toggleLocationTracking(context, ref, settings, value),
+              ),
+            ],
+
             const Divider(height: AppSpacing.sectionGap * 2),
 
             // ── 데이터 ────────────────────────────────────────
@@ -105,6 +123,48 @@ class SettingsScreen extends ConsumerWidget {
 
   Future<void> _updateSettings(WidgetRef ref, UserSettings settings) async {
     await ref.read(userSettingsRepositoryProvider).updateSettings(settings);
+  }
+
+  /// 위치 트래킹 토글 처리.
+  ///
+  /// 켤 때: 위치 권한을 요청하고, "항상 허용"이 아니면 안내 후 취소.
+  /// 끌 때: 즉시 설정 저장 (GeofenceManager가 자동으로 중지됨).
+  Future<void> _toggleLocationTracking(
+    BuildContext context,
+    WidgetRef ref,
+    UserSettings settings,
+    bool value,
+  ) async {
+    if (!value) {
+      await _updateSettings(ref, settings.copyWith(locationTrackingEnabled: false));
+      return;
+    }
+
+    // 권한 요청
+    final geofenceService = ref.read(geofenceServiceProvider);
+    var status = await geofenceService.requestPermission();
+
+    // WhenInUse → Always 업그레이드 시도
+    if (status == GeofencePermissionStatus.authorizedWhenInUse) {
+      status = await geofenceService.requestPermission();
+    }
+
+    if (status == GeofencePermissionStatus.authorizedAlways) {
+      await _updateSettings(ref, settings.copyWith(locationTrackingEnabled: true));
+    } else if (context.mounted) {
+      // 권한 부족 — 설정 안내
+      final message = switch (status) {
+        GeofencePermissionStatus.denied => '위치 권한이 거부되었습니다.\n설정에서 "항상 허용"으로 변경해주세요.',
+        GeofencePermissionStatus.restricted => '위치 서비스가 제한되어 있습니다.',
+        GeofencePermissionStatus.authorizedWhenInUse =>
+          '백그라운드 위치 모니터링에는 "항상 허용" 권한이 필요합니다.\n설정에서 변경해주세요.',
+        _ => '위치 권한을 허용해주세요.',
+      };
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(message), duration: const Duration(seconds: 5)),
+      );
+    }
   }
 
   Future<void> _confirmReset(BuildContext context, WidgetRef ref) async {

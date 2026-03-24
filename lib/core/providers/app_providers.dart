@@ -8,15 +8,18 @@ import 'package:taptime/core/database/app_database.dart';
 import 'package:taptime/core/database/preset_seeder.dart';
 import 'package:taptime/core/providers/auth_providers.dart';
 import 'package:taptime/features/history/data/session_repository_impl.dart';
+import 'package:taptime/features/location/data/geofence_manager.dart';
+import 'package:taptime/features/location/data/geofence_service_impl.dart';
+import 'package:taptime/features/location/data/location_trigger_repository_impl.dart';
+import 'package:taptime/features/location/data/noop_geofence_service.dart';
 import 'package:taptime/features/preset/data/preset_repository_impl.dart';
 import 'package:taptime/features/settings/data/user_settings_repository_impl.dart';
 import 'package:taptime/features/sync/data/supabase_remote_data_source.dart';
 import 'package:taptime/features/sync/data/supabase_sync_service.dart';
-import 'package:taptime/features/sync/data/sync_aware_preset_repository.dart';
 import 'package:taptime/features/sync/data/sync_aware_location_trigger_repository.dart';
+import 'package:taptime/features/sync/data/sync_aware_preset_repository.dart';
 import 'package:taptime/features/sync/data/sync_aware_session_repository.dart';
 import 'package:taptime/features/sync/data/sync_metadata.dart';
-import 'package:taptime/features/location/data/location_trigger_repository_impl.dart';
 import 'package:taptime/features/timer/data/active_timer_repository_impl.dart';
 import 'package:taptime/shared/models/preset.dart';
 import 'package:taptime/shared/models/user_settings.dart';
@@ -27,8 +30,6 @@ import 'package:taptime/shared/repositories/session_repository.dart';
 import 'package:taptime/shared/repositories/user_settings_repository.dart';
 import 'package:taptime/shared/services/geofence_service.dart';
 import 'package:taptime/shared/services/sync_service.dart';
-import 'package:taptime/features/location/data/geofence_service_impl.dart';
-import 'package:taptime/features/location/data/noop_geofence_service.dart';
 
 // ── 데이터베이스 ──────────────────────────────────────────────
 
@@ -99,6 +100,28 @@ final geofenceServiceProvider = Provider<GeofenceService>((ref) {
     return service;
   }
   return NoopGeofenceService();
+});
+
+/// 지오펜스 매니저 프로바이더.
+///
+/// locationTrackingEnabled가 true이고 iOS일 때만 활성화된다.
+/// 설정이 꺼지면 Riverpod이 이전 매니저를 dispose → stop()을 호출하여
+/// 모든 영역 모니터링을 중단한다.
+final geofenceManagerProvider = Provider<GeofenceManager?>((ref) {
+  if (!Platform.isIOS) return null;
+
+  final settings = ref.watch(userSettingsStreamProvider).valueOrNull;
+  if (settings == null || !settings.locationTrackingEnabled) return null;
+
+  final manager = GeofenceManager(
+    geofenceService: ref.read(geofenceServiceProvider),
+    triggerRepo: ref.read(locationTriggerRepositoryProvider),
+    presetRepo: ref.read(presetRepositoryProvider),
+  )..start();
+
+  ref.onDispose(manager.stop);
+
+  return manager;
 });
 
 // ── 리포지토리 ────────────────────────────────────────────────
