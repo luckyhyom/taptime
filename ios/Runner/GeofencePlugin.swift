@@ -59,7 +59,7 @@ class GeofencePlugin: NSObject, FlutterPlugin, CLLocationManagerDelegate {
             stopAllMonitoring()
             result(nil)
         case "checkPermission":
-            result(mapAuthorizationStatus(locationManager.authorizationStatus))
+            result(mapAuthorizationStatus(currentAuthorizationStatus()))
         case "requestPermission":
             handleRequestPermission(result: result)
         case "getMonitoredRegionIds":
@@ -149,7 +149,7 @@ class GeofencePlugin: NSObject, FlutterPlugin, CLLocationManagerDelegate {
     private var pendingPermissionResult: FlutterResult?
 
     private func handleRequestPermission(result: @escaping FlutterResult) {
-        let status = locationManager.authorizationStatus
+        let status = currentAuthorizationStatus()
 
         switch status {
         case .notDetermined:
@@ -178,7 +178,7 @@ class GeofencePlugin: NSObject, FlutterPlugin, CLLocationManagerDelegate {
     }
 
     func locationManagerDidChangeAuthorization(_ manager: CLLocationManager) {
-        let statusString = mapAuthorizationStatus(manager.authorizationStatus)
+        let statusString = mapAuthorizationStatus(currentAuthorizationStatus())
         channel.invokeMethod("onPermissionChanged", arguments: ["status": statusString])
 
         // 대기 중인 권한 요청 콜백 처리
@@ -250,6 +250,16 @@ class GeofencePlugin: NSObject, FlutterPlugin, CLLocationManagerDelegate {
     }
 
     // MARK: - Helpers
+
+    /// iOS 13에서는 인스턴스 프로퍼티 authorizationStatus가 없으므로
+    /// 클래스 메서드 CLLocationManager.authorizationStatus()를 사용한다.
+    private func currentAuthorizationStatus() -> CLAuthorizationStatus {
+        if #available(iOS 14.0, *) {
+            return locationManager.authorizationStatus
+        } else {
+            return CLLocationManager.authorizationStatus()
+        }
+    }
 
     private func mapAuthorizationStatus(_ status: CLAuthorizationStatus) -> String {
         switch status {
