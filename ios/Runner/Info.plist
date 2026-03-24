@@ -53,6 +53,17 @@
 	<string>Taptime uses your location to detect when you arrive at registered places and suggest starting a timer.</string>
 	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
 	<string>Taptime uses your location in the background to detect when you arrive at registered places and suggest starting a timer, even when the app is closed.</string>
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>com.googleusercontent.apps.686623343403-8ct9n0g6kfdf5h5d2i7i4hsmv29ihunt</string>
+			</array>
+		</dict>
+	</array>
 	<key>UIBackgroundModes</key>
 	<array>
 		<string>location</string>
