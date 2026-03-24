@@ -6,7 +6,7 @@
 
 ## Current Status
 
-- **Active Phase:** v2.1 Location-Based Auto Tracking — Phase A-E 전체 완료
+- **Active Phase:** v2.1 완료 + 지도 피커 UX 개선 완료. 다음: v2.2 macOS Activity Monitor
 - **Last Updated:** 2026-03-24
 - **Blocker:** None
 
@@ -55,6 +55,17 @@ v2.1 Location-Based Auto Tracking — Phase A-D 완료:
 - Manual Session Entry in PRD but not in PLAN/BACKLOG
 
 ## Recent Work
+
+### 2026-03-24 — 지도 피커 UX 개선
+
+- **현재 위치:** geolocator 추가, 권한 요청 후 GPS 위치로 지도 초기화 (fallback: 서울시청)
+- **장소 검색:** Nominatim → Kakao Local API 교체 (한국 POI 품질 대폭 향상)
+  - 카테고리 그룹명 + 도로명 주소 표시, 현재 위치 기준 거리순 정렬
+  - REST API 키는 .env → String.fromEnvironment 주입
+- **지도 컨트롤:** +/- 줌 버튼, 현재 위치 이동 버튼, 검색 버튼
+- **마커 개선:** 현재 위치 파란 점, 선택 핀 그림자 점 추가
+- **의존성:** geolocator ^14.0.2, http ^1.6.0
+- **실기기 테스트:** iPhone에서 빌드 + 실행 확인 (코드 서명, DEVELOPMENT_TEAM 설정)
 
 ### 2026-03-24 — v2.1 Phase E: Polish 완료
 
