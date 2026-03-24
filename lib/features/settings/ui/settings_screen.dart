@@ -95,6 +95,8 @@ class SettingsScreen extends ConsumerWidget {
                 value: settings.locationTrackingEnabled,
                 onChanged: (value) => _toggleLocationTracking(context, ref, settings, value),
               ),
+              // 권한 상태 표시 (트래킹 활성화 시)
+              if (settings.locationTrackingEnabled) _PermissionStatusTile(ref: ref),
             ],
 
             const Divider(height: AppSpacing.sectionGap * 2),
@@ -189,9 +191,14 @@ class SettingsScreen extends ConsumerWidget {
 
     if (confirmed != true) return;
 
+    // 위치 트리거 삭제 + 네이티브 영역 제거 (프리셋 FK보다 먼저 삭제)
+    await ref.read(locationTriggerRepositoryProvider).deleteAllTriggers();
+    if (Platform.isIOS) {
+      await ref.read(geofenceServiceProvider).removeAllRegions();
+    }
     // 프리셋 삭제 (CASCADE로 세션, 활성 타이머도 함께 삭제됨)
     await ref.read(presetRepositoryProvider).deleteAllPresets();
-    // 설정을 기본값으로 복원
+    // 설정을 기본값으로 복원 (locationTrackingEnabled도 false로 리셋)
     await ref.read(userSettingsRepositoryProvider).updateSettings(UserSettings.defaults());
     // 기본 프리셋 재생성 (앱 초기화 로직 재실행 후 완료 대기)
     ref.invalidate(appInitProvider);
@@ -279,6 +286,63 @@ class _AccountSection extends ConsumerWidget {
         const SnackBar(content: Text('로그아웃되었습니다.')),
       );
     }
+  }
+}
+
+/// 위치 권한 상태를 확인하여 표시하는 타일.
+///
+/// Always 권한이 아니면 경고 메시지를 보여준다.
+/// denied/restricted 상태에서는 iOS 설정에서만 변경 가능하다.
+class _PermissionStatusTile extends StatelessWidget {
+  const _PermissionStatusTile({required this.ref});
+
+  final WidgetRef ref;
+
+  @override
+  Widget build(BuildContext context) {
+    return FutureBuilder<GeofencePermissionStatus>(
+      future: ref.read(geofenceServiceProvider).checkPermission(),
+      builder: (context, snapshot) {
+        final status = snapshot.data;
+        if (status == null || status == GeofencePermissionStatus.authorizedAlways) {
+          return const SizedBox.shrink();
+        }
+
+        final (icon, label) = switch (status) {
+          GeofencePermissionStatus.authorizedWhenInUse => (
+              Icons.warning_amber_rounded,
+              '설정 > 위치에서 "항상 허용"으로 변경해주세요',
+            ),
+          GeofencePermissionStatus.denied => (
+              Icons.location_off,
+              '설정 > 위치에서 위치 권한을 허용해주세요',
+            ),
+          GeofencePermissionStatus.restricted => (
+              Icons.lock_outline,
+              '기기 제한으로 위치 서비스를 사용할 수 없습니다',
+            ),
+          _ => (Icons.location_off, '위치 권한을 허용해주세요'),
+        };
+
+        return Padding(
+          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.padding),
+          child: Row(
+            children: [
+              Icon(icon, color: Theme.of(context).colorScheme.error, size: 18),
+              const SizedBox(width: AppSpacing.grid),
+              Expanded(
+                child: Text(
+                  label,
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: Theme.of(context).colorScheme.error,
+                      ),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
   }
 }
 

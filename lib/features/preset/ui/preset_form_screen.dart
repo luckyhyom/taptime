@@ -1,8 +1,11 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:taptime/core/constants/app_constants.dart';
+import 'package:taptime/core/providers/app_providers.dart';
 import 'package:taptime/core/router/app_router.dart';
 import 'package:taptime/core/theme/app_colors.dart';
 import 'package:taptime/core/theme/app_spacing.dart';
@@ -200,6 +203,19 @@ class _PresetFormScreenState extends ConsumerState<PresetFormScreen> {
   /// 지도 피커를 열고, 저장된 LocationTrigger ID를 받아 폼에 연결한다.
   /// [existingTriggerId]가 있으면 수정 모드로 연다.
   Future<void> _openLocationPicker(PresetFormNotifier notifier, {String? existingTriggerId}) async {
+    // 새 등록 시 iOS 20개 영역 제한 확인 (수정은 기존 영역 교체이므로 제한 없음)
+    if (existingTriggerId == null && Platform.isIOS) {
+      final regionIds = await ref.read(geofenceServiceProvider).getMonitoredRegionIds();
+      if (regionIds.length >= 20 && mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('최대 20개 장소까지만 등록할 수 있습니다.')),
+        );
+        return;
+      }
+    }
+
+    if (!mounted) return;
+
     final route =
         existingTriggerId != null ? AppRoutes.locationEditPath(existingTriggerId) : AppRoutes.locationPicker;
     // push<String>: 지도 피커가 pop(triggerId)하면 여기서 결과를 받는다.
