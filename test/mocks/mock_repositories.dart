@@ -9,6 +9,8 @@ import 'package:taptime/shared/repositories/active_timer_repository.dart';
 import 'package:taptime/shared/repositories/preset_repository.dart';
 import 'package:taptime/shared/repositories/session_repository.dart';
 import 'package:taptime/shared/repositories/user_settings_repository.dart';
+import 'package:taptime/shared/repositories/location_trigger_repository.dart';
+import 'package:taptime/shared/services/geofence_service.dart';
 import 'package:taptime/shared/services/sync_service.dart';
 
 // ── 리포지토리 ────────────────────────────────────────────────
@@ -20,6 +22,12 @@ class MockSessionRepository extends Mock implements SessionRepository {}
 class MockActiveTimerRepository extends Mock implements ActiveTimerRepository {}
 
 class MockUserSettingsRepository extends Mock implements UserSettingsRepository {}
+
+class MockLocationTriggerRepository extends Mock implements LocationTriggerRepository {}
+
+// ── 지오펜스 ──────────────────────────────────────────────────
+
+class MockGeofenceService extends Mock implements GeofenceService {}
 
 // ── 동기화 ────────────────────────────────────────────────────
 
