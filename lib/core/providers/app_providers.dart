@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart' hide Session;
 
@@ -23,7 +25,10 @@ import 'package:taptime/shared/repositories/location_trigger_repository.dart';
 import 'package:taptime/shared/repositories/preset_repository.dart';
 import 'package:taptime/shared/repositories/session_repository.dart';
 import 'package:taptime/shared/repositories/user_settings_repository.dart';
+import 'package:taptime/shared/services/geofence_service.dart';
 import 'package:taptime/shared/services/sync_service.dart';
+import 'package:taptime/features/location/data/geofence_service_impl.dart';
+import 'package:taptime/features/location/data/noop_geofence_service.dart';
 
 // ── 데이터베이스 ──────────────────────────────────────────────
 
@@ -78,6 +83,22 @@ final syncStatusProvider = StreamProvider<SyncStatus>((ref) {
 final lastSyncTimeProvider = FutureProvider<DateTime?>((ref) async {
   ref.watch(syncStatusProvider);
   return SyncMetadata.getLastSyncTime();
+});
+
+// ── 지오펜스 ──────────────────────────────────────────────────
+
+/// 지오펜스 서비스 프로바이더 (iOS 전용 플랫폼 채널).
+///
+/// iOS에서는 CLLocationManager 기반 GeofenceServiceImpl을 사용하고,
+/// 그 외 플랫폼에서는 NoopGeofenceService를 반환한다.
+/// Phase D에서 GeofenceManager가 이 서비스를 사용하여 영역 모니터링을 관리한다.
+final geofenceServiceProvider = Provider<GeofenceService>((ref) {
+  if (Platform.isIOS) {
+    final service = GeofenceServiceImpl();
+    ref.onDispose(service.dispose);
+    return service;
+  }
+  return NoopGeofenceService();
 });
 
 // ── 리포지토리 ────────────────────────────────────────────────
