@@ -220,6 +220,21 @@ class PresetFormNotifier extends AutoDisposeFamilyNotifier<PresetFormState, Stri
     }
   }
 
+  /// 현재 프리셋을 보관한다. 성공하면 true, 실패하면 false를 반환한다.
+  Future<bool> archive() async {
+    if (_presetId == null) return false;
+
+    state = state.copyWith(isSubmitting: true, clearError: true);
+
+    try {
+      await ref.read(presetRepositoryProvider).archivePreset(_presetId!);
+      return true;
+    } on Exception catch (e) {
+      state = state.copyWith(isSubmitting: false, error: e.toString());
+      return false;
+    }
+  }
+
   /// 현재 프리셋을 삭제한다. 성공하면 true, 실패하면 false를 반환한다.
   Future<bool> delete() async {
     if (_presetId == null) return false;

@@ -181,8 +181,11 @@ final userSettingsRepositoryProvider = Provider<UserSettingsRepository>((ref) {
 ///
 /// 여러 feature(history, stats 등)에서 세션의 프리셋 정보를
 /// 조회할 때 공유한다. 프리셋이 변경되면 자동으로 맵이 갱신된다.
+/// 보관된 프리셋도 포함하는 프리셋 맵.
+/// 히스토리/통계에서 보관된 프리셋의 이름/아이콘을 표시해야 하므로
+/// watchAllPresetsIncludingArchived()를 사용한다.
 final presetMapProvider = StreamProvider<Map<String, Preset>>((ref) {
-  return ref.watch(presetRepositoryProvider).watchAllPresets().map(
+  return ref.watch(presetRepositoryProvider).watchAllPresetsIncludingArchived().map(
         (presets) => {for (final p in presets) p.id: p},
       );
 });

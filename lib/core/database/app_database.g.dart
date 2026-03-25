@@ -927,6 +927,17 @@ class $PresetsTable extends Presets with TableInfo<$PresetsTable, PresetRow> {
     type: DriftSqlType.dateTime,
     requiredDuringInsert: false,
   );
+  static const VerificationMeta _archivedAtMeta = const VerificationMeta(
+    'archivedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> archivedAt = GeneratedColumn<DateTime>(
+    'archived_at',
+    aliasedName,
+    true,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+  );
   static const VerificationMeta _locationTriggerIdMeta = const VerificationMeta(
     'locationTriggerId',
   );
@@ -956,6 +967,7 @@ class $PresetsTable extends Presets with TableInfo<$PresetsTable, PresetRow> {
     deletedAt,
     syncStatus,
     lastSyncedAt,
+    archivedAt,
     locationTriggerId,
   ];
   @override
@@ -1058,6 +1070,12 @@ class $PresetsTable extends Presets with TableInfo<$PresetsTable, PresetRow> {
         ),
       );
     }
+    if (data.containsKey('archived_at')) {
+      context.handle(
+        _archivedAtMeta,
+        archivedAt.isAcceptableOrUnknown(data['archived_at']!, _archivedAtMeta),
+      );
+    }
     if (data.containsKey('location_trigger_id')) {
       context.handle(
         _locationTriggerIdMeta,
@@ -1124,6 +1142,10 @@ class $PresetsTable extends Presets with TableInfo<$PresetsTable, PresetRow> {
         DriftSqlType.dateTime,
         data['${effectivePrefix}last_synced_at'],
       ),
+      archivedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}archived_at'],
+      ),
       locationTriggerId: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}location_trigger_id'],
@@ -1171,6 +1193,9 @@ class PresetRow extends DataClass implements Insertable<PresetRow> {
   /// 마지막으로 클라우드와 동기화된 시각
   final DateTime? lastSyncedAt;
 
+  /// 보관된 시각. null이면 활성, non-null이면 보관됨.
+  final DateTime? archivedAt;
+
   /// 연결된 위치 트리거의 id.
   /// 위치 트리거가 삭제되면 null로 설정된다.
   final String? locationTriggerId;
@@ -1187,6 +1212,7 @@ class PresetRow extends DataClass implements Insertable<PresetRow> {
     this.deletedAt,
     required this.syncStatus,
     this.lastSyncedAt,
+    this.archivedAt,
     this.locationTriggerId,
   });
   @override
@@ -1207,6 +1233,9 @@ class PresetRow extends DataClass implements Insertable<PresetRow> {
     map['sync_status'] = Variable<String>(syncStatus);
     if (!nullToAbsent || lastSyncedAt != null) {
       map['last_synced_at'] = Variable<DateTime>(lastSyncedAt);
+    }
+    if (!nullToAbsent || archivedAt != null) {
+      map['archived_at'] = Variable<DateTime>(archivedAt);
     }
     if (!nullToAbsent || locationTriggerId != null) {
       map['location_trigger_id'] = Variable<String>(locationTriggerId);
@@ -1232,6 +1261,9 @@ class PresetRow extends DataClass implements Insertable<PresetRow> {
       lastSyncedAt: lastSyncedAt == null && nullToAbsent
           ? const Value.absent()
           : Value(lastSyncedAt),
+      archivedAt: archivedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(archivedAt),
       locationTriggerId: locationTriggerId == null && nullToAbsent
           ? const Value.absent()
           : Value(locationTriggerId),
@@ -1256,6 +1288,7 @@ class PresetRow extends DataClass implements Insertable<PresetRow> {
       deletedAt: serializer.fromJson<DateTime?>(json['deletedAt']),
       syncStatus: serializer.fromJson<String>(json['syncStatus']),
       lastSyncedAt: serializer.fromJson<DateTime?>(json['lastSyncedAt']),
+      archivedAt: serializer.fromJson<DateTime?>(json['archivedAt']),
       locationTriggerId: serializer.fromJson<String?>(
         json['locationTriggerId'],
       ),
@@ -1277,6 +1310,7 @@ class PresetRow extends DataClass implements Insertable<PresetRow> {
       'deletedAt': serializer.toJson<DateTime?>(deletedAt),
       'syncStatus': serializer.toJson<String>(syncStatus),
       'lastSyncedAt': serializer.toJson<DateTime?>(lastSyncedAt),
+      'archivedAt': serializer.toJson<DateTime?>(archivedAt),
       'locationTriggerId': serializer.toJson<String?>(locationTriggerId),
     };
   }
@@ -1294,6 +1328,7 @@ class PresetRow extends DataClass implements Insertable<PresetRow> {
     Value<DateTime?> deletedAt = const Value.absent(),
     String? syncStatus,
     Value<DateTime?> lastSyncedAt = const Value.absent(),
+    Value<DateTime?> archivedAt = const Value.absent(),
     Value<String?> locationTriggerId = const Value.absent(),
   }) => PresetRow(
     id: id ?? this.id,
@@ -1308,6 +1343,7 @@ class PresetRow extends DataClass implements Insertable<PresetRow> {
     deletedAt: deletedAt.present ? deletedAt.value : this.deletedAt,
     syncStatus: syncStatus ?? this.syncStatus,
     lastSyncedAt: lastSyncedAt.present ? lastSyncedAt.value : this.lastSyncedAt,
+    archivedAt: archivedAt.present ? archivedAt.value : this.archivedAt,
     locationTriggerId: locationTriggerId.present
         ? locationTriggerId.value
         : this.locationTriggerId,
@@ -1334,6 +1370,9 @@ class PresetRow extends DataClass implements Insertable<PresetRow> {
       lastSyncedAt: data.lastSyncedAt.present
           ? data.lastSyncedAt.value
           : this.lastSyncedAt,
+      archivedAt: data.archivedAt.present
+          ? data.archivedAt.value
+          : this.archivedAt,
       locationTriggerId: data.locationTriggerId.present
           ? data.locationTriggerId.value
           : this.locationTriggerId,
@@ -1355,6 +1394,7 @@ class PresetRow extends DataClass implements Insertable<PresetRow> {
           ..write('deletedAt: $deletedAt, ')
           ..write('syncStatus: $syncStatus, ')
           ..write('lastSyncedAt: $lastSyncedAt, ')
+          ..write('archivedAt: $archivedAt, ')
           ..write('locationTriggerId: $locationTriggerId')
           ..write(')'))
         .toString();
@@ -1374,6 +1414,7 @@ class PresetRow extends DataClass implements Insertable<PresetRow> {
     deletedAt,
     syncStatus,
     lastSyncedAt,
+    archivedAt,
     locationTriggerId,
   );
   @override
@@ -1392,6 +1433,7 @@ class PresetRow extends DataClass implements Insertable<PresetRow> {
           other.deletedAt == this.deletedAt &&
           other.syncStatus == this.syncStatus &&
           other.lastSyncedAt == this.lastSyncedAt &&
+          other.archivedAt == this.archivedAt &&
           other.locationTriggerId == this.locationTriggerId);
 }
 
@@ -1408,6 +1450,7 @@ class PresetsCompanion extends UpdateCompanion<PresetRow> {
   final Value<DateTime?> deletedAt;
   final Value<String> syncStatus;
   final Value<DateTime?> lastSyncedAt;
+  final Value<DateTime?> archivedAt;
   final Value<String?> locationTriggerId;
   final Value<int> rowid;
   const PresetsCompanion({
@@ -1423,6 +1466,7 @@ class PresetsCompanion extends UpdateCompanion<PresetRow> {
     this.deletedAt = const Value.absent(),
     this.syncStatus = const Value.absent(),
     this.lastSyncedAt = const Value.absent(),
+    this.archivedAt = const Value.absent(),
     this.locationTriggerId = const Value.absent(),
     this.rowid = const Value.absent(),
   });
@@ -1439,6 +1483,7 @@ class PresetsCompanion extends UpdateCompanion<PresetRow> {
     this.deletedAt = const Value.absent(),
     this.syncStatus = const Value.absent(),
     this.lastSyncedAt = const Value.absent(),
+    this.archivedAt = const Value.absent(),
     this.locationTriggerId = const Value.absent(),
     this.rowid = const Value.absent(),
   }) : id = Value(id),
@@ -1459,6 +1504,7 @@ class PresetsCompanion extends UpdateCompanion<PresetRow> {
     Expression<DateTime>? deletedAt,
     Expression<String>? syncStatus,
     Expression<DateTime>? lastSyncedAt,
+    Expression<DateTime>? archivedAt,
     Expression<String>? locationTriggerId,
     Expression<int>? rowid,
   }) {
@@ -1475,6 +1521,7 @@ class PresetsCompanion extends UpdateCompanion<PresetRow> {
       if (deletedAt != null) 'deleted_at': deletedAt,
       if (syncStatus != null) 'sync_status': syncStatus,
       if (lastSyncedAt != null) 'last_synced_at': lastSyncedAt,
+      if (archivedAt != null) 'archived_at': archivedAt,
       if (locationTriggerId != null) 'location_trigger_id': locationTriggerId,
       if (rowid != null) 'rowid': rowid,
     });
@@ -1493,6 +1540,7 @@ class PresetsCompanion extends UpdateCompanion<PresetRow> {
     Value<DateTime?>? deletedAt,
     Value<String>? syncStatus,
     Value<DateTime?>? lastSyncedAt,
+    Value<DateTime?>? archivedAt,
     Value<String?>? locationTriggerId,
     Value<int>? rowid,
   }) {
@@ -1509,6 +1557,7 @@ class PresetsCompanion extends UpdateCompanion<PresetRow> {
       deletedAt: deletedAt ?? this.deletedAt,
       syncStatus: syncStatus ?? this.syncStatus,
       lastSyncedAt: lastSyncedAt ?? this.lastSyncedAt,
+      archivedAt: archivedAt ?? this.archivedAt,
       locationTriggerId: locationTriggerId ?? this.locationTriggerId,
       rowid: rowid ?? this.rowid,
     );
@@ -1553,6 +1602,9 @@ class PresetsCompanion extends UpdateCompanion<PresetRow> {
     if (lastSyncedAt.present) {
       map['last_synced_at'] = Variable<DateTime>(lastSyncedAt.value);
     }
+    if (archivedAt.present) {
+      map['archived_at'] = Variable<DateTime>(archivedAt.value);
+    }
     if (locationTriggerId.present) {
       map['location_trigger_id'] = Variable<String>(locationTriggerId.value);
     }
@@ -1577,6 +1629,7 @@ class PresetsCompanion extends UpdateCompanion<PresetRow> {
           ..write('deletedAt: $deletedAt, ')
           ..write('syncStatus: $syncStatus, ')
           ..write('lastSyncedAt: $lastSyncedAt, ')
+          ..write('archivedAt: $archivedAt, ')
           ..write('locationTriggerId: $locationTriggerId, ')
           ..write('rowid: $rowid')
           ..write(')'))
@@ -3795,6 +3848,7 @@ typedef $$PresetsTableCreateCompanionBuilder =
       Value<DateTime?> deletedAt,
       Value<String> syncStatus,
       Value<DateTime?> lastSyncedAt,
+      Value<DateTime?> archivedAt,
       Value<String?> locationTriggerId,
       Value<int> rowid,
     });
@@ -3812,6 +3866,7 @@ typedef $$PresetsTableUpdateCompanionBuilder =
       Value<DateTime?> deletedAt,
       Value<String> syncStatus,
       Value<DateTime?> lastSyncedAt,
+      Value<DateTime?> archivedAt,
       Value<String?> locationTriggerId,
       Value<int> rowid,
     });
@@ -3945,6 +4000,11 @@ class $$PresetsTableFilterComposer
 
   ColumnFilters<DateTime> get lastSyncedAt => $composableBuilder(
     column: $table.lastSyncedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get archivedAt => $composableBuilder(
+    column: $table.archivedAt,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -4091,6 +4151,11 @@ class $$PresetsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<DateTime> get archivedAt => $composableBuilder(
+    column: $table.archivedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   $$LocationTriggersTableOrderingComposer get locationTriggerId {
     final $$LocationTriggersTableOrderingComposer composer = $composerBuilder(
       composer: this,
@@ -4165,6 +4230,11 @@ class $$PresetsTableAnnotationComposer
 
   GeneratedColumn<DateTime> get lastSyncedAt => $composableBuilder(
     column: $table.lastSyncedAt,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<DateTime> get archivedAt => $composableBuilder(
+    column: $table.archivedAt,
     builder: (column) => column,
   );
 
@@ -4286,6 +4356,7 @@ class $$PresetsTableTableManager
                 Value<DateTime?> deletedAt = const Value.absent(),
                 Value<String> syncStatus = const Value.absent(),
                 Value<DateTime?> lastSyncedAt = const Value.absent(),
+                Value<DateTime?> archivedAt = const Value.absent(),
                 Value<String?> locationTriggerId = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => PresetsCompanion(
@@ -4301,6 +4372,7 @@ class $$PresetsTableTableManager
                 deletedAt: deletedAt,
                 syncStatus: syncStatus,
                 lastSyncedAt: lastSyncedAt,
+                archivedAt: archivedAt,
                 locationTriggerId: locationTriggerId,
                 rowid: rowid,
               ),
@@ -4318,6 +4390,7 @@ class $$PresetsTableTableManager
                 Value<DateTime?> deletedAt = const Value.absent(),
                 Value<String> syncStatus = const Value.absent(),
                 Value<DateTime?> lastSyncedAt = const Value.absent(),
+                Value<DateTime?> archivedAt = const Value.absent(),
                 Value<String?> locationTriggerId = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => PresetsCompanion.insert(
@@ -4333,6 +4406,7 @@ class $$PresetsTableTableManager
                 deletedAt: deletedAt,
                 syncStatus: syncStatus,
                 lastSyncedAt: lastSyncedAt,
+                archivedAt: archivedAt,
                 locationTriggerId: locationTriggerId,
                 rowid: rowid,
               ),

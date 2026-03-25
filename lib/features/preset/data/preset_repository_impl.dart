@@ -24,6 +24,7 @@ class PresetRepositoryImpl implements PresetRepository {
     // orderBy로 정렬 순서를 지정하고, get()으로 실행한다.
     final rows = await (_db.select(_db.presets)
           ..where((t) => t.deletedAt.isNull())
+          ..where((t) => t.archivedAt.isNull())
           ..orderBy([(t) => OrderingTerm.asc(t.sortOrder)]))
         .get();
     return rows.map(_toModel).toList();
@@ -35,6 +36,7 @@ class PresetRepositoryImpl implements PresetRepository {
     // DB에 변경이 생기면 자동으로 새 결과를 emit한다.
     return (_db.select(_db.presets)
           ..where((t) => t.deletedAt.isNull())
+          ..where((t) => t.archivedAt.isNull())
           ..orderBy([(t) => OrderingTerm.asc(t.sortOrder)]))
         .watch()
         .map((rows) => rows.map(_toModel).toList());
@@ -71,6 +73,49 @@ class PresetRepositoryImpl implements PresetRepository {
         syncStatus: const Value(SyncStatusDb.pending),
       ),
     );
+  }
+
+  @override
+  Future<void> archivePreset(String id) async {
+    final now = DateTime.now();
+    await (_db.update(_db.presets)..where((t) => t.id.equals(id))).write(
+      PresetsCompanion(
+        archivedAt: Value(now),
+        updatedAt: Value(now),
+        syncStatus: const Value(SyncStatusDb.pending),
+      ),
+    );
+  }
+
+  @override
+  Future<void> unarchivePreset(String id) async {
+    final now = DateTime.now();
+    await (_db.update(_db.presets)..where((t) => t.id.equals(id))).write(
+      PresetsCompanion(
+        archivedAt: const Value(null),
+        updatedAt: Value(now),
+        syncStatus: const Value(SyncStatusDb.pending),
+      ),
+    );
+  }
+
+  @override
+  Future<List<Preset>> getArchivedPresets() async {
+    final rows = await (_db.select(_db.presets)
+          ..where((t) => t.deletedAt.isNull())
+          ..where((t) => t.archivedAt.isNotNull())
+          ..orderBy([(t) => OrderingTerm.desc(t.archivedAt)]))
+        .get();
+    return rows.map(_toModel).toList();
+  }
+
+  @override
+  Stream<List<Preset>> watchAllPresetsIncludingArchived() {
+    return (_db.select(_db.presets)
+          ..where((t) => t.deletedAt.isNull())
+          ..orderBy([(t) => OrderingTerm.asc(t.sortOrder)]))
+        .watch()
+        .map((rows) => rows.map(_toModel).toList());
   }
 
   @override
@@ -114,6 +159,7 @@ class PresetRepositoryImpl implements PresetRepository {
       createdAt: row.createdAt,
       updatedAt: row.updatedAt,
       locationTriggerId: row.locationTriggerId,
+      archivedAt: row.archivedAt,
     );
   }
 
@@ -132,6 +178,7 @@ class PresetRepositoryImpl implements PresetRepository {
       createdAt: Value(preset.createdAt),
       updatedAt: Value(preset.updatedAt),
       locationTriggerId: Value(preset.locationTriggerId),
+      archivedAt: Value(preset.archivedAt),
       syncStatus: const Value(SyncStatusDb.pending),
     );
   }

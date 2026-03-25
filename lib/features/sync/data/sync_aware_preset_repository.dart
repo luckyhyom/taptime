@@ -25,6 +25,12 @@ class SyncAwarePresetRepository implements PresetRepository {
   @override
   Future<Preset?> getPresetById(String id) => _inner.getPresetById(id);
 
+  @override
+  Future<List<Preset>> getArchivedPresets() => _inner.getArchivedPresets();
+
+  @override
+  Stream<List<Preset>> watchAllPresetsIncludingArchived() => _inner.watchAllPresetsIncludingArchived();
+
   // ── 쓰기 (위임 + 동기화 트리거) ──────────────────────────
 
   @override
@@ -48,6 +54,18 @@ class SyncAwarePresetRepository implements PresetRepository {
   @override
   Future<void> updateSortOrder(Map<String, int> idToSortOrder) async {
     await _inner.updateSortOrder(idToSortOrder);
+    unawaited(_syncService.syncNow());
+  }
+
+  @override
+  Future<void> archivePreset(String id) async {
+    await _inner.archivePreset(id);
+    unawaited(_syncService.syncNow());
+  }
+
+  @override
+  Future<void> unarchivePreset(String id) async {
+    await _inner.unarchivePreset(id);
     unawaited(_syncService.syncNow());
   }
 

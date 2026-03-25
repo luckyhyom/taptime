@@ -21,6 +21,7 @@ class Preset {
     required this.createdAt,
     required this.updatedAt,
     this.locationTriggerId,
+    this.archivedAt,
   })  : assert(durationMin >= 0 && durationMin <= 180, 'durationMin must be 0~180 (0 = unlimited)'),
         assert(name.isNotEmpty && name.length <= 20, 'name must be 1~20 chars'),
         assert(dailyGoalMin >= 0, 'dailyGoalMin must be >= 0');
@@ -41,6 +42,7 @@ class Preset {
       createdAt: _parseDateTime(map['createdAt']),
       updatedAt: _parseDateTime(map['updatedAt']),
       locationTriggerId: map['locationTriggerId'] as String?,
+      archivedAt: map['archivedAt'] == null ? null : _parseDateTime(map['archivedAt']),
     );
   }
 
@@ -76,6 +78,9 @@ class Preset {
   /// 연결된 위치 트리거의 id. null이면 위치 트리거 없음.
   final String? locationTriggerId;
 
+  /// 보관된 시각. null이면 활성 상태, 값이 있으면 보관됨.
+  final DateTime? archivedAt;
+
   /// 일부 필드만 변경한 새 인스턴스를 반환.
   ///
   /// 불변 객체이므로 직접 수정할 수 없고,
@@ -91,6 +96,7 @@ class Preset {
     int? sortOrder,
     DateTime? updatedAt,
     String? locationTriggerId,
+    DateTime? archivedAt,
   }) {
     return Preset(
       id: id,
@@ -103,6 +109,7 @@ class Preset {
       createdAt: createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
       locationTriggerId: locationTriggerId ?? this.locationTriggerId,
+      archivedAt: archivedAt ?? this.archivedAt,
     );
   }
 
@@ -146,6 +153,7 @@ class Preset {
       'createdAt': createdAt.toIso8601String(),
       'updatedAt': updatedAt.toIso8601String(),
       'locationTriggerId': locationTriggerId,
+      'archivedAt': archivedAt?.toIso8601String(),
     };
   }
 

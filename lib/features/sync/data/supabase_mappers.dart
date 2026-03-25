@@ -28,6 +28,7 @@ class SupabaseMappers {
       'created_at': row.createdAt.toUtc().toIso8601String(),
       'updated_at': row.updatedAt.toUtc().toIso8601String(),
       'location_trigger_id': row.locationTriggerId,
+      'archived_at': row.archivedAt?.toUtc().toIso8601String(),
     };
   }
 
@@ -44,6 +45,7 @@ class SupabaseMappers {
       createdAt: DateTime.parse(json['created_at'] as String),
       updatedAt: DateTime.parse(json['updated_at'] as String),
       locationTriggerId: json['location_trigger_id'] as String?,
+      archivedAt: json['archived_at'] == null ? null : DateTime.parse(json['archived_at'] as String),
     );
   }
 

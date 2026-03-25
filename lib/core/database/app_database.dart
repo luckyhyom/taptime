@@ -26,7 +26,7 @@ class AppDatabase extends _$AppDatabase {
   /// 스키마 버전 — 테이블 구조를 변경할 때마다 이 값을 올린다.
   /// Drift가 이전 버전과 비교하여 마이그레이션을 실행한다.
   @override
-  int get schemaVersion => 3;
+  int get schemaVersion => 4;
 
   /// SQLite 파일 연결을 생성한다.
   ///
@@ -79,6 +79,10 @@ class AppDatabase extends _$AppDatabase {
         await m.createTable(locationTriggers);
         await m.addColumn(presets, presets.locationTriggerId);
         await m.addColumn(userSettingsTable, userSettingsTable.locationTrackingEnabled);
+      }
+      if (from < 4) {
+        // 프리셋 보관(archive) 기능
+        await m.addColumn(presets, presets.archivedAt);
       }
     },
     beforeOpen: (details) async {

@@ -56,6 +56,9 @@ class Presets extends Table {
   /// 마지막으로 클라우드와 동기화된 시각
   DateTimeColumn get lastSyncedAt => dateTime().nullable()();
 
+  /// 보관된 시각. null이면 활성, non-null이면 보관됨.
+  DateTimeColumn get archivedAt => dateTime().nullable()();
+
   /// 연결된 위치 트리거의 id.
   /// 위치 트리거가 삭제되면 null로 설정된다.
   TextColumn get locationTriggerId =>

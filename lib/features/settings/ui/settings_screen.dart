@@ -103,6 +103,12 @@ class SettingsScreen extends ConsumerWidget {
 
             // ── 데이터 ────────────────────────────────────────
             ListTile(
+              leading: const Icon(Icons.archive_outlined),
+              title: const Text('보관된 프리셋'),
+              subtitle: const Text('보관한 프리셋을 복원하거나 삭제합니다'),
+              onTap: () => context.push(AppRoutes.archivedPresets),
+            ),
+            ListTile(
               leading: Icon(Icons.delete_forever, color: Theme.of(context).colorScheme.error),
               title: const Text('모든 데이터 초기화'),
               subtitle: const Text('프리셋, 기록, 설정을 모두 삭제합니다'),

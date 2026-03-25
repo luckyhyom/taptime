@@ -184,9 +184,14 @@ class _PresetFormScreenState extends ConsumerState<PresetFormScreen> {
               onUnlink: notifier.clearLocationTrigger,
             ),
 
-            // ── 삭제 버튼 (수정 모드) ─────────────────────────
+            // ── 보관/삭제 버튼 (수정 모드) ─────────────────────
             if (widget.isEditing) ...[
               const SizedBox(height: AppSpacing.sectionGap * 2),
+              _ArchiveButton(
+                isSubmitting: state.isSubmitting,
+                onArchive: () => _confirmArchive(notifier),
+              ),
+              const SizedBox(height: AppSpacing.gap),
               _DeleteButton(
                 isSubmitting: state.isSubmitting,
                 onDelete: () => _confirmDelete(notifier),
@@ -227,6 +232,41 @@ class _PresetFormScreenState extends ConsumerState<PresetFormScreen> {
 
   Future<void> _save(PresetFormNotifier notifier) async {
     final success = await notifier.save();
+    if (success && mounted) context.pop();
+  }
+
+  Future<void> _confirmArchive(PresetFormNotifier notifier) async {
+    // 타이머가 실행 중인 프리셋은 보관 불가
+    final activeTimer = ref.read(activeTimerRepositoryProvider).watchActiveTimer();
+    final timer = await activeTimer.first;
+    if (timer != null && timer.presetId == widget.presetId && mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('타이머가 실행 중인 프리셋은 보관할 수 없습니다.')),
+      );
+      return;
+    }
+
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('프리셋 보관'),
+        content: const Text('이 프리셋을 보관하시겠습니까?\n홈 화면에서 숨겨지며, 설정에서 복원할 수 있습니다.'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text('취소'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            child: const Text('보관'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed != true) return;
+
+    final success = await notifier.archive();
     if (success && mounted) context.pop();
   }
 
@@ -530,6 +570,31 @@ class _LocationTriggerSection extends StatelessWidget {
 }
 
 /// 프리셋 삭제 버튼 (수정 모드에서만 표시).
+class _ArchiveButton extends StatelessWidget {
+  const _ArchiveButton({
+    required this.isSubmitting,
+    required this.onArchive,
+  });
+
+  final bool isSubmitting;
+  final VoidCallback onArchive;
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: double.infinity,
+      child: OutlinedButton.icon(
+        onPressed: isSubmitting ? null : onArchive,
+        icon: const Icon(Icons.archive_outlined),
+        label: const Text('프리셋 보관'),
+        style: OutlinedButton.styleFrom(
+          padding: const EdgeInsets.symmetric(vertical: 14),
+        ),
+      ),
+    );
+  }
+}
+
 class _DeleteButton extends StatelessWidget {
   const _DeleteButton({
     required this.isSubmitting,
