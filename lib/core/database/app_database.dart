@@ -1,7 +1,6 @@
 import 'package:drift/drift.dart';
-import 'package:drift_flutter/drift_flutter.dart';
-import 'package:path_provider/path_provider.dart';
 
+import 'package:taptime/core/database/encrypted_connection.dart';
 import 'package:taptime/core/database/tables.dart';
 
 // Drift 코드 제너레이터가 이 파일을 기반으로 app_database.g.dart를 생성한다.
@@ -28,21 +27,12 @@ class AppDatabase extends _$AppDatabase {
   @override
   int get schemaVersion => 4;
 
-  /// SQLite 파일 연결을 생성한다.
+  /// SQLCipher로 암호화된 SQLite 연결을 생성한다.
   ///
-  /// driftDatabase()는 drift_flutter 패키지가 제공하는 헬퍼로,
-  /// 플랫폼별 SQLite 바이너리 번들링과 백그라운드 isolate를
-  /// 자동으로 처리한다.
+  /// 암호화 키는 Keychain(iOS)/Keystore(Android)에 자동 저장되며,
+  /// 기존 비암호화 DB가 있으면 자동으로 마이그레이션한다.
   static QueryExecutor _openConnection() {
-    return driftDatabase(
-      name: 'taptime',
-      native: const DriftNativeOptions(
-        // 앱의 지원 디렉토리에 DB 파일을 저장한다.
-        // iOS: ~/Library/Application Support/
-        // Android: /data/data/<package>/files/
-        databaseDirectory: getApplicationSupportDirectory,
-      ),
-    );
+    return openEncryptedDatabase();
   }
 
   /// SQLite 외래키 제약조건을 활성화한다.
