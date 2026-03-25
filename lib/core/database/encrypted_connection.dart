@@ -10,9 +10,8 @@ import 'package:sqlcipher_flutter_libs/sqlcipher_flutter_libs.dart';
 
 /// SQLCipher 암호화가 적용된 Drift DB 연결을 생성한다.
 ///
-/// 1. flutter_secure_storage에서 암호화 키를 읽거나, 없으면 새로 생성
-/// 2. 기존 비암호화 DB가 있으면 암호화 DB로 마이그레이션
-/// 3. NativeDatabase.createInBackground로 백그라운드 isolate에서 실행
+/// 기존 비암호화 DB가 있으면 파일을 복사 후 PRAGMA rekey로 암호화한다.
+/// 새 설치면 처음부터 암호화된 DB를 생성한다.
 QueryExecutor openEncryptedDatabase() {
   return LazyDatabase(() async {
     final dbFolder = await getApplicationSupportDirectory();
@@ -26,13 +25,52 @@ QueryExecutor openEncryptedDatabase() {
     }
 
     // 기존 비암호화 DB → 암호화 DB 마이그레이션
-    if (plainFile.existsSync()) {
-      if (encFile.existsSync()) {
-        await encFile.delete();
-      }
-      await _migrateToEncrypted(plainFile, encFile, passphrase);
+    // 비암호화 파일을 복사한 후 rekey로 암호화한다
+    if (plainFile.existsSync() && !encFile.existsSync()) {
+      debugPrint('[EncryptedDB] 비암호화 DB 발견, 마이그레이션 시작');
+      await plainFile.copy(encFile.path);
+      await plainFile.delete();
+      debugPrint('[EncryptedDB] 파일 복사 완료, rekey로 암호화 예정');
+      // encFile은 아직 비암호화 상태 — 아래에서 열 때 rekey를 적용한다
+      return NativeDatabase.createInBackground(
+        encFile,
+        isolateSetup: () async {
+          if (Platform.isAndroid) {
+            await applyWorkaroundToOpenSqlCipherOnOldAndroidVersions();
+          }
+        },
+        setup: (db) {
+          // 비암호화 DB를 열므로 빈 키로 시작
+          db.execute("PRAGMA key = '';");
+          // rekey로 암호화 적용
+          db.execute("PRAGMA rekey = '$passphrase';");
+          debugPrint('[EncryptedDB] rekey 암호화 적용 완료');
+        },
+      );
     }
 
+    // 이미 암호화된 DB가 있거나 새 설치
+    // (비암호화 원본이 남아있고 enc도 있으면 → 이전 마이그레이션 실패 복구)
+    if (plainFile.existsSync() && encFile.existsSync()) {
+      await encFile.delete();
+      await plainFile.copy(encFile.path);
+      await plainFile.delete();
+      return NativeDatabase.createInBackground(
+        encFile,
+        isolateSetup: () async {
+          if (Platform.isAndroid) {
+            await applyWorkaroundToOpenSqlCipherOnOldAndroidVersions();
+          }
+        },
+        setup: (db) {
+          db.execute("PRAGMA key = '';");
+          db.execute("PRAGMA rekey = '$passphrase';");
+          debugPrint('[EncryptedDB] rekey 암호화 적용 완료 (복구)');
+        },
+      );
+    }
+
+    // 정상 경로: 암호화 DB 열기 (또는 새로 생성)
     return NativeDatabase.createInBackground(
       encFile,
       isolateSetup: () async {
@@ -65,44 +103,4 @@ String _generatePassphrase(int length) {
   const chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
   final random = Random.secure();
   return List.generate(length, (_) => chars[random.nextInt(chars.length)]).join();
-}
-
-// ── 마이그레이션 ──────────────────────────────────────────────
-
-/// 기존 비암호화 DB를 암호화 DB로 변환한다.
-///
-/// iOS에서는 raw sqlite3가 시스템 라이브러리를 사용하므로
-/// sqlcipher_export()를 쓸 수 없다.
-/// 대신 NativeDatabase의 setup 콜백에서 SQLCipher를 통해
-/// ATTACH + sqlcipher_export를 실행한다.
-Future<void> _migrateToEncrypted(File plainFile, File encFile, String passphrase) async {
-  try {
-    // NativeDatabase의 setup에서 SQLCipher가 로드된 상태로 마이그레이션한다
-    final migrationDb = NativeDatabase(
-      plainFile,
-      setup: (db) {
-        // 비암호화 DB이므로 key 없이 연다
-        // 새 암호화 DB를 attach하고 데이터를 복사한다
-        db.execute("ATTACH DATABASE '${encFile.path}' AS encrypted KEY '$passphrase';");
-        db.execute("SELECT sqlcipher_export('encrypted');");
-        db.execute('DETACH DATABASE encrypted;');
-      },
-    );
-
-    // setup 콜백이 실행되도록 DB를 열어야 한다
-    // ensureOpen()을 위해 간단한 쿼리 실행
-    await migrationDb.runCustom('SELECT 1');
-    await migrationDb.close();
-
-    // 원본 삭제
-    await plainFile.delete();
-    debugPrint('[EncryptedDB] 비암호화 DB → 암호화 DB 마이그레이션 완료');
-  } on Exception catch (e) {
-    debugPrint('[EncryptedDB] 마이그레이션 실패: $e');
-    if (encFile.existsSync()) {
-      await encFile.delete();
-    }
-    // 마이그레이션 실패 시 원본을 유지하고 비암호화로 폴백
-    rethrow;
-  }
 }
