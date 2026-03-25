@@ -19,9 +19,11 @@ class GeofencePlugin: NSObject, FlutterPlugin, CLLocationManagerDelegate {
     /// 장소 이름 저장 (알림 메시지에 사용).
     ///
     /// 인메모리 전용 — 앱 종료 시 유실된다.
-    /// Phase D에서 GeofenceManager가 앱 시작 시 DB에서 영역을 재등록하므로
-    /// placeNames도 다시 채워진다.
+    /// GeofenceManager가 앱 시작 시 DB에서 영역을 재등록하므로 다시 채워진다.
     private var placeNames: [String: String] = [:]
+
+    /// 프리셋 이름 저장 (알림 메시지에 사용).
+    private var presetNames: [String: String] = [:]
 
     // MARK: - FlutterPlugin Registration
 
@@ -86,6 +88,7 @@ class GeofencePlugin: NSObject, FlutterPlugin, CLLocationManagerDelegate {
             locationManager.stopMonitoring(for: region)
         }
         placeNames.removeAll()
+        presetNames.removeAll()
     }
 
     // MARK: - Region Management
@@ -94,6 +97,7 @@ class GeofencePlugin: NSObject, FlutterPlugin, CLLocationManagerDelegate {
         guard let args = call.arguments as? [String: Any],
               let id = args["id"] as? String,
               let placeName = args["placeName"] as? String,
+              let presetName = args["presetName"] as? String,
               let latitude = args["latitude"] as? Double,
               let longitude = args["longitude"] as? Double,
               let radiusMeters = args["radiusMeters"] as? Int,
@@ -127,6 +131,7 @@ class GeofencePlugin: NSObject, FlutterPlugin, CLLocationManagerDelegate {
         region.notifyOnExit = notifyOnExit
 
         placeNames[id] = placeName
+        presetNames[id] = presetName
         locationManager.startMonitoring(for: region)
         print("[GeofencePlugin] Region registered: \(id) (\(placeName)) at \(latitude),\(longitude) r=\(radiusMeters)m")
         result(nil)
@@ -143,6 +148,7 @@ class GeofencePlugin: NSObject, FlutterPlugin, CLLocationManagerDelegate {
             locationManager.stopMonitoring(for: region)
         }
         placeNames.removeValue(forKey: id)
+        presetNames.removeValue(forKey: id)
         result(nil)
     }
 
@@ -214,15 +220,16 @@ class GeofencePlugin: NSObject, FlutterPlugin, CLLocationManagerDelegate {
     /// Flutter 측으로 이벤트도 전달하지만, 알림은 Flutter 엔진 초기화 전에도 표시된다.
     private func showLocalNotification(regionId: String, eventType: RegionEventType) {
         let placeName = placeNames[regionId] ?? "등록된 장소"
+        let presetName = presetNames[regionId] ?? "타이머"
 
         let content = UNMutableNotificationContent()
         content.title = "Taptime"
 
         switch eventType {
         case .entered:
-            content.body = "\(placeName)에 도착했습니다. 타이머를 시작하시겠습니까?"
+            content.body = "\(presetName) 타이머가 시작되었습니다 (\(placeName))"
         case .exited:
-            content.body = "\(placeName)에서 떠났습니다."
+            content.body = "\(presetName) 타이머가 종료되었습니다 (\(placeName))"
         }
 
         content.sound = .default

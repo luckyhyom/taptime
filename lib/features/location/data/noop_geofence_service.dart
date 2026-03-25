@@ -15,6 +15,7 @@ class NoopGeofenceService implements GeofenceService {
   Future<void> addRegion({
     required String id,
     required String placeName,
+    required String presetName,
     required double latitude,
     required double longitude,
     required int radiusMeters,

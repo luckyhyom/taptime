@@ -49,6 +49,7 @@ void main() {
       await service.addRegion(
         id: 'test-id',
         placeName: '카페',
+        presetName: 'Study',
         latitude: 37.5665,
         longitude: 126.978,
         radiusMeters: 200,
@@ -60,6 +61,7 @@ void main() {
       final args = lastCall?.arguments as Map;
       expect(args['id'], 'test-id');
       expect(args['placeName'], '카페');
+      expect(args['presetName'], 'Study');
       expect(args['latitude'], 37.5665);
       expect(args['longitude'], 126.978);
       expect(args['radiusMeters'], 200);

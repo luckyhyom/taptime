@@ -36,6 +36,7 @@ class GeofenceServiceImpl implements GeofenceService {
   Future<void> addRegion({
     required String id,
     required String placeName,
+    required String presetName,
     required double latitude,
     required double longitude,
     required int radiusMeters,
@@ -45,6 +46,7 @@ class GeofenceServiceImpl implements GeofenceService {
     await _channel.invokeMethod<void>('addRegion', {
       'id': id,
       'placeName': placeName,
+      'presetName': presetName,
       'latitude': latitude,
       'longitude': longitude,
       'radiusMeters': radiusMeters,

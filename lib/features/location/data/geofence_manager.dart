@@ -9,23 +9,22 @@ import 'package:taptime/shared/services/geofence_service.dart';
 
 // ── 지오펜스 액션 ──────────────────────────────────────────────
 
-/// 지오펜스 진입 시 UI에 전달되는 액션.
-///
-/// [autoStart]가 true이면 확인 없이 타이머를 시작하고,
-/// false이면 다이얼로그로 사용자에게 확인을 요청한다.
+/// 지오펜스 진입/퇴장 시 전달되는 액션.
+enum GeofenceActionType { start, stop }
+
 @immutable
 class GeofenceAction {
   const GeofenceAction({
+    required this.type,
     required this.presetId,
     required this.presetName,
     required this.placeName,
-    required this.autoStart,
   });
 
+  final GeofenceActionType type;
   final String presetId;
   final String presetName;
   final String placeName;
-  final bool autoStart;
 }
 
 // ── 지오펜스 매니저 ───────────────────────────────────────────
@@ -113,10 +112,14 @@ class GeofenceManager {
       }
 
       // 모든 트리거를 네이티브 영역으로 등록 (addRegion은 같은 id면 덮어씀)
+      // 알림에 프리셋 이름을 표시하기 위해 연결된 프리셋을 미리 조회한다
+      final allPresets = await _presetRepo.getAllPresets();
       for (final trigger in triggers) {
+        final preset = allPresets.where((p) => p.locationTriggerId == trigger.id).firstOrNull;
         await _geofenceService.addRegion(
           id: trigger.id,
           placeName: trigger.placeName,
+          presetName: preset?.name ?? '타이머',
           latitude: trigger.latitude,
           longitude: trigger.longitude,
           radiusMeters: trigger.radiusMeters,
@@ -131,31 +134,28 @@ class GeofenceManager {
 
   // ── 이벤트 처리 ─────────────────────────────────────────────
 
-  /// 지오펜스 진입 이벤트를 처리한다.
+  /// 지오펜스 진입/퇴장 이벤트를 처리한다.
   ///
-  /// 1. 퇴장 이벤트는 무시 (네이티브 알림만으로 충분)
-  /// 2. regionId로 트리거 조회 → 연결된 프리셋 검색
-  /// 3. 프리셋이 있으면 GeofenceAction을 emit
+  /// 진입: 타이머 자동 시작 액션 emit
+  /// 퇴장: 타이머 자동 정지 액션 emit
   Future<void> _handleEvent(GeofenceEvent event) async {
-    // 진입 이벤트만 처리 — 퇴장 시에는 네이티브 알림만 보여준다
-    if (event.type != GeofenceEventType.entered) return;
     if (_actionController.isClosed) return;
 
     try {
       final trigger = await _triggerRepo.getTriggerById(event.regionId);
       if (trigger == null) return;
 
-      // 이 트리거에 연결된 프리셋을 찾는다
-      // (하루치 프리셋 수는 적으므로 전체 조회 + 필터로 충분)
       final presets = await _presetRepo.getAllPresets();
       final preset = presets.where((p) => p.locationTriggerId == event.regionId).firstOrNull;
       if (preset == null) return;
 
+      final actionType = event.type == GeofenceEventType.entered ? GeofenceActionType.start : GeofenceActionType.stop;
+
       _actionController.add(GeofenceAction(
+        type: actionType,
         presetId: preset.id,
         presetName: preset.name,
         placeName: trigger.placeName,
-        autoStart: trigger.autoStart,
       ));
     } on Exception catch (e) {
       debugPrint('[GeofenceManager] event handling error: $e');

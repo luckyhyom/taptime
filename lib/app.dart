@@ -82,35 +82,27 @@ class _GeofenceEventHandlerState extends ConsumerState<_GeofenceEventHandler> {
   void _handleAction(GeofenceAction action) {
     if (!mounted) return;
 
-    if (action.autoStart) {
-      appRouter.push(AppRoutes.timerPath(action.presetId));
-    } else {
-      _showConfirmDialog(action);
+    switch (action.type) {
+      case GeofenceActionType.start:
+        // 위치 진입 → 타이머 자동 시작
+        appRouter.push(AppRoutes.timerPath(action.presetId));
+      case GeofenceActionType.stop:
+        // 위치 퇴장 → 실행 중인 타이머가 해당 프리셋이면 자동 정지
+        _autoStopIfRunning(action.presetId);
     }
   }
 
-  Future<void> _showConfirmDialog(GeofenceAction action) async {
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: Text('${action.placeName} 도착'),
-        content: Text('${action.presetName} 타이머를 시작하시겠습니까?'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx, false),
-            child: const Text('나중에'),
-          ),
-          FilledButton(
-            onPressed: () => Navigator.pop(ctx, true),
-            child: const Text('시작'),
-          ),
-        ],
-      ),
-    );
-
-    if (confirmed ?? false) {
-      unawaited(appRouter.push(AppRoutes.timerPath(action.presetId)));
-    }
+  /// 현재 실행 중인 타이머가 해당 프리셋이면 정지한다.
+  void _autoStopIfRunning(String presetId) {
+    final activeTimer = ref.read(activeTimerRepositoryProvider).watchActiveTimer();
+    activeTimer.first.then((timer) {
+      if (timer != null && timer.presetId == presetId) {
+        // 타이머 화면으로 이동하여 정지 처리
+        // TimerNotifier가 stop()을 호출해야 세션이 저장되므로
+        // 직접 DB 조작 대신 화면 이동 후 자동 정지
+        appRouter.push(AppRoutes.timerPath(presetId));
+      }
+    });
   }
 
   @override
