@@ -230,6 +230,7 @@ class _LocationPickerScreenState extends ConsumerState<LocationPickerScreen> {
             _selectedPosition = latLng;
             _showSearchPanel = false;
           });
+          _reverseGeocode(latLng);
         },
       ),
       children: [
@@ -478,6 +479,75 @@ class _LocationPickerScreenState extends ConsumerState<LocationPickerScreen> {
       // 검색 실패 — 무시
     } finally {
       if (mounted) setState(() => _isSearching = false);
+    }
+  }
+
+  /// 좌표를 주소/장소명으로 변환한다 (역지오코딩).
+  /// Kakao Local API coord2address + 근처 POI 검색을 병행한다.
+  Future<void> _reverseGeocode(LatLng latLng) async {
+    final apiKey = SupabaseConfig.kakaoRestApiKey;
+    if (apiKey == null) return;
+
+    try {
+      // 1. 근처 POI 검색 (반경 50m, 1개) — 건물/상호명 우선
+      final poiUri = Uri.parse(
+        'https://dapi.kakao.com/v2/local/search/category.json'
+        '?category_group_code='
+        '&x=${latLng.longitude}&y=${latLng.latitude}'
+        '&radius=50&size=1&sort=distance',
+      );
+
+      // 2. 좌표 → 주소 변환 — POI 없을 때 도로명 주소 fallback
+      final addrUri = Uri.parse(
+        'https://dapi.kakao.com/v2/local/geo/coord2address.json'
+        '?x=${latLng.longitude}&y=${latLng.latitude}',
+      );
+
+      final headers = {'Authorization': 'KakaoAK $apiKey'};
+      final responses = await Future.wait([
+        http.get(poiUri, headers: headers),
+        http.get(addrUri, headers: headers),
+      ]);
+
+      if (!mounted) return;
+
+      String? name;
+
+      // POI 결과에서 장소명 추출
+      if (responses[0].statusCode == 200) {
+        final body = json.decode(responses[0].body) as Map<String, dynamic>;
+        final docs = (body['documents'] as List<dynamic>?) ?? [];
+        if (docs.isNotEmpty) {
+          final placeName = (docs[0] as Map<String, dynamic>)['place_name'] as String?;
+          if (placeName != null && placeName.isNotEmpty) {
+            name = placeName;
+          }
+        }
+      }
+
+      // POI 없으면 도로명 주소 사용
+      if (name == null && responses[1].statusCode == 200) {
+        final body = json.decode(responses[1].body) as Map<String, dynamic>;
+        final docs = (body['documents'] as List<dynamic>?) ?? [];
+        if (docs.isNotEmpty) {
+          final doc = docs[0] as Map<String, dynamic>;
+          final roadAddr = doc['road_address'] as Map<String, dynamic>?;
+          final addr = doc['address'] as Map<String, dynamic>?;
+          name = roadAddr?['building_name'] as String?;
+          if (name == null || name.isEmpty) {
+            name = roadAddr?['address_name'] as String? ?? addr?['address_name'] as String?;
+          }
+        }
+      }
+
+      if (name != null && name.isNotEmpty && mounted && _nameController.text.isEmpty) {
+        final trimmed = name.length <= AppConstants.locationNameMaxLength
+            ? name
+            : name.substring(0, AppConstants.locationNameMaxLength);
+        _nameController.text = trimmed;
+      }
+    } on Exception {
+      // 역지오코딩 실패 — 무시 (사용자가 직접 입력 가능)
     }
   }
 
