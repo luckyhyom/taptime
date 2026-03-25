@@ -128,6 +128,20 @@
 - [x] Simulator build fix — SUPPORTED_PLATFORMS iphonesimulator added
 - [x] App icon — peach color finger tap icon
 - [x] Supabase migration — 003_preset_archived_at.sql
+- [x] SQLCipher DB encryption — local DB encryption with Keychain key storage
+
+### App Store Deploy
+
+> See `docs/appstore_deploy/CHECKLIST.md` for full checklist.
+
+- [ ] `ITSAppUsesNonExemptEncryption` in Info.plist
+- [ ] `PrivacyInfo.xcprivacy` privacy manifest
+- [ ] Privacy Policy webpage + URL in App Store Connect
+- [ ] App Privacy Details (nutrition labels)
+- [ ] Export Compliance (SQLCipher AES-256)
+- [ ] Screenshots, description, keywords
+- [ ] Distribution certificate + provisioning profile
+- [ ] Release build + TestFlight
 
 ### v2.2 — macOS Activity Monitor (Companion App)
 

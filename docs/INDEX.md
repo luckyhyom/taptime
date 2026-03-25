@@ -69,6 +69,10 @@ Custom skills available via `/command-name` in Claude Code sessions:
 Skills are defined in `.claude/skills/` (project-specific) and `~/.claude/skills/` (universal).
 Universal skills (`/init-project`) are also available across all projects.
 
+## App Store Deploy
+
+- [Deploy Checklist](appstore_deploy/CHECKLIST.md): Apple App Store 심사 제출 전 필수 항목 (개인정보, 암호화, 스크린샷 등)
+
 ## Guides
 
 - [Onboarding](guides/ONBOARDING.md): Reading order for newcomers
