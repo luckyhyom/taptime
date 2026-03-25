@@ -89,6 +89,10 @@ abstract final class AppConstants {
   /// 지오펜스 반경 기본값 (미터)
   static const locationRadiusDefault = 200;
 
+  // ── 세션 ────────────────────────────────────────────────────
+
+  static const sessionMemoMaxLength = 200;
+
   // ── 브레이크 타이머 ────────────────────────────────────────────
 
   /// 짧은 휴식 시간 (5분)

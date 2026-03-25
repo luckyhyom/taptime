@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 import 'package:taptime/core/providers/app_providers.dart';
+import 'package:taptime/core/router/app_router.dart';
 import 'package:taptime/core/theme/app_spacing.dart';
 import 'package:taptime/core/utils/date_utils.dart';
 import 'package:taptime/features/history/ui/history_providers.dart';
@@ -34,6 +36,11 @@ class HistoryScreen extends ConsumerWidget {
               child: const Text('오늘'),
             ),
         ],
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () => context.push(AppRoutes.sessionNew),
+        tooltip: '세션 기록',
+        child: const Icon(Icons.add),
       ),
       body: Column(
         children: [

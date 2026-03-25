@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:taptime/core/router/shell_screen.dart';
 import 'package:taptime/features/auth/ui/login_screen.dart';
 import 'package:taptime/features/history/ui/history_screen.dart';
+import 'package:taptime/features/history/ui/manual_session_form_screen.dart';
 import 'package:taptime/features/home/ui/home_screen.dart';
 import 'package:taptime/features/preset/ui/preset_form_screen.dart';
 import 'package:taptime/features/settings/ui/settings_screen.dart';
@@ -30,6 +31,7 @@ abstract final class AppRoutes {
   static const presetEdit = '/preset/edit/:presetId';
   static const breakTimer = '/break/:durationSeconds';
   static const login = '/login';
+  static const sessionNew = '/session/new';
   static const locationPicker = '/location-picker';
   static const locationEdit = '/location-picker/:triggerId';
 
@@ -156,6 +158,11 @@ final GoRouter appRouter = GoRouter(
       path: AppRoutes.history,
       parentNavigatorKey: _rootNavigatorKey,
       builder: (context, state) => const HistoryScreen(),
+    ),
+    GoRoute(
+      path: AppRoutes.sessionNew,
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) => const ManualSessionFormScreen(),
     ),
     GoRoute(
       path: AppRoutes.login,
