@@ -117,6 +117,18 @@
 - [x] Phase D: Orchestration — GeofenceManager, auto-start, settings toggle
 - [x] Phase E: Polish — permission flow, edge cases (20 region limit), data reset integration
 
+### v2.1.1 — App Improvements
+
+- [x] Manual session entry — History FAB(+), preset/date/time picker, CupertinoTimePicker
+- [x] Preset archiving — archive/unarchive, Settings > archived presets screen, DB migration v4
+- [x] Geofence notification permission fix — requestNotificationPermission MethodChannel
+- [x] Geofence auto start/stop — auto timer on entry, auto stop on exit, preset name in notifications
+- [x] Location picker UX — reverse geocoding on tap, keyboard overlay, radius fixed 30m, zoom preservation
+- [x] Memo editor — floating dialog, maxLines 10
+- [x] Simulator build fix — SUPPORTED_PLATFORMS iphonesimulator added
+- [x] App icon — peach color finger tap icon
+- [x] Supabase migration — 003_preset_archived_at.sql
+
 ### v2.2 — macOS Activity Monitor (Companion App)
 
 > Separate native Swift menu bar app. Shares data via Supabase.

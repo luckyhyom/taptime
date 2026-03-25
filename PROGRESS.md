@@ -6,8 +6,8 @@
 
 ## Current Status
 
-- **Active Phase:** v2.1 완료 + 지도 피커 UX 개선 완료. 다음: v2.2 macOS Activity Monitor
-- **Last Updated:** 2026-03-24
+- **Active Phase:** v2.1.1 App Improvements 완료. v2.2 macOS는 백로그.
+- **Last Updated:** 2026-03-25
 - **Blocker:** None
 
 ## Notes for Next Agent
@@ -33,7 +33,7 @@ v2.1 Location-Based Auto Tracking — Phase A-D 완료:
 
 ### Environment
 
-- Flutter 3.41.4, Xcode 26.3, CocoaPods 1.16.2
+- Flutter 3.41.5, Xcode 26.3, CocoaPods 1.16.2
 - Android SDK: deferred (SDK 36 + BuildTools 28.0.3 needed later)
 - iOS simulator: `flutter run --dart-define-from-file=.env`
 - Supabase CLI: v2.75.0 (linked to project)
@@ -53,6 +53,28 @@ v2.1 Location-Based Auto Tracking — Phase A-D 완료:
 - Manual Session Entry in PRD but not in PLAN/BACKLOG
 
 ## Recent Work
+
+### 2026-03-25 — v2.1.1 App Improvements
+
+- **수동 세션 입력:** History FAB(+) → ManualSessionFormScreen (프리셋/날짜/시간/메모)
+  - CupertinoTimePicker(iOS 휠), 자정 교차 처리, 미래 시간 차단
+- **프리셋 보관(Archive):** archivedAt 필드, DB v4 마이그레이션, Settings > 보관된 프리셋 화면
+  - 보관/복원/삭제, 타이머 실행 중 보관 차단, Supabase 003 마이그레이션
+- **지오펜스 버그 수정:**
+  - 알림 권한 미요청 → requestNotificationPermission MethodChannel 추가
+  - 위치 트래킹 토글 시 알림 권한 함께 요청
+  - 진입 시 자동 타이머 시작 (확인 다이얼로그 제거), 퇴장 시 자동 정지
+  - 알림 메시지: "{프리셋} 타이머가 시작/종료되었습니다 ({장소})"
+  - onError 핸들러 로깅, 디버그 로그 추가
+- **장소 피커 UX:**
+  - 지도 탭 → 역지오코딩으로 장소명 자동 입력 (Kakao coord2address + POI)
+  - 키보드 오버레이 (resizeToAvoidBottomInset: false)
+  - 반경 30m 고정 (슬라이더 제거), 현재 위치 이동 시 줌 유지
+- **UI 개선:** 프리셋 선택 플로팅 다이얼로그, 메모 편집 플로팅 다이얼로그(maxLines 10)
+- **시뮬레이터 빌드 수정:** SUPPORTED_PLATFORMS에 iphonesimulator 추가
+- **앱 아이콘:** 복숭아색 손가락 탭 아이콘 (flutter_launcher_icons)
+- **블로그 4편:** Xcode 시뮬레이터 디버깅, 지오펜스 알림 권한, Supabase 마이그레이션 불일치, 자동 시작/정지
+- **테스트:** 155개 전체 통과
 
 ### 2026-03-24 — 지도 피커 UX 개선 + 실기기 배포
 
