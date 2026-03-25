@@ -6,7 +6,6 @@ import 'package:drift/native.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:sqlite3/sqlite3.dart' as raw;
 import 'package:sqlcipher_flutter_libs/sqlcipher_flutter_libs.dart';
 
 /// SQLCipher 암호화가 적용된 Drift DB 연결을 생성한다.
@@ -17,37 +16,31 @@ import 'package:sqlcipher_flutter_libs/sqlcipher_flutter_libs.dart';
 QueryExecutor openEncryptedDatabase() {
   return LazyDatabase(() async {
     final dbFolder = await getApplicationSupportDirectory();
-    final plainFile = File('${dbFolder.path}/taptime.db');
+    final plainFile = File('${dbFolder.path}/taptime.sqlite');
     final encFile = File('${dbFolder.path}/taptime_enc.db');
 
     final passphrase = await _getOrCreatePassphrase();
 
-    // Android: 백그라운드 isolate에서 SQLCipher 라이브러리 로딩에 필요
     if (Platform.isAndroid) {
       await applyWorkaroundToOpenSqlCipherOnOldAndroidVersions();
     }
 
     // 기존 비암호화 DB → 암호화 DB 마이그레이션
-    if (plainFile.existsSync() && !encFile.existsSync()) {
+    if (plainFile.existsSync()) {
+      if (encFile.existsSync()) {
+        await encFile.delete();
+      }
       await _migrateToEncrypted(plainFile, encFile, passphrase);
     }
 
-    // 암호화 DB가 없고 비암호화 DB도 없으면 새 파일로 시작
-    final dbFile = encFile.existsSync() ? encFile : encFile;
-
     return NativeDatabase.createInBackground(
-      dbFile,
+      encFile,
       isolateSetup: () async {
-        // 백그라운드 isolate에서도 SQLCipher 라이브러리 로딩 필요
         if (Platform.isAndroid) {
           await applyWorkaroundToOpenSqlCipherOnOldAndroidVersions();
         }
       },
       setup: (db) {
-        // SQLCipher가 정상 로드되었는지 검증
-        assert(_debugCheckHasCipher(db), 'SQLCipher를 사용할 수 없습니다. sqlite3_flutter_libs 충돌을 확인하세요.');
-
-        // PRAGMA key는 반드시 연결 후 첫 번째 명령이어야 한다
         db.execute("PRAGMA key = '$passphrase';");
       },
     );
@@ -59,7 +52,6 @@ QueryExecutor openEncryptedDatabase() {
 const _storageKey = 'taptime_db_passphrase';
 const _storage = FlutterSecureStorage();
 
-/// Keychain(iOS) / Keystore(Android)에서 암호화 키를 읽거나 새로 생성한다.
 Future<String> _getOrCreatePassphrase() async {
   var passphrase = await _storage.read(key: _storageKey);
   if (passphrase == null) {
@@ -69,7 +61,6 @@ Future<String> _getOrCreatePassphrase() async {
   return passphrase;
 }
 
-/// 암호학적으로 안전한 랜덤 패스프레이즈를 생성한다.
 String _generatePassphrase(int length) {
   const chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
   final random = Random.secure();
@@ -80,34 +71,38 @@ String _generatePassphrase(int length) {
 
 /// 기존 비암호화 DB를 암호화 DB로 변환한다.
 ///
-/// SQLCipher의 sqlcipher_export()를 사용하여 데이터를 복사한다.
-/// 완료 후 원본 파일을 삭제한다.
+/// iOS에서는 raw sqlite3가 시스템 라이브러리를 사용하므로
+/// sqlcipher_export()를 쓸 수 없다.
+/// 대신 NativeDatabase의 setup 콜백에서 SQLCipher를 통해
+/// ATTACH + sqlcipher_export를 실행한다.
 Future<void> _migrateToEncrypted(File plainFile, File encFile, String passphrase) async {
   try {
-    raw.sqlite3.open(plainFile.path)
-      ..execute("ATTACH DATABASE '${encFile.path}' AS encrypted KEY '$passphrase';")
-      ..execute("SELECT sqlcipher_export('encrypted');")
-      ..execute('DETACH DATABASE encrypted;')
-      ..close();
+    // NativeDatabase의 setup에서 SQLCipher가 로드된 상태로 마이그레이션한다
+    final migrationDb = NativeDatabase(
+      plainFile,
+      setup: (db) {
+        // 비암호화 DB이므로 key 없이 연다
+        // 새 암호화 DB를 attach하고 데이터를 복사한다
+        db.execute("ATTACH DATABASE '${encFile.path}' AS encrypted KEY '$passphrase';");
+        db.execute("SELECT sqlcipher_export('encrypted');");
+        db.execute('DETACH DATABASE encrypted;');
+      },
+    );
 
-    // 비암호화 원본 삭제
+    // setup 콜백이 실행되도록 DB를 열어야 한다
+    // ensureOpen()을 위해 간단한 쿼리 실행
+    await migrationDb.runCustom('SELECT 1');
+    await migrationDb.close();
+
+    // 원본 삭제
     await plainFile.delete();
     debugPrint('[EncryptedDB] 비암호화 DB → 암호화 DB 마이그레이션 완료');
   } on Exception catch (e) {
     debugPrint('[EncryptedDB] 마이그레이션 실패: $e');
-    // 마이그레이션 실패 시 불완전한 암호화 파일 제거
     if (encFile.existsSync()) {
       await encFile.delete();
     }
+    // 마이그레이션 실패 시 원본을 유지하고 비암호화로 폴백
     rethrow;
   }
-}
-
-// ── 검증 ──────────────────────────────────────────────────────
-
-/// SQLCipher가 정상 로드되었는지 확인한다.
-/// cipher_version PRAGMA는 SQLCipher 빌드에만 존재한다.
-bool _debugCheckHasCipher(raw.Database db) {
-  final result = db.select('PRAGMA cipher_version;');
-  return result.isNotEmpty;
 }
