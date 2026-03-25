@@ -82,67 +82,63 @@ class HistoryScreen extends ConsumerWidget {
   void _showMemoEditor(BuildContext context, WidgetRef ref, Session session) {
     final controller = TextEditingController(text: session.memo ?? '');
 
-    showModalBottomSheet<void>(
+    showDialog<void>(
       context: context,
-      isScrollControlled: true,
-      builder: (context) => Padding(
-        padding: EdgeInsets.only(
-          left: AppSpacing.padding,
-          right: AppSpacing.padding,
-          top: AppSpacing.sectionGap,
-          // 키보드가 올라올 때 입력 필드가 가려지지 않도록 하단 인셋을 추가
-          bottom: MediaQuery.of(context).viewInsets.bottom + AppSpacing.padding,
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Text('메모', style: Theme.of(context).textTheme.titleLarge),
-            const SizedBox(height: AppSpacing.gap),
-            TextField(
-              controller: controller,
-              autofocus: true,
-              maxLines: 3,
-              maxLength: 200,
-              decoration: const InputDecoration(
-                hintText: '메모를 입력하세요',
-                border: OutlineInputBorder(),
+      builder: (context) => Dialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppSpacing.cardRadius)),
+        child: Padding(
+          padding: const EdgeInsets.all(AppSpacing.sectionGap),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Text('메모', style: Theme.of(context).textTheme.titleLarge),
+              const SizedBox(height: AppSpacing.gap),
+              TextField(
+                controller: controller,
+                autofocus: true,
+                maxLines: 10,
+                maxLength: 200,
+                decoration: const InputDecoration(
+                  hintText: '메모를 입력하세요',
+                  border: OutlineInputBorder(),
+                ),
               ),
-            ),
-            const SizedBox(height: AppSpacing.gap),
-            Row(
-              children: [
-                // 기존 메모가 있을 때만 삭제 버튼 표시
-                if (session.memo != null && session.memo!.isNotEmpty)
+              const SizedBox(height: AppSpacing.gap),
+              Row(
+                children: [
+                  // 기존 메모가 있을 때만 삭제 버튼 표시
+                  if (session.memo != null && session.memo!.isNotEmpty)
+                    TextButton(
+                      onPressed: () async {
+                        await ref.read(sessionRepositoryProvider).updateSession(session.clearMemo());
+                        if (context.mounted) Navigator.of(context).pop();
+                      },
+                      child: const Text('메모 삭제'),
+                    ),
+                  const Spacer(),
                   TextButton(
+                    onPressed: () => Navigator.of(context).pop(),
+                    child: const Text('취소'),
+                  ),
+                  const SizedBox(width: AppSpacing.grid),
+                  FilledButton(
                     onPressed: () async {
-                      await ref.read(sessionRepositoryProvider).updateSession(session.clearMemo());
+                      final text = controller.text.trim();
+                      final repo = ref.read(sessionRepositoryProvider);
+                      if (text.isEmpty) {
+                        await repo.updateSession(session.clearMemo());
+                      } else {
+                        await repo.updateSession(session.copyWith(memo: text));
+                      }
                       if (context.mounted) Navigator.of(context).pop();
                     },
-                    child: const Text('메모 삭제'),
+                    child: const Text('저장'),
                   ),
-                const Spacer(),
-                TextButton(
-                  onPressed: () => Navigator.of(context).pop(),
-                  child: const Text('취소'),
-                ),
-                const SizedBox(width: AppSpacing.grid),
-                FilledButton(
-                  onPressed: () async {
-                    final text = controller.text.trim();
-                    final repo = ref.read(sessionRepositoryProvider);
-                    if (text.isEmpty) {
-                      await repo.updateSession(session.clearMemo());
-                    } else {
-                      await repo.updateSession(session.copyWith(memo: text));
-                    }
-                    if (context.mounted) Navigator.of(context).pop();
-                  },
-                  child: const Text('저장'),
-                ),
-              ],
-            ),
-          ],
+                ],
+              ),
+            ],
+          ),
         ),
       ),
     );

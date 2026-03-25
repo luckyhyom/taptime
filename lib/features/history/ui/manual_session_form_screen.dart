@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -42,9 +43,7 @@ class _ManualSessionFormScreenState extends ConsumerState<ManualSessionFormScree
     // 에러 발생 시 스낵바 표시
     ref.listen<ManualSessionFormState>(manualSessionFormProvider, (prev, next) {
       if (next.error != null && next.error != prev?.error) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(next.error!), backgroundColor: Colors.red),
-        );
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(next.error!), backgroundColor: Colors.red));
       }
     });
 
@@ -66,46 +65,40 @@ class _ManualSessionFormScreenState extends ConsumerState<ManualSessionFormScree
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // ── 프리셋 선택 ──────────────────────────────────────
-            _SectionLabel('프리셋'),
-            const SizedBox(height: AppSpacing.grid),
-            _PresetSelector(
-              selectedPreset: state.selectedPreset,
-              onTap: () => _showPresetPicker(context, notifier),
-            ),
+            const _SectionLabel('프리셋'),
+            const SizedBox(height: AppSpacing.gap),
+            _PresetSelector(selectedPreset: state.selectedPreset, onTap: () => _showPresetPicker(context, notifier)),
 
             const SizedBox(height: AppSpacing.sectionGap),
 
             // ── 날짜 ────────────────────────────────────────────
-            _SectionLabel('날짜'),
-            const SizedBox(height: AppSpacing.grid),
-            _DateSelector(
-              date: state.date,
-              onTap: () => _pickDate(context, notifier, state),
-            ),
+            const _SectionLabel('날짜'),
+            const SizedBox(height: AppSpacing.gap),
+            _DateSelector(date: state.date, onTap: () => _pickDate(context, notifier, state)),
 
             const SizedBox(height: AppSpacing.sectionGap),
 
             // ── 시간 ────────────────────────────────────────────
-            _SectionLabel('시간'),
-            const SizedBox(height: AppSpacing.grid),
+            const _SectionLabel('시간'),
+            const SizedBox(height: AppSpacing.gap),
             Row(
               children: [
                 Expanded(
                   child: _TimeSelector(
                     label: '시작',
                     time: state.startTime,
-                    onTap: () => _pickTime(context, notifier, isStart: true, current: state.startTime),
+                    onTap: () => _showTimePicker(context, notifier, isStart: true, current: state.startTime),
                   ),
                 ),
                 const Padding(
-                  padding: EdgeInsets.symmetric(horizontal: AppSpacing.grid),
+                  padding: EdgeInsets.symmetric(horizontal: AppSpacing.gap),
                   child: Icon(Icons.arrow_forward, size: 20),
                 ),
                 Expanded(
                   child: _TimeSelector(
                     label: '종료',
                     time: state.endTime,
-                    onTap: () => _pickTime(context, notifier, isStart: false, current: state.endTime),
+                    onTap: () => _showTimePicker(context, notifier, isStart: false, current: state.endTime),
                   ),
                 ),
               ],
@@ -120,16 +113,13 @@ class _ManualSessionFormScreenState extends ConsumerState<ManualSessionFormScree
             const SizedBox(height: AppSpacing.sectionGap),
 
             // ── 메모 ────────────────────────────────────────────
-            _SectionLabel('메모 (선택)'),
-            const SizedBox(height: AppSpacing.grid),
+            const _SectionLabel('메모 (선택)'),
+            const SizedBox(height: AppSpacing.gap),
             TextField(
               controller: _memoController,
               maxLines: 3,
               maxLength: AppConstants.sessionMemoMaxLength,
-              decoration: const InputDecoration(
-                hintText: '활동에 대한 메모를 남겨보세요',
-                border: OutlineInputBorder(),
-              ),
+              decoration: const InputDecoration(hintText: '활동에 대한 메모를 남겨보세요', border: OutlineInputBorder()),
               onChanged: notifier.setMemo,
             ),
           ],
@@ -159,23 +149,58 @@ class _ManualSessionFormScreenState extends ConsumerState<ManualSessionFormScree
     }
   }
 
-  Future<void> _pickTime(
+  /// iOS 스크롤 휠 스타일 시간 선택기를 바텀시트로 표시한다.
+  void _showTimePicker(
     BuildContext context,
     ManualSessionFormNotifier notifier, {
     required bool isStart,
     TimeOfDay? current,
-  }) async {
-    final picked = await showTimePicker(
+  }) {
+    var selectedTime = current ?? TimeOfDay.now();
+
+    showModalBottomSheet<void>(
       context: context,
-      initialTime: current ?? TimeOfDay.now(),
+      builder: (context) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // 헤더: 라벨 + 완료 버튼
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: AppSpacing.padding, vertical: AppSpacing.gap),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(isStart ? '시작 시간' : '종료 시간', style: Theme.of(context).textTheme.titleMedium),
+                  TextButton(
+                    onPressed: () {
+                      if (isStart) {
+                        notifier.setStartTime(selectedTime);
+                      } else {
+                        notifier.setEndTime(selectedTime);
+                      }
+                      Navigator.of(context).pop();
+                    },
+                    child: const Text('완료'),
+                  ),
+                ],
+              ),
+            ),
+            // iOS 스타일 시간 휠
+            SizedBox(
+              height: 200,
+              child: CupertinoDatePicker(
+                mode: CupertinoDatePickerMode.time,
+                use24hFormat: true,
+                initialDateTime: DateTime(2026, 1, 1, selectedTime.hour, selectedTime.minute),
+                onDateTimeChanged: (dateTime) {
+                  selectedTime = TimeOfDay(hour: dateTime.hour, minute: dateTime.minute);
+                },
+              ),
+            ),
+          ],
+        ),
+      ),
     );
-    if (picked != null) {
-      if (isStart) {
-        notifier.setStartTime(picked);
-      } else {
-        notifier.setEndTime(picked);
-      }
-    }
   }
 
   void _showPresetPicker(BuildContext context, ManualSessionFormNotifier notifier) {
@@ -183,60 +208,68 @@ class _ManualSessionFormScreenState extends ConsumerState<ManualSessionFormScree
     final presets = presetMapAsync.valueOrNull?.values.toList() ?? [];
 
     if (presets.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('프리셋이 없습니다. 먼저 프리셋을 만들어주세요.')),
-      );
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('프리셋이 없습니다. 먼저 프리셋을 만들어주세요.')));
       return;
     }
 
     // sortOrder 기준 정렬 (홈 화면과 동일한 순서)
     presets.sort((a, b) => a.sortOrder.compareTo(b.sortOrder));
 
-    showModalBottomSheet<void>(
+    showDialog<void>(
       context: context,
-      builder: (context) => SafeArea(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Padding(
-              padding: const EdgeInsets.fromLTRB(AppSpacing.padding, AppSpacing.padding, AppSpacing.padding, 0),
-              child: Text('프리셋 선택', style: Theme.of(context).textTheme.titleLarge),
-            ),
-            const SizedBox(height: AppSpacing.grid),
-            // 프리셋 목록이 길 수 있으므로 스크롤 가능하도록 제한
-            ConstrainedBox(
-              constraints: BoxConstraints(maxHeight: MediaQuery.of(context).size.height * 0.4),
-              child: ListView.builder(
-                shrinkWrap: true,
-                itemCount: presets.length,
-                itemBuilder: (context, index) {
-                  final preset = presets[index];
-                  final color = ColorUtils.fromHex(preset.color);
-                  final icon = AppConstants.presetIcons[preset.icon] ?? Icons.timer;
+      builder: (context) => Dialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppSpacing.cardRadius)),
+        child: Padding(
+          padding: const EdgeInsets.all(4),
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxHeight: 56.0 * 3 + 100),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(
+                    AppSpacing.sectionGap,
+                    AppSpacing.sectionGap,
+                    AppSpacing.sectionGap,
+                    0,
+                  ),
+                  child: Text('프리셋 선택', style: Theme.of(context).textTheme.titleMedium),
+                ),
+                const SizedBox(height: AppSpacing.gap),
+                Flexible(
+                  child: ListView.builder(
+                    shrinkWrap: true,
+                    padding: const EdgeInsets.only(bottom: AppSpacing.gap),
+                    itemCount: presets.length,
+                    itemBuilder: (context, index) {
+                      final preset = presets[index];
+                      final color = ColorUtils.fromHex(preset.color);
+                      final icon = AppConstants.presetIcons[preset.icon] ?? Icons.timer;
 
-                  return ListTile(
-                    leading: Container(
-                      width: 40,
-                      height: 40,
-                      decoration: BoxDecoration(
-                        color: color.withValues(alpha: 0.15),
-                        borderRadius: BorderRadius.circular(AppSpacing.grid),
-                      ),
-                      child: Icon(icon, color: color, size: 22),
-                    ),
-                    title: Text(preset.name),
-                    subtitle: preset.durationMin > 0 ? Text('${preset.durationMin}분') : const Text('스톱워치'),
-                    onTap: () {
-                      notifier.setPreset(preset);
-                      Navigator.of(context).pop();
+                      return ListTile(
+                        leading: Container(
+                          width: 40,
+                          height: 40,
+                          decoration: BoxDecoration(
+                            color: color.withValues(alpha: 0.15),
+                            borderRadius: BorderRadius.circular(AppSpacing.grid),
+                          ),
+                          child: Icon(icon, color: color, size: 22),
+                        ),
+                        title: Text(preset.name),
+                        subtitle: preset.durationMin > 0 ? Text('${preset.durationMin}분') : const Text('스톱워치'),
+                        onTap: () {
+                          notifier.setPreset(preset);
+                          Navigator.of(context).pop();
+                        },
+                      );
                     },
-                  );
-                },
-              ),
+                  ),
+                ),
+              ],
             ),
-            const SizedBox(height: AppSpacing.grid),
-          ],
+          ),
         ),
       ),
     );
@@ -252,10 +285,7 @@ class _SectionLabel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Text(
-      text,
-      style: Theme.of(context).textTheme.labelLarge?.copyWith(fontWeight: FontWeight.w600),
-    );
+    return Text(text, style: Theme.of(context).textTheme.labelLarge?.copyWith(fontWeight: FontWeight.w600));
   }
 }
 
@@ -290,7 +320,7 @@ class _PresetSelector extends StatelessWidget {
         height: 40,
         decoration: BoxDecoration(
           color: color.withValues(alpha: 0.15),
-          borderRadius: BorderRadius.circular(AppSpacing.grid),
+          borderRadius: BorderRadius.circular(AppSpacing.cardRadius),
         ),
         child: Icon(icon, color: color, size: 22),
       ),
@@ -336,7 +366,7 @@ class _TimeSelector extends StatelessWidget {
     final theme = Theme.of(context);
     final timeText = time != null
         ? '${time!.hour.toString().padLeft(2, '0')}:${time!.minute.toString().padLeft(2, '0')}'
-        : label;
+        : '--:--';
 
     return InkWell(
       onTap: onTap,
@@ -353,9 +383,7 @@ class _TimeSelector extends StatelessWidget {
             const SizedBox(height: 4),
             Text(
               timeText,
-              style: theme.textTheme.headlineSmall?.copyWith(
-                color: time != null ? null : theme.colorScheme.outline,
-              ),
+              style: theme.textTheme.headlineSmall?.copyWith(color: time != null ? null : theme.colorScheme.outline),
             ),
           ],
         ),
@@ -400,12 +428,7 @@ class _DurationDisplay extends StatelessWidget {
 // ── 공통 선택 타일 ──────────────────────────────────────────────
 
 class _SelectableTile extends StatelessWidget {
-  const _SelectableTile({
-    required this.leading,
-    required this.title,
-    required this.onTap,
-    this.titleStyle,
-  });
+  const _SelectableTile({required this.leading, required this.title, required this.onTap, this.titleStyle});
 
   final Widget leading;
   final String title;
