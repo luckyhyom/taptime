@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 
 import 'package:taptime/core/utils/enum_utils.dart';
@@ -96,8 +97,8 @@ class GeofenceServiceImpl implements GeofenceService {
         // Phase D에서 GeofenceManager가 권한 변경을 처리할 예정
         break;
       case 'onError':
-        // Phase E에서 에러 핸들링 추가 예정
-        break;
+        final args = (call.arguments as Map).cast<String, dynamic>();
+        debugPrint('[GeofenceService] Error: region=${args['regionId']}, message=${args['message']}');
     }
   }
 
@@ -114,6 +115,12 @@ class GeofenceServiceImpl implements GeofenceService {
 
   GeofencePermissionStatus _parsePermissionStatus(String? status) {
     return safeEnumByName(GeofencePermissionStatus.values, status) ?? GeofencePermissionStatus.notDetermined;
+  }
+
+  @override
+  Future<bool> requestNotificationPermission() async {
+    final result = await _channel.invokeMethod<bool>('requestNotificationPermission');
+    return result ?? false;
   }
 
   @override

@@ -104,6 +104,10 @@ abstract class GeofenceService {
   /// 현재 모니터링 중인 영역 ID 목록을 반환한다.
   Future<List<String>> getMonitoredRegionIds();
 
+  /// 알림 권한을 요청한다. 지오펜스 알림을 표시하려면 필요하다.
+  /// 반환값: true면 권한 승인, false면 거부.
+  Future<bool> requestNotificationPermission();
+
   /// 리소스를 정리한다.
   void dispose();
 }

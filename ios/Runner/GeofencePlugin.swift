@@ -65,6 +65,8 @@ class GeofencePlugin: NSObject, FlutterPlugin, CLLocationManagerDelegate {
         case "getMonitoredRegionIds":
             let ids = locationManager.monitoredRegions.map { $0.identifier }
             result(Array(ids))
+        case "requestNotificationPermission":
+            handleRequestNotificationPermission(result: result)
         default:
             result(FlutterMethodNotImplemented)
         }
@@ -126,6 +128,7 @@ class GeofencePlugin: NSObject, FlutterPlugin, CLLocationManagerDelegate {
 
         placeNames[id] = placeName
         locationManager.startMonitoring(for: region)
+        print("[GeofencePlugin] Region registered: \(id) (\(placeName)) at \(latitude),\(longitude) r=\(radiusMeters)m")
         result(nil)
     }
 
@@ -168,11 +171,13 @@ class GeofencePlugin: NSObject, FlutterPlugin, CLLocationManagerDelegate {
     // MARK: - CLLocationManagerDelegate
 
     func locationManager(_ manager: CLLocationManager, didEnterRegion region: CLRegion) {
+        print("[GeofencePlugin] didEnterRegion: \(region.identifier)")
         channel.invokeMethod("onRegionEntered", arguments: ["regionId": region.identifier])
         showLocalNotification(regionId: region.identifier, eventType: .entered)
     }
 
     func locationManager(_ manager: CLLocationManager, didExitRegion region: CLRegion) {
+        print("[GeofencePlugin] didExitRegion: \(region.identifier)")
         channel.invokeMethod("onRegionExited", arguments: ["regionId": region.identifier])
         showLocalNotification(regionId: region.identifier, eventType: .exited)
     }
@@ -189,6 +194,7 @@ class GeofencePlugin: NSObject, FlutterPlugin, CLLocationManagerDelegate {
     }
 
     func locationManager(_ manager: CLLocationManager, monitoringDidFailFor region: CLRegion?, withError error: Error) {
+        print("[GeofencePlugin] monitoringDidFail: \(region?.identifier ?? "nil") error: \(error.localizedDescription)")
         channel.invokeMethod("onError", arguments: [
             "regionId": region?.identifier ?? "",
             "message": error.localizedDescription,
@@ -238,13 +244,19 @@ class GeofencePlugin: NSObject, FlutterPlugin, CLLocationManagerDelegate {
         }
     }
 
-    /// 알림 권한을 요청한다. 지오펜스 기능 활성화 시 호출해야 한다.
-    func requestNotificationPermission() {
+    /// 알림 권한을 요청한다. Dart에서 MethodChannel로 호출된다.
+    private func handleRequestNotificationPermission(result: @escaping FlutterResult) {
         UNUserNotificationCenter.current().requestAuthorization(
             options: [.alert, .sound, .badge]
         ) { granted, error in
-            if let error = error {
-                print("[GeofencePlugin] Notification permission error: \(error.localizedDescription)")
+            DispatchQueue.main.async {
+                if let error = error {
+                    print("[GeofencePlugin] Notification permission error: \(error.localizedDescription)")
+                    result(false)
+                } else {
+                    print("[GeofencePlugin] Notification permission granted: \(granted)")
+                    result(granted)
+                }
             }
         }
     }

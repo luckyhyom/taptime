@@ -158,6 +158,8 @@ class SettingsScreen extends ConsumerWidget {
     }
 
     if (status == GeofencePermissionStatus.authorizedAlways) {
+      // 알림 권한도 함께 요청 (지오펜스 알림 표시에 필요)
+      await geofenceService.requestNotificationPermission();
       await _updateSettings(ref, settings.copyWith(locationTrackingEnabled: true));
     } else if (context.mounted) {
       // 권한 부족 — 설정 안내
