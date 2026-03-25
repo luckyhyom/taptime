@@ -49,8 +49,8 @@ class _LocationPickerScreenState extends ConsumerState<LocationPickerScreen> {
   /// 사용자가 선택한 좌표. null이면 아직 선택 전.
   LatLng? _selectedPosition;
 
-  /// 지오펜스 반경 (미터)
-  double _radiusMeters = AppConstants.locationRadiusDefault.toDouble();
+  /// 지오펜스 반경 (미터) — 30m 고정
+  static const double _radiusMeters = 30;
 
   /// 진입 시 알림 여부
   bool _notifyOnEntry = true;
@@ -143,7 +143,6 @@ class _LocationPickerScreenState extends ConsumerState<LocationPickerScreen> {
     if (trigger != null && mounted) {
       setState(() {
         _selectedPosition = LatLng(trigger.latitude, trigger.longitude);
-        _radiusMeters = trigger.radiusMeters.toDouble();
         _notifyOnEntry = trigger.notifyOnEntry;
         _notifyOnExit = trigger.notifyOnExit;
         _autoStart = trigger.autoStart;
@@ -335,9 +334,9 @@ class _LocationPickerScreenState extends ConsumerState<LocationPickerScreen> {
   void _moveToCurrentLocation() {
     final target = _currentPosition;
     if (target != null) {
-      _mapController.move(target, _defaultZoom);
+      // 현재 줌 레벨을 유지한 채 이동
+      _mapController.move(target, _mapController.camera.zoom);
     } else {
-      // 현재 위치 없으면 다시 시도
       _loadCurrentLocation();
     }
   }
@@ -546,26 +545,6 @@ class _LocationPickerScreenState extends ConsumerState<LocationPickerScreen> {
                 hintText: '예: 도서관, 헬스장, 카페',
                 border: OutlineInputBorder(),
               ),
-            ),
-
-            const SizedBox(height: AppSpacing.gap),
-
-            // ── 반경 슬라이더 ────────────────────────────
-            Row(
-              children: [
-                Text('반경', style: theme.textTheme.labelLarge),
-                const Spacer(),
-                Text('${_radiusMeters.round()}m', style: theme.textTheme.bodyMedium),
-              ],
-            ),
-            // divisions로 19단계(50m씩)로 snap된다.
-            Slider(
-              value: _radiusMeters,
-              min: AppConstants.locationRadiusMin.toDouble(),
-              max: AppConstants.locationRadiusMax.toDouble(),
-              divisions: 19,
-              label: '${_radiusMeters.round()}m',
-              onChanged: (value) => setState(() => _radiusMeters = value),
             ),
 
             const SizedBox(height: AppSpacing.gap),
