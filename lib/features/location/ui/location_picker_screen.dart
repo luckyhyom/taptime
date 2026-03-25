@@ -177,6 +177,9 @@ class _LocationPickerScreenState extends ConsumerState<LocationPickerScreen> {
     final isEditing = widget.existingTriggerId != null;
 
     return Scaffold(
+      // 키보드가 올라와도 레이아웃을 밀어올리지 않는다.
+      // 하단 입력 패널이 지도와 검색을 가리는 것을 방지.
+      resizeToAvoidBottomInset: false,
       appBar: AppBar(
         title: Text(isEditing ? '장소 수정' : '장소 등록'),
         actions: [
