@@ -44,8 +44,6 @@ v2.1 Location-Based Auto Tracking — Phase A-D 완료:
 - `todayDurationByPresetProvider` in `preset_providers.dart` feeds PresetCard daily progress
 - Timer uses timestamp-based calculation, not decrement-based
 - Stopwatch mode: `durationMin == 0`, `totalSeconds == 0`, no auto-completion
-- Design system: `design/대안.html` (proposed new design) vs `design/current.html` (current)
-  - Decision on applying new design tokens is pending user review
 
 ### Known Non-Blocking Issues
 
