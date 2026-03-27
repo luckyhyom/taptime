@@ -2,11 +2,13 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:uuid/uuid.dart';
 
 import 'package:taptime/core/providers/app_providers.dart';
 import 'package:taptime/core/router/app_router.dart';
 import 'package:taptime/core/theme/app_theme.dart';
 import 'package:taptime/features/location/data/geofence_manager.dart';
+import 'package:taptime/shared/models/session.dart';
 
 /// 앱의 루트 위젯.
 ///
@@ -84,25 +86,67 @@ class _GeofenceEventHandlerState extends ConsumerState<_GeofenceEventHandler> {
 
     switch (action.type) {
       case GeofenceActionType.start:
-        // 위치 진입 → 타이머 자동 시작
-        appRouter.push(AppRoutes.timerPath(action.presetId));
+        // 위치 진입 → 이미 같은 프리셋 타이머가 실행 중이면 중복 방지
+        _autoStartIfNeeded(action.presetId);
       case GeofenceActionType.stop:
         // 위치 퇴장 → 실행 중인 타이머가 해당 프리셋이면 자동 정지
         _autoStopIfRunning(action.presetId);
     }
   }
 
-  /// 현재 실행 중인 타이머가 해당 프리셋이면 정지한다.
-  void _autoStopIfRunning(String presetId) {
-    final activeTimer = ref.read(activeTimerRepositoryProvider).watchActiveTimer();
-    activeTimer.first.then((timer) {
-      if (timer != null && timer.presetId == presetId) {
-        // 타이머 화면으로 이동하여 정지 처리
-        // TimerNotifier가 stop()을 호출해야 세션이 저장되므로
-        // 직접 DB 조작 대신 화면 이동 후 자동 정지
-        appRouter.push(AppRoutes.timerPath(presetId));
-      }
+  /// 해당 프리셋의 타이머가 이미 실행 중이 아닐 때만 타이머 화면으로 이동한다.
+  /// 같은 프리셋의 타이머가 이미 실행 중이면 중복 push를 방지한다.
+  void _autoStartIfNeeded(String presetId) {
+    ref.read(activeTimerRepositoryProvider).getActiveTimer().then((timer) {
+      if (!mounted) return;
+      // 이미 같은 프리셋의 타이머가 실행 중이면 스킵
+      if (timer != null && timer.presetId == presetId) return;
+      appRouter.push(AppRoutes.timerPath(presetId));
     });
+  }
+
+  /// 현재 실행 중인 타이머가 해당 프리셋이면 세션을 저장하고 정지한다.
+  /// TimerNotifier를 거치지 않고 직접 DB를 조작하여
+  /// 타이머 화면이 열려있지 않아도 안전하게 동작한다.
+  Future<void> _autoStopIfRunning(String presetId) async {
+    final activeTimerRepo = ref.read(activeTimerRepositoryProvider);
+    final activeTimer = await activeTimerRepo.getActiveTimer();
+
+    if (activeTimer == null || activeTimer.presetId != presetId) return;
+
+    final preset = await ref.read(presetRepositoryProvider).getPresetById(presetId);
+    if (preset == null) return;
+
+    // 경과 시간 계산 (타임스탬프 기반)
+    final now = DateTime.now();
+    var totalPaused = activeTimer.pausedDurationSeconds;
+    if (activeTimer.pausedAt != null) {
+      totalPaused += now.difference(activeTimer.pausedAt!).inSeconds;
+    }
+    final elapsed = now.difference(activeTimer.startedAt).inSeconds - totalPaused;
+    final totalSec = preset.durationMin * 60;
+    final clamped = totalSec > 0 ? elapsed.clamp(0, totalSec) : elapsed.clamp(0, elapsed.abs());
+
+    // 세션 저장
+    await ref.read(sessionRepositoryProvider).createSession(
+      Session(
+        id: const Uuid().v4(),
+        presetId: presetId,
+        startedAt: activeTimer.startedAt,
+        endedAt: now,
+        durationSeconds: clamped,
+        status: SessionStatus.stopped,
+        createdAt: now,
+      ),
+    );
+
+    // ActiveTimer 삭제
+    await activeTimerRepo.deleteActiveTimer();
+
+    if (!mounted) return;
+
+    // 타이머 화면이 열려있을 수 있으므로 홈으로 이동
+    appRouter.go(AppRoutes.home);
   }
 
   @override

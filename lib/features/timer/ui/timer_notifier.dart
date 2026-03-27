@@ -433,10 +433,10 @@ class TimerNotifier extends AutoDisposeFamilyNotifier<TimerState, String> {
 
   void _onDispose() {
     _ticker?.cancel();
-    // 실행/일시정지 중이면 크래시 복구용으로 저장 (fire-and-forget)
-    if (state.status == TimerStatus.running || state.status == TimerStatus.paused) {
-      _persistActiveTimer();
-    }
+    // ActiveTimer는 start/pause/resume 시점에 이미 저장되어 있다.
+    // 타임스탬프 기반 계산이므로 복구 시 정확한 상태를 재구성할 수 있다.
+    // _onDispose에서 비동기 persist를 하면 지오펜스 자동 정지 등
+    // 외부에서 ActiveTimer를 삭제한 직후 다시 생성되는 race condition이 발생한다.
   }
 }
 
