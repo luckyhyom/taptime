@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:taptime/core/providers/app_providers.dart';
+import 'package:taptime/core/router/app_router.dart';
 import 'package:taptime/core/theme/app_spacing.dart';
 import 'package:taptime/core/utils/date_utils.dart';
 import 'package:taptime/features/timer/ui/break_timer_notifier.dart';
@@ -32,14 +33,16 @@ class BreakTimerScreen extends ConsumerWidget {
       }
     });
 
-    final isActive = breakState.status == BreakTimerStatus.running ||
-        breakState.status == BreakTimerStatus.paused;
     final label = durationSeconds >= 600 ? '긴 휴식' : '짧은 휴식';
 
+    // context.go()로 진입하므로 pop할 곳이 없다.
+    // 모든 종료 경로에서 go(home)으로 이동한다.
     return PopScope(
-      canPop: !isActive,
+      canPop: false,
       onPopInvokedWithResult: (didPop, _) {
-        if (!didPop && context.mounted) context.pop();
+        if (!didPop && context.mounted) {
+          context.go(AppRoutes.home);
+        }
       },
       child: Scaffold(
         body: SafeArea(
@@ -48,19 +51,12 @@ class BreakTimerScreen extends ConsumerWidget {
               // 상단 바
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    IconButton(
-                      icon: const Icon(Icons.close),
-                      tooltip: '건너뛰기',
-                      onPressed: () => context.pop(),
-                    ),
-                    TextButton(
-                      onPressed: () => context.pop(),
-                      child: const Text('건너뛰기'),
-                    ),
-                  ],
+                child: Align(
+                  alignment: Alignment.centerRight,
+                  child: TextButton(
+                    onPressed: () => context.go(AppRoutes.home),
+                    child: const Text('건너뛰기'),
+                  ),
                 ),
               ),
 
@@ -143,7 +139,7 @@ class BreakTimerScreen extends ConsumerWidget {
         );
       case BreakTimerStatus.completed:
         return FilledButton.icon(
-          onPressed: () => context.pop(),
+          onPressed: () => context.go(AppRoutes.home),
           icon: const Icon(Icons.check_rounded, size: 28),
           label: const Text('완료', style: TextStyle(fontSize: 18)),
           style: FilledButton.styleFrom(
@@ -179,7 +175,7 @@ class BreakTimerScreen extends ConsumerWidget {
           TextButton(
             onPressed: () {
               Navigator.of(ctx).pop();
-              context.pop();
+              context.go(AppRoutes.home);
             },
             child: const Text('확인'),
           ),
