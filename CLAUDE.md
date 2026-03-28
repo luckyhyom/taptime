@@ -90,14 +90,12 @@ Use sub-agents to keep the main context focused on code writing.
 
 | Task | Agent | Why |
 |------|-------|-----|
-| API/library docs lookup | `context7-plugin:docs-researcher` | Docs are long; only the summary enters main context |
 | Codebase exploration (reuse, patterns) | `Explore` agent | Prevents dozens of file reads in main context |
 | Implementation planning | `Plan` agent | Design decisions stay separate from coding |
 | Build verification (`analyze` + `test`) | `/flutter-verify` or background `general-purpose` agent | Build output is the biggest context polluter |
 
 Rules:
 - After writing code, run `/flutter-verify` before committing
-- When looking up GoRouter, Riverpod, Drift, or any package API, use `docs-researcher` — do NOT fetch docs in main context
 - When searching for reusable code across multiple files, use `Explore` agent
 - After modifying Drift schema, run `dart run build_runner build --delete-conflicting-outputs`
 
