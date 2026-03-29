@@ -109,6 +109,16 @@ abstract class GeofenceService {
   /// 반환값: true면 권한 승인, false면 거부.
   Future<bool> requestNotificationPermission();
 
+  /// 지오펜스 로컬 알림을 표시한다.
+  ///
+  /// Dart 측에서 실제 타이머 시작/종료가 확인된 후에만 호출하여
+  /// 실제 동작과 알림 메시지가 일치하도록 한다.
+  Future<void> showNotification({
+    required String regionId,
+    required String title,
+    required String body,
+  });
+
   /// 리소스를 정리한다.
   void dispose();
 }

@@ -87,34 +87,43 @@ class _GeofenceEventHandlerState extends ConsumerState<_GeofenceEventHandler> {
     switch (action.type) {
       case GeofenceActionType.start:
         // 위치 진입 → 이미 같은 프리셋 타이머가 실행 중이면 중복 방지
-        _autoStartIfNeeded(action.presetId);
+        _autoStartIfNeeded(action);
       case GeofenceActionType.stop:
         // 위치 퇴장 → 실행 중인 타이머가 해당 프리셋이면 자동 정지
-        _autoStopIfRunning(action.presetId);
+        _autoStopIfRunning(action);
     }
   }
 
   /// 해당 프리셋의 타이머가 이미 실행 중이 아닐 때만 타이머 화면으로 이동한다.
   /// 같은 프리셋의 타이머가 이미 실행 중이면 중복 push를 방지한다.
-  void _autoStartIfNeeded(String presetId) {
-    ref.read(activeTimerRepositoryProvider).getActiveTimer().then((timer) {
-      if (!mounted) return;
-      // 이미 같은 프리셋의 타이머가 실행 중이면 스킵
-      if (timer != null && timer.presetId == presetId) return;
-      appRouter.push(AppRoutes.timerPath(presetId));
-    });
+  /// 실제로 타이머 화면으로 이동한 경우에만 알림을 표시한다.
+  Future<void> _autoStartIfNeeded(GeofenceAction action) async {
+    final timer = await ref.read(activeTimerRepositoryProvider).getActiveTimer();
+    if (!mounted) return;
+    // 이미 같은 프리셋의 타이머가 실행 중이면 스킵 (알림도 표시하지 않음)
+    if (timer != null && timer.presetId == action.presetId) return;
+
+    unawaited(appRouter.push(AppRoutes.timerPath(action.presetId)));
+
+    // 실제로 타이머 화면으로 이동했으므로 알림 표시
+    unawaited(_showGeofenceNotification(
+      regionId: action.presetId,
+      body: '${action.presetName} 타이머가 시작되었습니다 (${action.placeName})',
+    ));
   }
 
   /// 현재 실행 중인 타이머가 해당 프리셋이면 세션을 저장하고 정지한다.
   /// TimerNotifier를 거치지 않고 직접 DB를 조작하여
   /// 타이머 화면이 열려있지 않아도 안전하게 동작한다.
-  Future<void> _autoStopIfRunning(String presetId) async {
+  /// 실제로 타이머가 정지된 경우에만 알림을 표시한다.
+  Future<void> _autoStopIfRunning(GeofenceAction action) async {
     final activeTimerRepo = ref.read(activeTimerRepositoryProvider);
     final activeTimer = await activeTimerRepo.getActiveTimer();
 
-    if (activeTimer == null || activeTimer.presetId != presetId) return;
+    // 실행 중인 타이머가 없거나 다른 프리셋이면 스킵 (알림도 표시하지 않음)
+    if (activeTimer == null || activeTimer.presetId != action.presetId) return;
 
-    final preset = await ref.read(presetRepositoryProvider).getPresetById(presetId);
+    final preset = await ref.read(presetRepositoryProvider).getPresetById(action.presetId);
     if (preset == null) return;
 
     // 경과 시간 계산 (타임스탬프 기반)
@@ -131,7 +140,7 @@ class _GeofenceEventHandlerState extends ConsumerState<_GeofenceEventHandler> {
     await ref.read(sessionRepositoryProvider).createSession(
       Session(
         id: const Uuid().v4(),
-        presetId: presetId,
+        presetId: action.presetId,
         startedAt: activeTimer.startedAt,
         endedAt: now,
         durationSeconds: clamped,
@@ -143,10 +152,28 @@ class _GeofenceEventHandlerState extends ConsumerState<_GeofenceEventHandler> {
     // ActiveTimer 삭제
     await activeTimerRepo.deleteActiveTimer();
 
+    // 실제로 타이머가 정지되었으므로 알림 표시
+    unawaited(_showGeofenceNotification(
+      regionId: action.presetId,
+      body: '${action.presetName} 타이머가 종료되었습니다 (${action.placeName})',
+    ));
+
     if (!mounted) return;
 
     // 타이머 화면이 열려있을 수 있으므로 홈으로 이동
     appRouter.go(AppRoutes.home);
+  }
+
+  /// 지오펜스 알림을 네이티브를 통해 표시한다.
+  Future<void> _showGeofenceNotification({
+    required String regionId,
+    required String body,
+  }) {
+    return ref.read(geofenceServiceProvider).showNotification(
+      regionId: regionId,
+      title: 'Taptime',
+      body: body,
+    );
   }
 
   @override

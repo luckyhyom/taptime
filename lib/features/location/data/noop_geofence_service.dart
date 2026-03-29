@@ -45,5 +45,12 @@ class NoopGeofenceService implements GeofenceService {
   Future<bool> requestNotificationPermission() async => false;
 
   @override
+  Future<void> showNotification({
+    required String regionId,
+    required String title,
+    required String body,
+  }) async {}
+
+  @override
   void dispose() {}
 }

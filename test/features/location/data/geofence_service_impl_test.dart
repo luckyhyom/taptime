@@ -174,6 +174,22 @@ void main() {
     });
   });
 
+  group('showNotification', () {
+    test('showNotification은 올바른 인자를 전달한다', () async {
+      await service.showNotification(
+        regionId: 'test-region',
+        title: 'Taptime',
+        body: '공부 타이머가 시작되었습니다 (사무실)',
+      );
+
+      expect(lastCall?.method, 'showNotification');
+      final args = lastCall?.arguments as Map;
+      expect(args['regionId'], 'test-region');
+      expect(args['title'], 'Taptime');
+      expect(args['body'], '공부 타이머가 시작되었습니다 (사무실)');
+    });
+  });
+
   group('권한 상태 파싱', () {
     final cases = {
       'notDetermined': GeofencePermissionStatus.notDetermined,

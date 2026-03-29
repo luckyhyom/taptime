@@ -126,6 +126,19 @@ class GeofenceServiceImpl implements GeofenceService {
   }
 
   @override
+  Future<void> showNotification({
+    required String regionId,
+    required String title,
+    required String body,
+  }) async {
+    await _channel.invokeMethod<void>('showNotification', {
+      'regionId': regionId,
+      'title': title,
+      'body': body,
+    });
+  }
+
+  @override
   void dispose() {
     _channel.setMethodCallHandler(null);
     if (!_eventController.isClosed) {

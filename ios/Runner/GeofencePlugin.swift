@@ -69,6 +69,8 @@ class GeofencePlugin: NSObject, FlutterPlugin, CLLocationManagerDelegate {
             result(Array(ids))
         case "requestNotificationPermission":
             handleRequestNotificationPermission(result: result)
+        case "showNotification":
+            handleShowNotification(call: call, result: result)
         default:
             result(FlutterMethodNotImplemented)
         }
@@ -179,13 +181,13 @@ class GeofencePlugin: NSObject, FlutterPlugin, CLLocationManagerDelegate {
     func locationManager(_ manager: CLLocationManager, didEnterRegion region: CLRegion) {
         print("[GeofencePlugin] didEnterRegion: \(region.identifier)")
         channel.invokeMethod("onRegionEntered", arguments: ["regionId": region.identifier])
-        showLocalNotification(regionId: region.identifier, eventType: .entered)
+        // 알림은 Dart 측에서 실제 타이머 시작/종료 확인 후 showNotification으로 호출한다.
     }
 
     func locationManager(_ manager: CLLocationManager, didExitRegion region: CLRegion) {
         print("[GeofencePlugin] didExitRegion: \(region.identifier)")
         channel.invokeMethod("onRegionExited", arguments: ["regionId": region.identifier])
-        showLocalNotification(regionId: region.identifier, eventType: .exited)
+        // 알림은 Dart 측에서 실제 타이머 시작/종료 확인 후 showNotification으로 호출한다.
     }
 
     func locationManagerDidChangeAuthorization(_ manager: CLLocationManager) {
@@ -249,6 +251,39 @@ class GeofencePlugin: NSObject, FlutterPlugin, CLLocationManagerDelegate {
                 print("[GeofencePlugin] Notification error: \(error.localizedDescription)")
             }
         }
+    }
+
+    /// Dart에서 호출하는 로컬 알림 표시.
+    ///
+    /// 실제 타이머 시작/종료가 확인된 후 Dart 측에서 호출하여
+    /// 알림 메시지와 실제 동작이 일치하도록 한다.
+    private func handleShowNotification(call: FlutterMethodCall, result: @escaping FlutterResult) {
+        guard let args = call.arguments as? [String: Any],
+              let regionId = args["regionId"] as? String,
+              let title = args["title"] as? String,
+              let body = args["body"] as? String else {
+            result(FlutterError(code: "INVALID_ARGS", message: "Missing required arguments", details: nil))
+            return
+        }
+
+        let content = UNMutableNotificationContent()
+        content.title = title
+        content.body = body
+        content.sound = .default
+        content.userInfo = ["regionId": regionId]
+
+        let request = UNNotificationRequest(
+            identifier: "geofence_\(regionId)_\(Int(Date().timeIntervalSince1970))",
+            content: content,
+            trigger: nil
+        )
+
+        UNUserNotificationCenter.current().add(request) { error in
+            if let error = error {
+                print("[GeofencePlugin] Notification error: \(error.localizedDescription)")
+            }
+        }
+        result(nil)
     }
 
     /// 알림 권한을 요청한다. Dart에서 MethodChannel로 호출된다.
